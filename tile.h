@@ -9,7 +9,52 @@
 #define MAX_HAND_LEN    (4 * 4 + 2) // 4-kans and 1-head
 #define MAX_MELD_LEN    4
 #define MAX_YAKU_LEN    64
-#define MAX_TILE_ID     43
+
+typedef enum {
+  INV = -1,
+  MAN1 = 0,
+  MAN2,
+  MAN3,
+  MAN4,
+  MAN5,
+  MAN6,
+  MAN7,
+  MAN8,
+  MAN9,
+  PIN1, // 9
+  PIN2,
+  PIN3,
+  PIN4,
+  PIN5,
+  PIN6,
+  PIN7,
+  PIN8,
+  PIN9,
+  SOU1, // 18,
+  SOU2,
+  SOU3,
+  SOU4,
+  SOU5,
+  SOU6,
+  SOU7,
+  SOU8,
+  SOU9,
+  TON, // 27,
+  NAN,
+  SHA,
+  PEI,
+  HAKU, // 31,
+  HATSU,
+  CHUN,
+  TILE_ID_LEN, // 34
+} TileId;
+
+
+#define IS_MAN(tile_id)   ((tile_id) >= MAN1 && (tile_id) <= MAN9)
+#define IS_PIN(tile_id)   ((tile_id) >= PIN1 && (tile_id) <= PIN9)
+#define IS_SOU(tile_id)   ((tile_id) >= SOU1 && (tile_id) <= SOU9)
+#define IS_WIND(tile_id)   ((tile_id) >= TON && (tile_id) <= PEI)
+#define IS_DRAGON(tile_id)   ((tile_id) >= HAKU && (tile_id) <= CHUN)
 
 typedef struct {
     uint8_t han;
