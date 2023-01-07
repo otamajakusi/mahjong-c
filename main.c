@@ -35,9 +35,9 @@ enum {
     wn = NAN,
     ws = SHA,
     wp = PEI,
-    d1 = HAKU,
-    d2 = HATSU,
-    d3 = CHUN,
+    dw = HAKU,
+    dg = HATSU,
+    dr = CHUN,
 };
 
 static void test1() {
@@ -131,7 +131,7 @@ static void test7() {
     Hands hands = {{wt,wn,ws, m7,m7,m7, m4,m5,m6, p1,p2,p3, wt,wt}, 14};
     Melds melds = {
         {
-            {{wt,wn,ws, INV}, 3, false}, // winds tile can't be chi.
+            {{wt,wn,ws, INV}, 3, false}, // winds tile can't be meld.
             {{p1,p2,p3, INV}, 3, false},
         },
         2
@@ -146,7 +146,7 @@ static void test8() {
     Hands hands = {{m8,m9,m7, m7,m7,m7, m4,m5,m6, p1,p2,p3, wt,wt}, 14};
     Melds melds = {
         {
-            {{m8,m9,p1, INV}, 3, false}, // m8-m9-p1 can't be chi
+            {{m8,m9,p1, INV}, 3, false}, // m8-m9-p1 can't be meld
             {{p1,p2,p3, INV}, 3, false},
         },
         2
@@ -158,12 +158,12 @@ static void test8() {
 
 
 int main(int argc, char *argv[]) {
-    test1();
-    test2();
-    test3();
-    test4();
-    test5();
-    test6();
-    test7();
-    test8();
+    printf("---test1\n"); test1();
+    printf("---test2\n"); test2();
+    printf("---test3\n"); test3();
+    printf("---test4\n"); test4();
+    printf("---test5\n"); test5();
+    printf("---test6\n"); test6();
+    printf("---test7\n"); test7();
+    printf("---test8\n"); test8();
 }

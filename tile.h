@@ -1,14 +1,17 @@
+#pragma once
+
+#include <stdint.h>
+#include <stdbool.h>
+
 #define OK                  0
 #define ERR_ILLEGAL_PARAM   -1
 #define ERR_NUM_TILES_SHORT -2
 #define ERR_NUM_TILES_LARGE -3
 
-#include <stdint.h>
-#include <stdbool.h>
-
-#define MAX_HAND_LEN    (4 * 4 + 2) // 4-kans and 1-head
-#define MAX_MELD_LEN    4
-#define MAX_YAKU_LEN    64
+#define MENTSU_LEN          4 // mentsu len
+#define MAX_MELD_LEN        4 // kan len
+#define MAX_HAND_LEN        (MAX_MELD_LEN * MENTSU_LEN + 2) // 4-kans and 1-head
+#define MAX_YAKU_NAME_LEN   64
 
 typedef enum {
   INV = -1,
@@ -55,11 +58,20 @@ typedef enum {
 #define IS_SOU(tile_id)   ((tile_id) >= SOU1 && (tile_id) <= SOU9)
 #define IS_WIND(tile_id)   ((tile_id) >= TON && (tile_id) <= PEI)
 #define IS_DRAGON(tile_id)   ((tile_id) >= HAKU && (tile_id) <= CHUN)
+#define IS_ONE(tile_id)   \
+  ((tile_id) == MAN1 || \
+   (tile_id) == PIN1 || \
+   (tile_id) == SOU1)
+#define IS_NINE(tile_id)   \
+  ((tile_id) == MAN9 || \
+   (tile_id) == PIN9 || \
+   (tile_id) == SOU9)
+
 
 typedef struct {
     uint8_t han;
     uint8_t fu;
-    char yaku[MAX_YAKU_LEN];
+    char yaku_name[MAX_YAKU_NAME_LEN];
 } Score;
 
 // chi, pon, kan(open and closed)

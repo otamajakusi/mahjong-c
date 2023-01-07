@@ -13,14 +13,33 @@
 
 #include "tile.h"
 
+static const char tile_id_to_str[][3] = {
+    "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9",
+    "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9",
+    "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9",
+    "wt", "wn", "ws", "wp",
+    "dw", "dg", "dr",
+};
+
 // internal struct
 typedef struct {
-    uint32_t tile_num[TILE_ID_LEN];
-} _Tiles;
+    uint32_t tiles[TILE_ID_LEN];
+} Tiles;
 
 
 static void dump_meld(const Meld *meld) {
     printf("meld(%d): %2d, %2d, %2d %2d\n", meld->len, meld->tile[0], meld->tile[1], meld->tile[2], meld->tile[3]);
+}
+
+static void dump_tiles(const Tiles *tiles) {
+    printf("tiles: ");
+    for (int i = 0; i < TILE_ID_LEN; i ++) {
+        uint8_t tile_num = tiles->tiles[i];
+        for (int n = 0; n < tile_num; n ++) {
+            printf("%s ", tile_id_to_str[i]);
+        }
+    }
+    printf("\n");
 }
 
 
@@ -132,29 +151,105 @@ static int is_valid_melds(const Melds *melds) {
     return true;
 }
 
-static int is_melds_and_win_tile_in_hands(const Hands *hands, const Melds *melds, uint8_t win_tile) {
-    _Tiles tiles;
-    memset(&tiles, 0, sizeof(_Tiles));
+// this function checks if melds and win_tile are in hands
+// and returns tiles removed melds from hands.
+static int is_melds_and_win_tile_in_hands(Tiles *tiles, const Hands *hands, const Melds *melds, uint8_t win_tile) {
+    memset(tiles, 0, sizeof(Tiles));
     for (int i = 0; i < hands->len; i ++) {
         uint32_t tile_id = hands->tile[i];
-        tiles.tile_num[tile_id] ++;
+        tiles->tiles[tile_id] ++;
     }
     for (int i = 0; i < melds->len; i ++) {
         const Meld *meld = &melds->meld[i];
         for (int j = 0; j < meld->len; j ++) {
             uint32_t tile_id = meld->tile[j];
-            if (tiles.tile_num[tile_id] == 0) {
+            if (tiles->tiles[tile_id] == 0) {
                 fprintf(stderr, "tile in meld %d doesn't exists in hands\n", meld->tile[j]);
                 return false;
             }
-            tiles.tile_num[tile_id] --;
+            tiles->tiles[tile_id] --;
         }
     }
-    if (tiles.tile_num[win_tile] == 0) {
+    if (tiles->tiles[win_tile] == 0) {
         fprintf(stderr, "win tile %d doesn't exists in hands\n", win_tile);
         return false;
     }
-    tiles.tile_num[win_tile] --;
+    return true;
+}
+
+
+static int find_melds_as_shuntsu(const Tiles *tiles) {
+    Tiles copy;
+    memcpy(&copy, tiles, sizeof(Tiles));
+    dump_tiles(&copy);
+    for (int i = 0; i < TILE_ID_LEN; i ++) {
+        uint8_t tile_num = copy.tiles[i];
+        if (tile_num) {
+            if (IS_WIND(i) || IS_DRAGON(i)) {
+                return false;
+            }
+            if (i == MAN8 || i == MAN9 || i == PIN8 || i == PIN9 || i == SOU8 || i == SOU9) {
+                return false;
+            }
+            if (copy.tiles[i + 1] == 0 || copy.tiles[i + 2] == 0) {
+                return false;
+            }
+            copy.tiles[i] --;
+            copy.tiles[i + 1] --;
+            copy.tiles[i + 2] --;
+            int found = find_melds_as_shuntsu(&copy);
+            if (found) {
+                return true;
+            }
+            copy.tiles[i] ++;
+            copy.tiles[i + 1] ++;
+            copy.tiles[i + 2] ++;
+        }
+    }
+    return true;
+}
+
+// 刻子の組み合わせでループ
+// 刻子候補が2組A,B有った場合, 0組, Aのみ, Bのみ, A,B組でループさせ残りを順子で取り出す
+// https://www.engineer-log.com/entry/2018/06/14/mahjong-algorithm
+static int find_melds(const Tiles *tiles) {
+    Tiles copy;
+    memcpy(&copy, tiles, sizeof(Tiles));
+    uint32_t kotsu_list[MENTSU_LEN] = {INV, INV, INV, INV};
+    uint32_t kotsu_list_len = 0;
+    for (int i = 0; i < TILE_ID_LEN; i ++) {
+        uint8_t tile_num = copy.tiles[i];
+        if (tile_num >= 3) {
+            assert(kotsu_list_len < MENTSU_LEN);
+            kotsu_list[kotsu_list_len] = i;
+            kotsu_list_len ++;
+        }
+    }
+}
+
+// search melds length of meld_len from tiles
+static int create_melds(Melds *melds, const Tiles *tiles, uint32_t meld_len) {
+}
+
+// make sure tiles doesn't contain melds's set
+static int is_agari(const Tiles *tiles, const Melds *melds) {
+    // TODO: need special agari type. e.g. chitoitsu, kokushi
+    // 1. 2枚以上の牌から雀頭(2枚)を取る
+    dump_tiles(tiles);
+    for (int i = 0; i < TILE_ID_LEN; i ++) {
+        if (tiles->tiles[i] >= 2) {
+            Tiles copy;
+            memcpy(&copy, tiles, sizeof(Tiles));
+            copy.tiles[i] -= 2; // remove head
+            // create_melds(&closed, &temp, MAX_MELD_LEN - melds->len);
+            int found = find_melds_as_shuntsu(&copy);
+            if (found) {
+                printf("agari: head: %s ", tile_id_to_str[i]);
+                dump_tiles(tiles);
+            }
+        }
+    }
+    // 2. 
     return true;
 }
 
@@ -168,9 +263,14 @@ int32_t tile_get_score(Score *score, const Hands *hands, const Melds *melds, uin
     if (!is_valid_tile_id(win_tile)) {
         return ERR_ILLEGAL_PARAM;
     }
-    if (!is_melds_and_win_tile_in_hands(hands, melds, win_tile)) {
+    Tiles tiles;
+    if (!is_melds_and_win_tile_in_hands(&tiles, hands, melds, win_tile)) {
         return ERR_ILLEGAL_PARAM;
     }
+
+    // 
+
+    is_agari(&tiles, NULL);
     return 0;
 }
 
