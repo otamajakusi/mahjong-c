@@ -30,6 +30,9 @@
 #include <assert.h>
 
 #include "tile.h"
+#include "score.h"
+
+#define DUMP_TILES  (0)
 
 static const char tile_id_to_str[][3] = {
     "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9",
@@ -44,18 +47,45 @@ typedef struct {
     uint32_t tiles[TILE_ID_LEN];
 } Tiles;
 
+// 刻子のtile_idを最大MENTSU_LEN保存する. 保存サイズはlenに設定する.
 typedef struct {
-    uint32_t tile_ids[MENTSU_LEN];
+    uint8_t tile_ids[MENTSU_LEN];
     uint32_t len;
-} KotsuCandidates;
+} Kotsu;
 
+typedef struct {
+    char str[128];
+} MeldsStr;
 
-static void dump_meld(const Meld *meld) {
-    printf("meld(%d): %2d, %2d, %2d %2d\n", meld->len, meld->tile[0], meld->tile[1], meld->tile[2], meld->tile[3]);
+static void str_melds(const Melds *melds, MeldsStr *str) {
+    int n = 0;
+    if (melds->len == 0) {
+        str->str[0] = '\0';
+        return;
+    }
+    for (int i = 0; i < melds->len; i ++) {
+        const Meld *meld = &melds->meld[i];
+        n += snprintf(&str->str[n], sizeof(MeldsStr) - n, "meld[%d]: ", i);
+        for (int j = 0; j < meld->len; j ++) {
+            n += snprintf(&str->str[n], sizeof(MeldsStr) - n, "%s ", tile_id_to_str[meld->tile_id[j]]);
+        }
+        n += snprintf(&str->str[n], sizeof(MeldsStr) - n, "\n");
+    }
 }
 
-static void dump_tiles(const Tiles *tiles) {
-    printf("tiles: ");
+static void dump_melds(const Melds *melds) {
+    MeldsStr str;
+    str_melds(melds, &str);
+    printf("%s", str.str);
+}
+
+#if DUMP_TILES
+static void dump_tiles(const Tiles *tiles, int depth) {
+    char indent[MENTSU_LEN * 3] = {0};
+    for (int i = 0; i < depth * 3; i += 3) {
+        strcpy(&indent[i], "   ");
+    }
+    printf("tiles: %s", indent);
     for (int i = 0; i < TILE_ID_LEN; i ++) {
         uint8_t tile_num = tiles->tiles[i];
         for (int n = 0; n < tile_num; n ++) {
@@ -64,6 +94,9 @@ static void dump_tiles(const Tiles *tiles) {
     }
     printf("\n");
 }
+#else
+#define dump_tiles(...)
+#endif
 
 
 static int tile_cmp(const void *p1, const void *p2) {
@@ -76,7 +109,7 @@ static int is_valid_tile_id(uint8_t tile_id) {
 
 static int is_valid_hands(const Hands *hands) {
     for (int i = 0; i < hands->len; i ++) {
-        if (!is_valid_tile_id(hands->tile[i])) {
+        if (!is_valid_tile_id(hands->tile_id[i])) {
             return false;
         }
     }
@@ -90,27 +123,27 @@ static int is_meld_chi(const Meld *meld) {
     }
     Meld temp;
     memcpy(&temp, meld, sizeof(Meld));
-    qsort(&temp.tile[0], temp.len, sizeof(temp.tile[0]), tile_cmp);
-    int is_man = IS_MAN(temp.tile[0]);
-    int is_pin = IS_PIN(temp.tile[0]);
-    int is_sou = IS_SOU(temp.tile[0]);
+    qsort(&temp.tile_id[0], temp.len, sizeof(temp.tile_id[0]), tile_cmp);
+    int is_man = IS_MAN(temp.tile_id[0]);
+    int is_pin = IS_PIN(temp.tile_id[0]);
+    int is_sou = IS_SOU(temp.tile_id[0]);
     if (!is_man && !is_pin && !is_sou) {
         return false;
     }
     for (int i = 1; i < temp.len; i ++) {
-        if (temp.tile[0] + i != temp.tile[i]) {
+        if (temp.tile_id[0] + i != temp.tile_id[i]) {
             return false;
         }
-        if (is_man && !IS_MAN(temp.tile[i])) {
-            fprintf(stderr, "illegal combination %d, %d\n", temp.tile[0], temp.tile[i]);
+        if (is_man && !IS_MAN(temp.tile_id[i])) {
+            fprintf(stderr, "illegal combination %d, %d\n", temp.tile_id[0], temp.tile_id[i]);
             return false;
         }
-        if (is_pin && !IS_PIN(temp.tile[i])) {
-            fprintf(stderr, "illegal combination %d, %d\n", temp.tile[0], temp.tile[i]);
+        if (is_pin && !IS_PIN(temp.tile_id[i])) {
+            fprintf(stderr, "illegal combination %d, %d\n", temp.tile_id[0], temp.tile_id[i]);
             return false;
         }
-        if (is_sou && !IS_SOU(temp.tile[i])) {
-            fprintf(stderr, "illegal combination %d, %d\n", temp.tile[0], temp.tile[i]);
+        if (is_sou && !IS_SOU(temp.tile_id[i])) {
+            fprintf(stderr, "illegal combination %d, %d\n", temp.tile_id[0], temp.tile_id[i]);
             return false;
         }
     }
@@ -123,7 +156,7 @@ static int is_meld_pon(const Meld *meld) {
         return false;
     }
     for (int i = 1; i < meld->len; i ++) {
-        if (meld->tile[0] != meld->tile[i]) {
+        if (meld->tile_id[0] != meld->tile_id[i]) {
             return false;
         }
     }
@@ -136,7 +169,7 @@ static int is_meld_kan(const Meld *meld) {
         return false;
     }
     for (int i = 1; i < meld->len; i ++) {
-        if (meld->tile[0] != meld->tile[i]) {
+        if (meld->tile_id[0] != meld->tile_id[i]) {
             return false;
         }
     }
@@ -149,8 +182,8 @@ static int is_valid_meld(const Meld *meld) {
         return false;
     }
     for (int i = 0; i < meld->len; i ++) {
-        if (!is_valid_tile_id(meld->tile[i])) {
-            fprintf(stderr, "invalid meld tile %d\n", meld->tile[i]);
+        if (!is_valid_tile_id(meld->tile_id[i])) {
+            fprintf(stderr, "invalid meld tile %d\n", meld->tile_id[i]);
             return false;
         }
     }
@@ -179,15 +212,15 @@ static int is_valid_melds(const Melds *melds) {
 static int is_melds_and_win_tile_in_hands(Tiles *tiles, const Hands *hands, const Melds *melds, uint8_t win_tile) {
     memset(tiles, 0, sizeof(Tiles));
     for (int i = 0; i < hands->len; i ++) {
-        uint32_t tile_id = hands->tile[i];
+        uint32_t tile_id = hands->tile_id[i];
         tiles->tiles[tile_id] ++;
     }
     for (int i = 0; i < melds->len; i ++) {
         const Meld *meld = &melds->meld[i];
         for (int j = 0; j < meld->len; j ++) {
-            uint32_t tile_id = meld->tile[j];
+            uint32_t tile_id = meld->tile_id[j];
             if (tiles->tiles[tile_id] == 0) {
-                fprintf(stderr, "tile in meld %d doesn't exists in hands\n", meld->tile[j]);
+                fprintf(stderr, "tile in meld %d doesn't exists in hands\n", meld->tile_id[j]);
                 return false;
             }
             tiles->tiles[tile_id] --;
@@ -201,12 +234,12 @@ static int is_melds_and_win_tile_in_hands(Tiles *tiles, const Hands *hands, cons
 }
 
 
-static int find_melds_as_shuntsu(const Tiles *tiles) {
-    Tiles copy;
-    memcpy(&copy, tiles, sizeof(Tiles));
-    dump_tiles(&copy);
+static int find_melds_as_shuntsu(const Tiles *tiles, int depth, Melds *tiles_melds) {
+    Tiles _tiles;
+    memcpy(&_tiles, tiles, sizeof(Tiles));
+    dump_tiles(&_tiles, depth);
     for (int i = 0; i < TILE_ID_LEN; i ++) {
-        uint8_t tile_num = copy.tiles[i];
+        uint8_t tile_num = _tiles.tiles[i];
         if (tile_num) {
             if (IS_WIND(i) || IS_DRAGON(i)) {
                 return false;
@@ -214,19 +247,27 @@ static int find_melds_as_shuntsu(const Tiles *tiles) {
             if (i == MAN8 || i == MAN9 || i == PIN8 || i == PIN9 || i == SOU8 || i == SOU9) {
                 return false;
             }
-            if (copy.tiles[i + 1] == 0 || copy.tiles[i + 2] == 0) {
+            if (_tiles.tiles[i + 1] == 0 || _tiles.tiles[i + 2] == 0) {
                 return false;
             }
-            copy.tiles[i] --;
-            copy.tiles[i + 1] --;
-            copy.tiles[i + 2] --;
-            int found = find_melds_as_shuntsu(&copy);
+            _tiles.tiles[i] --;
+            _tiles.tiles[i + 1] --;
+            _tiles.tiles[i + 2] --;
+            tiles_melds->meld[tiles_melds->len].tile_id[0] = i;
+            tiles_melds->meld[tiles_melds->len].tile_id[1] = i + 1;
+            tiles_melds->meld[tiles_melds->len].tile_id[2] = i + 2;
+            tiles_melds->meld[tiles_melds->len].len = 3;
+            tiles_melds->meld[tiles_melds->len].is_closed = 1;
+            tiles_melds->len ++;
+
+            int found = find_melds_as_shuntsu(&_tiles, depth + 1, tiles_melds);
             if (found) {
                 return true;
             }
-            copy.tiles[i] ++;
-            copy.tiles[i + 1] ++;
-            copy.tiles[i + 2] ++;
+            tiles_melds->len --;
+            _tiles.tiles[i] ++;
+            _tiles.tiles[i + 1] ++;
+            _tiles.tiles[i + 2] ++;
         }
     }
     return true;
@@ -284,8 +325,8 @@ static int find_melds_as_shuntsu(const Tiles *tiles) {
 // - Dを抜いて残りがすべて順子で構成されるか調べる
 // - A,B,C,Dを抜いて残りが0なのであがり
 //
-static void get_kotsu_candidates(KotsuCandidates *kotsu, const Tiles *tiles) {
-    memset(kotsu, 0, sizeof(KotsuCandidates));
+static void get_kotsu_candidates(Kotsu *kotsu, const Tiles *tiles) {
+    memset(kotsu, 0, sizeof(Kotsu));
     for (int i = 0; i < TILE_ID_LEN; i ++) {
         uint8_t tile_num = tiles->tiles[i];
         if (tile_num >= 3) {
@@ -296,9 +337,16 @@ static void get_kotsu_candidates(KotsuCandidates *kotsu, const Tiles *tiles) {
     }
 }
 
-static int is_agari_with_kotsu(const KotsuCandidates *kotsu, const Tiles *tiles) {
+// NOTE: open_melds includes closed-kan
+static int is_agari_with_kotsu(const Kotsu *kotsu, const Tiles *tiles, int head, const Melds *open_melds, int win_tile, int is_ron) {
+    Melds tiles_melds;
     int agari = 0;
-    if (find_melds_as_shuntsu(tiles)) {
+
+    tiles_melds.len = 0;
+    if (find_melds_as_shuntsu(tiles, 0, &tiles_melds)) {
+        dump_melds(&tiles_melds);
+        dump_melds(open_melds);
+        calc_score(&tiles_melds, open_melds, head, win_tile, is_ron);
         agari ++;
     }
 
@@ -314,18 +362,43 @@ static int is_agari_with_kotsu(const KotsuCandidates *kotsu, const Tiles *tiles)
         uint8_t tile_id = kotsu->tile_ids[i];
         copy.tiles[tile_id] -= 3; // remove kotsu
         //printf("kotsu %s is removed\n", tile_id_to_str[tile_id]);
-        if (find_melds_as_shuntsu(&copy)) {
+        tiles_melds.len = 0;
+        tiles_melds.meld[tiles_melds.len].tile_id[0] = tile_id;
+        tiles_melds.meld[tiles_melds.len].tile_id[1] = tile_id;
+        tiles_melds.meld[tiles_melds.len].tile_id[2] = tile_id;
+        tiles_melds.meld[tiles_melds.len].len = 3;
+        tiles_melds.meld[tiles_melds.len].is_closed = 1;
+        tiles_melds.len ++;
+        if (find_melds_as_shuntsu(&copy, 0, &tiles_melds)) {
+            dump_melds(&tiles_melds);
+            dump_melds(open_melds);
+            calc_score(&tiles_melds, open_melds, head, win_tile, is_ron);
             agari ++;
         }
         copy.tiles[tile_id] += 3; // revert: remove kotsu
     }
+
+    if (kotsu->len == 1) {
+        return agari;
+    }
+
     // remove all kotsu set
+    tiles_melds.len = 0;
     for (int i = 0; i < kotsu->len; i ++) {
         uint8_t tile_id = kotsu->tile_ids[i];
         //printf("kotsu %s is removed\n", tile_id_to_str[tile_id]);
         copy.tiles[tile_id] -= 3;
+        tiles_melds.meld[tiles_melds.len].tile_id[0] = tile_id;
+        tiles_melds.meld[tiles_melds.len].tile_id[1] = tile_id;
+        tiles_melds.meld[tiles_melds.len].tile_id[2] = tile_id;
+        tiles_melds.meld[tiles_melds.len].len = 3;
+        tiles_melds.meld[tiles_melds.len].is_closed = 1;
+        tiles_melds.len ++;
     }
-    if (find_melds_as_shuntsu(&copy)) {
+    if (find_melds_as_shuntsu(&copy, 0, &tiles_melds)) {
+        dump_melds(&tiles_melds);
+        dump_melds(open_melds);
+        calc_score(&tiles_melds, open_melds, head, win_tile, is_ron);
         agari ++;
     }
     // revert: remove all kotsu set
@@ -339,24 +412,22 @@ static int is_agari_with_kotsu(const KotsuCandidates *kotsu, const Tiles *tiles)
 }
 
 // make sure tiles doesn't contain melds's set
-static int is_agari(const Tiles *tiles, const Melds *melds) {
+static int is_agari(const Tiles *tiles, const Melds *melds, int win_tile, int is_ron) {
     // TODO: need special agari type. e.g. chitoitsu, kokushi
-    dump_tiles(tiles);
-    Tiles copy;
-    memcpy(&copy, tiles, sizeof(Tiles));
+    Tiles _tiles;
+    memcpy(&_tiles, tiles, sizeof(Tiles));
     for (int i = 0; i < TILE_ID_LEN; i ++) {
         if (tiles->tiles[i] >= 2) {
-            copy.tiles[i] -= 2; // remove head
-            KotsuCandidates kotsu;
-            get_kotsu_candidates(&kotsu, &copy);
+            _tiles.tiles[i] -= 2; // remove head
+            Kotsu kotsu;
+            get_kotsu_candidates(&kotsu, &_tiles);
             int agari;
-            printf("kotsu len %d, head %s\n", kotsu.len, tile_id_to_str[i]);
-            agari = is_agari_with_kotsu(&kotsu, &copy);
+            agari = is_agari_with_kotsu(&kotsu, &_tiles, i, melds, win_tile, is_ron);
             if (agari) {
-                printf("agari: head: %s ", tile_id_to_str[i]);
-                dump_tiles(tiles);
+                printf("agari: head: %s \n", tile_id_to_str[i]);
+                dump_tiles(tiles, 0);
             }
-            copy.tiles[i] += 2; // revert: remove head
+            _tiles.tiles[i] += 2; // revert: remove head
         }
     }
     return true;
@@ -379,7 +450,7 @@ int32_t tile_get_score(Score *score, const Hands *hands, const Melds *melds, uin
 
     // 
 
-    is_agari(&tiles, NULL);
+    is_agari(&tiles, melds, win_tile, is_ron);
     return 0;
 }
 

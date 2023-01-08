@@ -100,18 +100,18 @@ typedef struct {
 
 // chi, pon, kan(open and closed)
 typedef struct {
-    uint8_t tile[4]; // tile_id value should be specified.
+    uint8_t tile_id[MAX_MELD_LEN]; // tile_id value should be specified.
     uint32_t len; // tile len. for chi or pon, 3 should be set, for kan, 4 should be set.
     uint8_t is_closed; // set true if closed-kan
 } Meld;
 
 typedef struct {
-    Meld meld[MAX_MELD_LEN];
+    Meld meld[MENTSU_LEN];
     uint32_t len;
 } Melds;
 
 typedef struct {
-    uint8_t tile[MAX_HAND_LEN]; // tile_id value should be specified
+    uint8_t tile_id[MAX_HAND_LEN]; // tile_id value should be specified
     uint32_t len; // tile length
 } Hands;
 
