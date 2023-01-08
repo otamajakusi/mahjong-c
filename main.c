@@ -70,7 +70,7 @@ static void test1() {
     Melds melds = {{{}},0};
     uint8_t win_tile = wt;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
 }
 
 static void test2() {
@@ -84,7 +84,7 @@ static void test2() {
     };
     uint8_t win_tile = wt;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
 }
 
 static void test3() {
@@ -99,7 +99,7 @@ static void test3() {
     };
     uint8_t win_tile = wt;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
 }
 
 static void test4() {
@@ -114,7 +114,7 @@ static void test4() {
     };
     uint8_t win_tile = wt;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
 }
 
 
@@ -131,7 +131,7 @@ static void test5() {
     };
     uint8_t win_tile = wt;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == ERR_ILLEGAL_PARAM);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == ERR_ILLEGAL_PARAM);
 }
 
 
@@ -147,7 +147,7 @@ static void test6() {
     };
     uint8_t win_tile = wt;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
 }
 
 static void test7() {
@@ -162,7 +162,7 @@ static void test7() {
     };
     uint8_t win_tile = wt;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == ERR_ILLEGAL_PARAM);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == ERR_ILLEGAL_PARAM);
 }
 
 static void test8() {
@@ -177,7 +177,7 @@ static void test8() {
     };
     uint8_t win_tile = wt;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == ERR_ILLEGAL_PARAM);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == ERR_ILLEGAL_PARAM);
 }
 
 static void test9() {
@@ -190,7 +190,7 @@ static void test9() {
     };
     uint8_t win_tile = s3;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
 }
 
 static void test10() {
@@ -203,7 +203,7 @@ static void test10() {
     };
     uint8_t win_tile = s3;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
 }
 
 static void test11() {
@@ -216,7 +216,7 @@ static void test11() {
     };
     uint8_t win_tile = m8;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
 }
 
 static void test12() {
@@ -229,7 +229,7 @@ static void test12() {
     };
     uint8_t win_tile = m8;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
 }
 
 static void test13() {
@@ -242,7 +242,7 @@ static void test13() {
     };
     uint8_t win_tile = m8;
 
-    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
 }
 
 int main(int argc, char *argv[]) {

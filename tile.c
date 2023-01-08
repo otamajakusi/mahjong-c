@@ -338,7 +338,12 @@ static void get_kotsu_candidates(Kotsu *kotsu, const Tiles *tiles) {
 }
 
 // NOTE: open_melds includes closed-kan
-static int is_agari_with_kotsu(const Kotsu *kotsu, const Tiles *tiles, int head, const Melds *open_melds, int win_tile, int is_ron) {
+static int is_agari_with_kotsu(
+        const Kotsu *kotsu,
+        const Tiles *tiles,
+        int head,
+        const Melds *open_melds,
+        const ScoreConfig *cfg) {
     Melds tiles_melds;
     int agari = 0;
 
@@ -346,7 +351,7 @@ static int is_agari_with_kotsu(const Kotsu *kotsu, const Tiles *tiles, int head,
     if (find_melds_as_shuntsu(tiles, 0, &tiles_melds)) {
         dump_melds(&tiles_melds);
         dump_melds(open_melds);
-        calc_score(&tiles_melds, open_melds, head, win_tile, is_ron);
+        calc_score(&tiles_melds, open_melds, head, cfg);
         agari ++;
     }
 
@@ -372,7 +377,7 @@ static int is_agari_with_kotsu(const Kotsu *kotsu, const Tiles *tiles, int head,
         if (find_melds_as_shuntsu(&copy, 0, &tiles_melds)) {
             dump_melds(&tiles_melds);
             dump_melds(open_melds);
-            calc_score(&tiles_melds, open_melds, head, win_tile, is_ron);
+            calc_score(&tiles_melds, open_melds, head, cfg);
             agari ++;
         }
         copy.tiles[tile_id] += 3; // revert: remove kotsu
@@ -398,7 +403,7 @@ static int is_agari_with_kotsu(const Kotsu *kotsu, const Tiles *tiles, int head,
     if (find_melds_as_shuntsu(&copy, 0, &tiles_melds)) {
         dump_melds(&tiles_melds);
         dump_melds(open_melds);
-        calc_score(&tiles_melds, open_melds, head, win_tile, is_ron);
+        calc_score(&tiles_melds, open_melds, head, cfg);
         agari ++;
     }
     // revert: remove all kotsu set
@@ -412,7 +417,7 @@ static int is_agari_with_kotsu(const Kotsu *kotsu, const Tiles *tiles, int head,
 }
 
 // make sure tiles doesn't contain melds's set
-static int is_agari(const Tiles *tiles, const Melds *melds, int win_tile, int is_ron) {
+static int is_agari(const Tiles *tiles, const Melds *melds, const ScoreConfig *cfg) {
     // TODO: need special agari type. e.g. chitoitsu, kokushi
     Tiles _tiles;
     memcpy(&_tiles, tiles, sizeof(Tiles));
@@ -422,7 +427,7 @@ static int is_agari(const Tiles *tiles, const Melds *melds, int win_tile, int is
             Kotsu kotsu;
             get_kotsu_candidates(&kotsu, &_tiles);
             int agari;
-            agari = is_agari_with_kotsu(&kotsu, &_tiles, i, melds, win_tile, is_ron);
+            agari = is_agari_with_kotsu(&kotsu, &_tiles, i, melds, cfg);
             if (agari) {
                 printf("agari: head: %s \n", tile_id_to_str[i]);
                 dump_tiles(tiles, 0);
@@ -433,7 +438,14 @@ static int is_agari(const Tiles *tiles, const Melds *melds, int win_tile, int is
     return true;
 }
 
-int32_t tile_get_score(Score *score, const Hands *hands, const Melds *melds, uint8_t win_tile, uint32_t is_ron) {
+int32_t tile_get_score(
+        Score *score,
+        const Hands *hands,
+        const Melds *melds,
+        uint8_t win_tile,
+        uint32_t is_ron,
+        uint32_t player_wind,
+        uint32_t round_wind) {
     if (!is_valid_hands(hands)) {
         return ERR_ILLEGAL_PARAM;
     }
@@ -450,7 +462,8 @@ int32_t tile_get_score(Score *score, const Hands *hands, const Melds *melds, uin
 
     // 
 
-    is_agari(&tiles, melds, win_tile, is_ron);
+    ScoreConfig cfg = {win_tile, is_ron, player_wind, round_wind};
+    is_agari(&tiles, melds, &cfg);
     return 0;
 }
 

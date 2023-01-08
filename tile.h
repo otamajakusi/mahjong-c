@@ -125,4 +125,12 @@ typedef struct {
 //     hands: all tiles include melds and win_tile
 //     melds: list of meld
 //     win_tile: win_tile
-int32_t tile_get_score(Score *score, const Hands *hands, const Melds *melds, uint8_t win_tile, uint32_t is_ron);
+int32_t tile_get_score(
+      Score *score,
+      const Hands *hands,
+      const Melds *melds,
+      uint8_t win_tile,
+      uint32_t is_ron,
+      uint32_t player_wind,
+      uint32_t round_wind);
+
