@@ -156,6 +156,45 @@ static void test8() {
     assert(tile_get_score(&score, &hands, &melds, win_tile, true) == ERR_ILLEGAL_PARAM);
 }
 
+static void test9() {
+    Score score;
+    Hands hands = {{m1,m1,m2,m2,m3,m3,m4,m4, p1,p2,p3, s1,s2,s3}, 14}; // both m1 and m4 can be head
+    Melds melds = {
+        {
+        },
+        0
+    };
+    uint8_t win_tile = s3;
+
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+}
+
+static void test10() {
+    Score score;
+    Hands hands = {{m1,m1,m2,m2,m3,m3,m4,m4, p1,p1,p1, s1,s2,s3}, 14}; // both m1 and m4 can be head
+    Melds melds = {
+        {
+        },
+        0
+    };
+    uint8_t win_tile = s3;
+
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+}
+
+static void test11() {
+    Score score;
+    Hands hands = {{m2,m3,m3,m3,m3,m4,m4,m4,m5,m5,m6,m6,m8,m8}, 14}; // m3 and m4 can be kotsu candidate
+    Melds melds = {
+        {
+        },
+        0
+    };
+    uint8_t win_tile = m8;
+
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+}
+
 
 int main(int argc, char *argv[]) {
     printf("---test1\n"); test1();
@@ -166,4 +205,7 @@ int main(int argc, char *argv[]) {
     printf("---test6\n"); test6();
     printf("---test7\n"); test7();
     printf("---test8\n"); test8();
+    printf("---test9\n"); test9();
+    printf("---test10\n"); test10();
+    printf("---test11\n"); test11();
 }
