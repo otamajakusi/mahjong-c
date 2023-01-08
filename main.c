@@ -1,3 +1,27 @@
+/*
+ *  MIT License
+ *  
+ *  Copyright (c) 2023 otamajakusi
+ *  
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *  
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *  
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 #include "tile.h"
 #include <assert.h>
 #include <stdio.h>
@@ -195,6 +219,31 @@ static void test11() {
     assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
 }
 
+static void test12() {
+    Score score;
+    Hands hands = {{m5,m5,m5,m6,m6,m6,m6,m7,m7,m7,m8,m8,m9,m9}, 14};
+    Melds melds = {
+        {
+        },
+        0
+    };
+    uint8_t win_tile = m8;
+
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+}
+
+static void test13() {
+    Score score;
+    Hands hands = {{m6,m6,m7,m7,m8,m8,m9,m9,p7,p8,p9,s7,s8,s9}, 14}; // multiple agari type
+    Melds melds = {
+        {
+        },
+        0
+    };
+    uint8_t win_tile = m8;
+
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true) == OK);
+}
 
 int main(int argc, char *argv[]) {
     printf("---test1\n"); test1();
@@ -208,4 +257,6 @@ int main(int argc, char *argv[]) {
     printf("---test9\n"); test9();
     printf("---test10\n"); test10();
     printf("---test11\n"); test11();
+    printf("---test12\n"); test12();
+    printf("---test13\n"); test13();
 }
