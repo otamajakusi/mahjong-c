@@ -245,6 +245,19 @@ static void test13() {
     assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
 }
 
+static void test14() {
+    Score score;
+    Hands hands = {{m1,m1,m1,m2,m2,m2,m3,m3,m3,p7,p8,p9,p9,p9}, 14}; // multiple agari type
+    Melds melds = {
+        {
+        },
+        0
+    };
+    uint8_t win_tile = p9;
+
+    assert(tile_get_score(&score, &hands, &melds, win_tile, true, wt, wt) == OK);
+}
+
 int main(int argc, char *argv[]) {
     printf("---test1\n"); test1();
     printf("---test2\n"); test2();
@@ -259,4 +272,5 @@ int main(int argc, char *argv[]) {
     printf("---test11\n"); test11();
     printf("---test12\n"); test12();
     printf("---test13\n"); test13();
+    printf("---test14\n"); test14();
 }
