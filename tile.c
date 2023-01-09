@@ -103,6 +103,16 @@ static int tile_cmp(const void *p1, const void *p2) {
     return *(const uint8_t*)p1 - *(const uint8_t*)p2;
 }
 
+static void sort_meld(Meld *meld) {
+    qsort(&meld->tile_id[0], meld->len, sizeof(meld->tile_id[0]), tile_cmp);
+}
+
+static void sort_melds(Melds *melds) {
+    for (int i = 0; i < melds->len; i ++) {
+        sort_meld(&melds->meld[i]);
+    }
+}
+
 static int is_valid_tile_id(uint8_t tile_id) {
     return tile_id < TILE_ID_LEN;
 }
@@ -123,7 +133,7 @@ static int is_meld_chi(const Meld *meld) {
     }
     Meld temp;
     memcpy(&temp, meld, sizeof(Meld));
-    qsort(&temp.tile_id[0], temp.len, sizeof(temp.tile_id[0]), tile_cmp);
+    sort_meld(&temp);
     int is_man = IS_MAN(temp.tile_id[0]);
     int is_pin = IS_PIN(temp.tile_id[0]);
     int is_sou = IS_SOU(temp.tile_id[0]);
@@ -452,6 +462,10 @@ int32_t tile_get_score(
     if (!is_valid_melds(melds)) {
         return ERR_ILLEGAL_PARAM;
     }
+    Melds meld_sorted;
+    memcpy(&meld_sorted, melds, sizeof(Melds));
+    sort_melds(&meld_sorted);
+
     if (!is_valid_tile_id(win_tile)) {
         return ERR_ILLEGAL_PARAM;
     }

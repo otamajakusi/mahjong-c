@@ -91,6 +91,15 @@ typedef enum {
    (tile_id) == PIN9 || \
    (tile_id) == SOU9)
 
+#define IS_THREE(tile_id)   \
+  ((tile_id) == MAN3 || \
+   (tile_id) == PIN3 || \
+   (tile_id) == SOU3)
+#define IS_SEVEN(tile_id)   \
+  ((tile_id) == MAN7 || \
+   (tile_id) == PIN7 || \
+   (tile_id) == SOU7)
+
 
 typedef struct {
     uint8_t han;
