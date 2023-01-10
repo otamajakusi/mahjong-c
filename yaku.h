@@ -63,10 +63,10 @@ int is_double_sha(const Melds *tiles_melds, const Melds *open_melds, uint8_t hea
 int is_double_pei(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
 
 // 以下食い下がり1翻
-int is_sanshoku();
-int is_ittsu();
-int is_chanta();
-int is_chiitoitsu();
+int is_sanshoku(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_ittsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_chanta(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_chiitoitsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
 
 
 #if 0

@@ -92,7 +92,7 @@ static int is_meld_yaochu(const Meld *meld) {
 }
 
 /* meldは適切な面子(e.g 231, 999)であることは確認されている */
-static int is_meld_shuntu(const Meld *meld) {
+static int is_meld_shuntsu(const Meld *meld) {
     if (meld->len != 3) {
         return false;
     }
@@ -173,10 +173,10 @@ static int is_melds_yaochu(const Melds *melds) {
     return true;
 }
 
-static int count_melds_shuntu(const Melds *melds) {
+static int count_melds_shuntsu(const Melds *melds) {
     int count = 0;
     for (int i = 0; i < melds->len; i ++) {
-       if (is_meld_shuntu(&melds->meld[i])) {
+       if (is_meld_shuntsu(&melds->meld[i])) {
            count ++;
        }
     }
@@ -259,7 +259,7 @@ static int is_same_meld(const Meld *m1, const Meld *m2) {
     return true;
 }
 
-static int count_same_meld(uint32_t start, const Melds *melds) {
+static int count_same_melds_from(uint32_t start, const Melds *melds) {
     int count = 0;
     assert(start < melds->len);
     const Meld *s = &melds->meld[start];
@@ -275,13 +275,13 @@ static int count_same_meld(uint32_t start, const Melds *melds) {
  * 123 123 123 xxxの場合を3を返す -> イーペーコー(三連刻はローカル役)
  * 123 123 123 123の場合を6を返す -> リャンペーコー
  * 123 123 456 456の場合を2を返す -> リャンペーコー
- * ->奇数ならイーペーコー, 偶数ならリャンペーコー
+ * ->奇数ならイーペーコー?, 偶数ならリャンペーコー?
  **/
 static int count_same_melds(const Melds *melds) {
     // melds->len is gt or eq 2 
     int count = 0;
     for (int i = 0; i < melds->len - 1; i ++) {
-        count += count_same_meld(i, melds);
+        count += count_same_melds_from(i, melds);
     }
     return count;
 }
@@ -304,6 +304,60 @@ static int find_tile_id_melds(const Melds *melds, uint8_t tile_id) {
     return false;
 }
 
+/* merge s1 and s3 melds to dst */
+static int merge_melds(Melds *dst, const Melds *s1, const Melds *s2) {
+    dst->len = 0;
+    Meld *d = &dst->meld[0];
+    for (int i = 0; i < s1->len; i ++) {
+        memcpy(d, &s1->meld[i], sizeof(Meld));
+        d ++;
+        dst->len ++;
+    }
+    for (int i = 0; i < s2->len; i ++) {
+        memcpy(d, &s2->meld[i], sizeof(Meld));
+        d ++;
+        dst->len ++;
+    }
+}
+
+/*
+ * m1,m2,m3 と p1,p2,p3はtrue
+ * m1,m1,m1 と p1,p1,p1はtrue
+ * m1,m1,m1,m1 と p1,p1,p1,p1はtrue
+ * m1,m2,m3 と m1,m2,m3はfalse (same type)
+ */
+static int is_meld_same_number_diff_type(const Meld *m1, const Meld *m2) {
+    if (m1->len != m2->len) {
+        return false;
+    }
+    for (int i = 0; i < m1->len; i ++) {
+        if (m1->tile_id[i] >= TON) {
+            return false;
+        }
+    }
+    for (int i = 0; i < m2->len; i ++) {
+        if (m2->tile_id[i] >= TON) {
+            return false;
+        }
+    }
+    for (int i = 0; i < m1->len; i ++) {  // m1, m2はtile_idでソート済みの想定
+        if (m1->tile_id[i] == m2->tile_id[i]) {
+            return false;
+        }
+        // here, different tile_id
+        int delta;
+        if (m1->tile_id[i] > m2->tile_id[i]) {
+            delta = m1->tile_id[i] - m2->tile_id[i];
+        } else {
+            delta = m2->tile_id[i] - m1->tile_id[i];
+        }
+        if (delta != 9 && delta != 18) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // 1翻
 int is_pinfu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
     if (open_melds->len) {  // 副露牌(or 暗槓)がある
@@ -315,7 +369,7 @@ int is_pinfu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_til
     if (head_tile_id == cfg->player_wind || head_tile_id == cfg->round_wind) {  // 雀頭が自風or場風
         return false;
     }
-    if (count_melds_shuntu(tiles_melds) != MENTSU_LEN) {
+    if (count_melds_shuntsu(tiles_melds) != MENTSU_LEN) {
         return false;
     }
 
@@ -395,7 +449,7 @@ int is_ton(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_
 }
 
 int is_nan(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
-    return is_wind(tiles_melds, open_melds, cfg, TON);
+    return is_wind(tiles_melds, open_melds, cfg, NAN);
 }
 
 int is_sha(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
@@ -424,10 +478,31 @@ int is_sanankou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_
 }
 
 int is_sanshoku_douko(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
-    // TODO
-    // 刻子を取り出す
-    // それぞれの刻子がマンズ、ピンズ、ソウズで構成されている
-    // それぞれの刻子の数字が同じ
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    for (int i = 0; i < merged_melds.len - 2; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        if (is_meld_kotsu(meld)) {
+            // found first kotsu
+            uint32_t type;
+            type = get_tile_type(meld->tile_id[0]);
+            for (int j = i + 1; j < merged_melds.len; j ++) {
+                const Meld *target = &merged_melds.meld[j];
+                if (is_meld_kotsu(target)) {
+                    if (is_meld_same_number_diff_type(meld, target)) {
+                        type |= get_tile_type(target->tile_id[0]);
+                    }
+                }
+
+            }
+            if (type == (TYPE_MAN | TYPE_PIN | TYPE_SOU)) {
+                // found three types - man, pin and sou
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 int is_sankantsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
@@ -457,18 +532,80 @@ int is_shosangen(const Melds *tiles_melds, const Melds *open_melds, uint8_t head
  * チャンタ、純チャンと複合しない
  */
 int is_honroto(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
-    // TODO:
-    int count = 0;
+    if (!is_melds_yaochu(open_melds)) {
+        return false;
+    }
+    if (!is_melds_yaochu(tiles_melds)) {
+        return false;
+    }
+    return true;
 }
 
-int is_double_ton(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_double_nan(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_double_sha(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_double_pei(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-// 食い下がり1翻
-int is_sanshoku();
-int is_ittsu();
-int is_chanta();
-int is_chiitoitsu();
+static int is_double_wind(const Melds *tiles_melds, const Melds *open_melds, const ScoreConfig *cfg, uint8_t wind_id) {
+    if (cfg->player_wind != wind_id || cfg->round_wind != wind_id) {
+        return false;
+    }
+    if (find_tile_id_melds(open_melds, wind_id)) {
+        return true;
+    }
+    if (find_tile_id_melds(tiles_melds, wind_id)) {
+        return true;
+    }
+    return false;
+}
+
+int is_double_ton(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    return is_double_wind(tiles_melds, open_melds, cfg, TON);
+}
+
+int is_double_nan(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    return is_double_wind(tiles_melds, open_melds, cfg, NAN);
+}
+
+int is_double_sha(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    return is_double_wind(tiles_melds, open_melds, cfg, SHA);
+}
+
+int is_double_pei(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    return is_double_wind(tiles_melds, open_melds, cfg, PEI);
+}
+
+// 以下食い下がり1翻
+int is_sanshoku(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    for (int i = 0; i < merged_melds.len - 2; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        if (is_meld_shuntsu(meld)) {
+            // found first shuntsu
+            uint32_t type;
+            type = get_tile_type(meld->tile_id[0]);
+            for (int j = i + 1; j < merged_melds.len; j ++) {
+                const Meld *target = &merged_melds.meld[j];
+                if (is_meld_shuntsu(target)) {
+                    if (is_meld_same_number_diff_type(meld, target)) {
+                        type |= get_tile_type(target->tile_id[0]);
+                    }
+                }
+
+            }
+            if (type == (TYPE_MAN | TYPE_PIN | TYPE_SOU)) {
+                // found three types - man, pin and sou
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int is_ittsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+}
+
+int is_chanta(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+}
+
+int is_chiitoitsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+}
 
 

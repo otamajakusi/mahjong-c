@@ -26,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define OK                  0
 #define ERR_ILLEGAL_PARAM   -1
@@ -76,6 +77,9 @@ typedef enum {
   TILE_ID_LEN, // 34
 } TileId;
 
+#define TYPE_MAN  1
+#define TYPE_PIN  2
+#define TYPE_SOU  4
 
 #define IS_MAN(tile_id)   ((tile_id) >= MAN1 && (tile_id) <= MAN9)
 #define IS_PIN(tile_id)   ((tile_id) >= PIN1 && (tile_id) <= PIN9)
@@ -100,6 +104,18 @@ typedef enum {
    (tile_id) == PIN7 || \
    (tile_id) == SOU7)
 
+static inline uint32_t get_tile_type(uint8_t tile_id) {
+    if (IS_MAN(tile_id)) {
+        return TYPE_MAN;
+    }
+    if (IS_PIN(tile_id)) {
+        return TYPE_PIN;
+    }
+    if (IS_SOU(tile_id)) {
+        return TYPE_SOU;
+    }
+    return 0;
+}
 
 typedef struct {
     uint8_t han;
