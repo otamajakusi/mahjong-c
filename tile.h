@@ -40,15 +40,15 @@
 
 typedef enum {
   INV = -1,
-  MAN1 = 0,
-  MAN2,
-  MAN3,
-  MAN4,
-  MAN5,
-  MAN6,
-  MAN7,
-  MAN8,
-  MAN9,
+  MAN1 = 0, // % 3 == 0
+  MAN2,     // % 3 == 1
+  MAN3,     // % 3 == 2
+  MAN4,     // % 3 == 0
+  MAN5,     // % 3 == 1
+  MAN6,     // % 3 == 2
+  MAN7,     // % 3 == 0
+  MAN8,     // % 3 == 1
+  MAN9,     // % 3 == 2
   PIN1, // 9
   PIN2,
   PIN3,
@@ -105,16 +105,10 @@ typedef enum {
    (tile_id) == SOU7)
 
 static inline uint32_t get_tile_type(uint8_t tile_id) {
-    if (IS_MAN(tile_id)) {
-        return TYPE_MAN;
+    if (tile_id >= TON) {
+        return 0;
     }
-    if (IS_PIN(tile_id)) {
-        return TYPE_PIN;
-    }
-    if (IS_SOU(tile_id)) {
-        return TYPE_SOU;
-    }
-    return 0;
+    return 1u << (tile_id / 9);
 }
 
 typedef struct {

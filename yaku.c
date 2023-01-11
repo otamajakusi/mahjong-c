@@ -588,7 +588,6 @@ int is_sanshoku(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_
                         type |= get_tile_type(target->tile_id[0]);
                     }
                 }
-
             }
             if (type == (TYPE_MAN | TYPE_PIN | TYPE_SOU)) {
                 // found three types - man, pin and sou
@@ -600,6 +599,41 @@ int is_sanshoku(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_
 }
 
 int is_ittsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    for (int i = 0; i < merged_melds.len - 2; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        if (is_meld_shuntsu(meld) && meld->tile_id[0] % 3 == 0 /*1,4,7*/) {
+            // found first ittsu element
+            uint32_t type;
+            /*
+             * 3で割った商は
+             * m1~m3=0, m4~m6=1, m7~m9=2,
+             * p1~p3=3, p4~p6=4, p7~p9=5, 
+             * s1~s3=6, s4~s6=7, s7~s9=8, 
+             */
+            type = 1u << (meld->tile_id[0] / 3);
+            for (int j = i + 1; j < merged_melds.len; j ++) {
+                const Meld *target = &merged_melds.meld[j];
+                if (is_meld_shuntsu(target)) {
+                    type |= 1u << (target->tile_id[0] / 3);
+                }
+            }
+            /*
+             * 1を3で割ったあまりで右シフトすると
+             * m1,m2,m3,m4,m5,m6,m7,m8,m9があれば (1<<0|1<<1|1<<2)==0x0007
+             * p1,p2,p3,p4,p5,p6,p7,p8,p9があれば (1<<3|1<<4|1<<5)==0x0038
+             * s1,s2,s3,s4,s5,s6,s7,s8,s9があれば (1<<6|1<<7|1<<8)==0x01c0
+             *
+             */
+            if ((type & 0x7) == 0x7 || ((type >> 3) & 0x7) == 0x7 || ((type >> 6) & 0x7) == 0x7) {
+                // found three elements - 123,456,789
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 int is_chanta(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
