@@ -395,7 +395,6 @@ int is_tanyao(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_ti
     return true;
 }
 
-/* TODO: リャンペーコーは同種同順でも成り立つとする */
 int is_iipeiko(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
     if (has_melds_open(open_melds)) {  // 副露牌がある(暗槓は含まない)
         return false;
@@ -570,7 +569,9 @@ int is_double_pei(const Melds *tiles_melds, const Melds *open_melds, uint8_t hea
     return is_double_wind(tiles_melds, open_melds, cfg, PEI);
 }
 
-// 以下食い下がり1翻
+/*
+ * 食い下がり1翻
+ */
 int is_sanshoku(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
     Melds merged_melds;
     merge_melds(&merged_melds, tiles_melds, open_melds);
@@ -598,6 +599,9 @@ int is_sanshoku(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_
     return false;
 }
 
+/*
+ * 食い下がり1翻
+ */
 int is_ittsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
     Melds merged_melds;
     merge_melds(&merged_melds, tiles_melds, open_melds);
@@ -621,7 +625,7 @@ int is_ittsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_til
                 }
             }
             /*
-             * 1を3で割ったあまりで右シフトすると
+             * tile_idを3で割った商で1を右シフトすると
              * m1,m2,m3,m4,m5,m6,m7,m8,m9があれば (1<<0|1<<1|1<<2)==0x0007
              * p1,p2,p3,p4,p5,p6,p7,p8,p9があれば (1<<3|1<<4|1<<5)==0x0038
              * s1,s2,s3,s4,s5,s6,s7,s8,s9があれば (1<<6|1<<7|1<<8)==0x01c0
@@ -636,10 +640,114 @@ int is_ittsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_til
     return false;
 }
 
+/*
+ * 食い下がり1翻
+ * ヤオチュウ(1,9,字)牌を含む面子だけ(123の順子はOK)
+ * (すべてヤオチュウ牌の手はホンロウトウ)
+ */
 int is_chanta(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    for (int i = 0; i < merged_melds.len; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        uint8_t tile_id = meld->tile_id[0];
+        if (!IS_ONE(tile_id) || !IS_NINE(tile_id) || !IS_WIND(tile_id) || !IS_DRAGON(tile_id)) {
+            return false;
+        }
+    }
+    if (!IS_ONE(head_tile_id) || !IS_NINE(head_tile_id) || !IS_WIND(head_tile_id) || !IS_DRAGON(head_tile_id)) {
+        return false;
+    }
+    return true;
 }
 
+/*
+ * TODO
+ * これはmeldで判定しない
+ */
 int is_chiitoitsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
 }
+
+/***** 3翻 *****/
+/*
+ * 二盃口, 門前, 一盃口の上位役
+ * NOTE: 同種同順(m1m2m3 m1m2m3 m1m2m3 m1m2m3)でも成り立つとする
+ */
+int is_ryanpeiko(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    if (open_melds->len) {  // 暗槓含む副露牌がある
+        return false;
+    }
+    int count;
+    count = count_same_melds(tiles_melds);
+    if (count != 6 && count != 2) {
+        return false;
+    }
+    return true;
+}
+
+/*
+ * 混一色, チンイツの下位役
+ * 1種類の数牌と字牌のみ
+ * 食い下がり2翻
+ */
+int is_honitsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+
+}
+
+/*
+ * 純全帯么九(純チャン)(字牌を含まないチャンタ)
+ * 食い下がり2翻
+ */
+int is_junchan(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+
+/***** 6翻 *****/
+/*
+ * 清一色(チンイツ)(字牌を使わないホンイツ)
+ */
+int is_chinitsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+
+/***** 役満 *****/
+/*
+ * 国士無双, 門前
+ */
+int is_kokushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+/*
+ * 四暗刻, 門前
+ */
+int is_suuankou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+/*
+ * 大三元
+ */
+int is_daisangen(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+/*
+ * 緑一色(緑發が入っていなくてもよい)
+ */
+int is_ryuisou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+/*
+ * 字一色
+ */
+int is_tsuisou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+/*
+ * 小四喜
+ */
+int is_shosuushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+/*
+ * 大四喜, 小四喜の上位役
+ */
+int is_daisuushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+/*
+ * 清老頭(すべて1,9牌のみで揃える,鳴きOK), ホンロウトウの上位役
+ */
+int is_chinroto(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+/*
+ * 四槓子
+ */
+int is_suukantsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+/*
+ * 九蓮宝燈, 門前
+ */
+int is_chuuren_poutou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+
 
 
