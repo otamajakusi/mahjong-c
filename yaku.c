@@ -652,8 +652,18 @@ int is_chanta(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_ti
     for (int i = 0; i < merged_melds.len; i ++) {
         const Meld *meld = &merged_melds.meld[i];
         uint8_t tile_id = meld->tile_id[0];
-        if (!IS_ONE(tile_id) || !IS_NINE(tile_id) || !IS_WIND(tile_id) || !IS_DRAGON(tile_id)) {
-            return false;
+        if (is_meld_shuntsu(meld)) {
+            uint32_t number = tile_id % 9;
+            if (number != 0 && number != 6) { // 123 or 789
+                return false;
+            }
+        } else { // kotsu or kantsu
+            if (tile_id < TON) {
+                uint32_t number = tile_id % 9;
+                if (number != 0 && number != 8) { // 111 or 999
+                    return false;
+                }
+            }
         }
     }
     if (!IS_ONE(head_tile_id) || !IS_NINE(head_tile_id) || !IS_WIND(head_tile_id) || !IS_DRAGON(head_tile_id)) {
@@ -692,62 +702,281 @@ int is_ryanpeiko(const Melds *tiles_melds, const Melds *open_melds, uint8_t head
  * 食い下がり2翻
  */
 int is_honitsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
-
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    uint32_t type = 0;
+    for (int i = 0; i < merged_melds.len; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        uint8_t tile_id = meld->tile_id[0];
+        if (tile_id < TON) {
+            type |= 1 << (tile_id / 9);
+        }
+    }
+    if (head_tile_id < TON) {
+        type |= 1 << (head_tile_id / 9);
+    }
+    if (type != 1 && type != 2 && type != 4) {  // 萬子だけ==1, 筒子だけ==2, 索子だけ==4
+        return false;
+    }
+    return true;
 }
 
 /*
  * 純全帯么九(純チャン)(字牌を含まないチャンタ)
  * 食い下がり2翻
  */
-int is_junchan(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_junchan(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    for (int i = 0; i < merged_melds.len; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        uint8_t tile_id = meld->tile_id[0];
+        if (tile_id >= TON) {
+            return false;
+        }
+        if (is_meld_shuntsu(meld)) {
+            uint32_t number = tile_id % 9;
+            if (number != 0 && number != 6) { // 123 or 789
+                return false;
+            }
+        } else { // kotsu or kantsu
+            uint32_t number = tile_id % 9;
+            if (number != 0 && number != 8) { // 111 or 999
+                return false;
+            }
+        }
+    }
+    if (!IS_ONE(head_tile_id) || !IS_NINE(head_tile_id)) {
+        return false;
+    }
+    return true;
+}
 
 /***** 6翻 *****/
 /*
  * 清一色(チンイツ)(字牌を使わないホンイツ)
+ * 食い下がり5翻
  */
-int is_chinitsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_chinitsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    uint32_t type = 0;
+    for (int i = 0; i < merged_melds.len; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        uint8_t tile_id = meld->tile_id[0];
+        if (tile_id >= TON) {
+            return false;
+        }
+        type |= 1 << (tile_id / 9);
+    }
+    if (head_tile_id >= TON) {
+        return false;
+    }
+    type |= 1 << (head_tile_id / 9);
+    if (type != 1 && type != 2 && type != 4) {  // 萬子だけ==1, 筒子だけ==2, 索子だけ==4
+        return false;
+    }
+    return true;
+}
 
 /***** 役満 *****/
 /*
  * 国士無双, 門前
+ * TODO
+ * これはmeldで判定しない
  */
-int is_kokushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_kokushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+}
+
 /*
  * 四暗刻, 門前
  */
-int is_suuankou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_suuankou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    for (int i = 0; i < merged_melds.len; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        if (!meld->is_closed) {
+            return false;
+        }
+        if (!is_meld_kotsu(meld) || !is_meld_kantsu(meld)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /*
  * 大三元
  */
-int is_daisangen(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_daisangen(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    uint32_t count = 0;
+    for (int i = 0; i < merged_melds.len; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        if (IS_DRAGON(meld->tile_id[0])) {
+            count ++;
+        }
+    }
+    if (count < 3) {
+        return false;
+    }
+    return true;
+}
+
 /*
  * 緑一色(緑發が入っていなくてもよい)
+ * 索子の23468と發
+ * (68發は刻子か雀頭, 牌が6種類の為七対子はできない)
  */
-int is_ryuisou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_ryuisou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    for (int i = 0; i < merged_melds.len; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        uint8_t tile_id = meld->tile_id[0];
+        if (is_meld_shuntsu(meld) && tile_id != SOU2) {
+            return false;
+        } else
+        if (tile_id != SOU2 &&
+            tile_id != SOU3 &&
+            tile_id != SOU4 &&
+            tile_id != SOU6 &&
+            tile_id != SOU8 &&
+            tile_id != HATSU) {
+            return false;
+        }
+    }
+    if (head_tile_id != SOU2 &&
+        head_tile_id != SOU3 &&
+        head_tile_id != SOU4 &&
+        head_tile_id != SOU6 &&
+        head_tile_id != SOU8 &&
+        head_tile_id != HATSU) {
+        return false;
+    }
+    return false;
+}
+
 /*
  * 字一色
  */
-int is_tsuisou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_tsuisou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    for (int i = 0; i < merged_melds.len; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        uint8_t tile_id = meld->tile_id[0];
+        if (tile_id < TON) {
+            return false;
+        }
+    }
+    if (head_tile_id < TON) {
+        return false;
+    }
+    return true;
+}
+
 /*
  * 小四喜
  */
-int is_shosuushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_shosuushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    uint32_t count = 0;
+    for (int i = 0; i < merged_melds.len; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        uint8_t tile_id = meld->tile_id[0];
+        if (tile_id >= TON && tile_id <= PEI) {
+            count ++;
+        }
+    }
+    if (head_tile_id >= TON && head_tile_id <= PEI) {
+        count ++;
+    }
+    if (count != 4) {
+        return false;
+    }
+    return true;
+}
 /*
  * 大四喜, 小四喜の上位役
  */
-int is_daisuushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_daisuushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    uint32_t count = 0;
+    for (int i = 0; i < merged_melds.len; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        uint8_t tile_id = meld->tile_id[0];
+        if (tile_id >= TON && tile_id <= PEI) {
+            count ++;
+        }
+    }
+    if (count != 4) {
+        return false;
+    }
+    return true;
+}
+
 /*
  * 清老頭(すべて1,9牌のみで揃える,鳴きOK), ホンロウトウの上位役
  */
-int is_chinroto(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_chinroto(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    Melds merged_melds;
+    merge_melds(&merged_melds, tiles_melds, open_melds);
+    assert(merged_melds.len == MENTSU_LEN);
+    for (int i = 0; i < merged_melds.len; i ++) {
+        const Meld *meld = &merged_melds.meld[i];
+        uint8_t tile_id = meld->tile_id[0];
+        if (!is_meld_kotsu(meld) || !is_meld_kantsu(meld)) {
+            return false;
+        }
+        uint32_t number = tile_id % 9;
+        if (number != 0 && number != 8) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /*
  * 四槓子
  */
-int is_suukantsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_suukantsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    int count = 0;
+    for (int i = 0; i < open_melds->len; i ++) {
+        const Meld *meld = &open_melds->meld[i];
+        if (is_meld_kantsu(meld)) {
+            count ++;
+        }
+    }
+    if (count != 4) {
+        return false;
+    }
+    return true;
+}
+
 /*
  * 九蓮宝燈, 門前
+ * 1112345678999 + x
+ * 1が3枚, 2345678が1枚, 9が3枚
+ * TODO:
  */
-int is_chuuren_poutou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-
-
-
+int is_chuuren_poutou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+    if (open_melds->len) {
+        return false;
+    }
+    // すべて同種牌
+    // 1が3枚, 2345678が1枚, 9が3枚
+}
