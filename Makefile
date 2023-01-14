@@ -23,9 +23,6 @@ $(TEST_TARGET): $(TEST_OBJS) $(TARGET)
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(TEST_TARGET): $(TARGET)
-	$(CC) $(CFLAGS) -c -o $@ $<
-
 -include $(DEPS)
 -include $(TEST_DEPS)
 

@@ -36,7 +36,7 @@ bool is_valid_hands(const MJHands *hands) {
         return false;
     }
     for (uint32_t i = 0; i < hands->len; i ++) {
-        if (!is_valid_tile_id(hands->tile_id[i])) {
+        if (!is_tile_id_valid(hands->tile_id[i])) {
             return false;
         }
     }

@@ -489,7 +489,48 @@ int32_t tile_get_score(
 #include <assert.h>
 
 #include "mahjong.h"
+#include "tile.h"
 
-bool is_valid_tile_id(MJTileId tile_id) {
+bool is_tile_id_valid(MJTileId tile_id) {
     return (tile_id >= MJ_M1 && tile_id <= MJ_DR);
+}
+
+bool is_tile_id_honors(MJTileId tile_id) {
+    return (tile_id >= MJ_WT && tile_id <= MJ_DR);
+}
+
+bool is_tile_id_wind(MJTileId tile_id) {
+    return (tile_id >= MJ_WT && tile_id <= MJ_WP);
+}
+
+bool is_tile_id_dragon(MJTileId tile_id) {
+    return (tile_id >= MJ_DW && tile_id <= MJ_DR);
+}
+
+bool is_tile_id_man(MJTileId tile_id) {
+    return (tile_id >= MJ_M1 && tile_id <= MJ_M9);
+}
+
+bool is_tile_id_pin(MJTileId tile_id) {
+    return (tile_id >= MJ_P1 && tile_id <= MJ_P9);
+}
+
+bool is_tile_id_sou(MJTileId tile_id) {
+    return (tile_id >= MJ_S1 && tile_id <= MJ_S9);
+}
+
+uint32_t get_tile_type(MJTileId tile_id) {
+    if (0) {
+    } else if (is_tile_id_man(tile_id)) {
+        return TILE_TYPE_MAN;
+    } else if (is_tile_id_pin(tile_id)) {
+        return TILE_TYPE_PIN;
+    } else if (is_tile_id_sou(tile_id)) {
+        return TILE_TYPE_SOU;
+    } else if (is_tile_id_wind(tile_id)) {
+        return TILE_TYPE_WIND;
+    } else if (is_tile_id_dragon(tile_id)) {
+        return TILE_TYPE_DRAGON;
+    }
+    return TILE_TYPE_INVALID;
 }

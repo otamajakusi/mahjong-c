@@ -31,10 +31,12 @@
  * meld: チー, ポン, カン(暗槓含む)
  * hand: 手牌(副露牌を含む)
  * pair: 雀頭
- * shuntu: 順子
- * kotsu: 刻子
- * open: 副露牌
- * closed: not open
+ * sequence: 順子
+ * triplets: 刻子
+ * fours: 槓子
+ * concealed: 暗-; concealed-triplets 暗刻, concealed-fours 暗槓
+ * melded: 明-; melded-triplets 明刻, melded-fours 明槓
+ * honors tile: 字牌
  * 参照: http://crescent.s255.xrea.com/cabinet/others/mahjong/
  */
 
@@ -92,28 +94,28 @@ typedef enum {
   MJ_DR,  // chun, dragon red
 } MJTileId;
 
-// chi, pon, kan(open and closed)
+// NOTE: 暗槓も含む
 typedef struct {
-    MJTileId tile_id[MJ_MAX_TILES_LEN_IN_ELEMENT];
-    uint32_t len; // valid tile_id length
-    bool open; // set false if an-kan
-    uint32_t type; // internal use
+  MJTileId tile_id[MJ_MAX_TILES_LEN_IN_ELEMENT];
+  uint32_t len; // valid tile_id length, for sequence or triplets; 3, for fours; 4, should be set.
+  bool concealed; // set true if concealed-fours
+  uint32_t type; // internal use
 } MJMeld;
 
 typedef struct {
-    MJMeld meld[MJ_ELEMENTS_LEN];
-    uint32_t len; // valid meld length
+  MJMeld meld[MJ_ELEMENTS_LEN];
+  uint32_t len; // valid meld length
 } MJMelds;
 
 typedef struct {
-    MJTileId tile_id[MJ_MAX_HAND_LEN];
-    uint32_t len; // valid tile_id length
+  MJTileId tile_id[MJ_MAX_HAND_LEN];
+  uint32_t len; // valid tile_id length
 } MJHands;
 
 typedef struct {
-    uint32_t han;
-    uint32_t fu;
-    char yaku_name[MJ_MAX_YAKU_NAME_LEN];
+  uint32_t han;
+  uint32_t fu;
+  char yaku_name[MJ_MAX_YAKU_NAME_LEN];
 } MJScore;
 
 /*

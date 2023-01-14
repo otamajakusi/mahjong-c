@@ -30,4 +30,4 @@
 
 #include "mahjong.h"
 
-bool is_valid_hand(const MJHands *hands);
+bool is_valid_hands(const MJHands *hands);

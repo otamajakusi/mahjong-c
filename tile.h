@@ -30,4 +30,20 @@
 
 #include "mahjong.h"
 
-bool is_valid_tile_id(MJTileId tile_id);
+#define TILE_TYPE_MAN     (1 << 0)
+#define TILE_TYPE_PIN     (1 << 1)
+#define TILE_TYPE_SOU     (1 << 2)
+#define TILE_TYPE_WIND    (1 << 3)
+#define TILE_TYPE_DRAGON  (1 << 4)
+#define TILE_TYPE_INVALID (1 << 7)
+
+bool is_tile_id_valid(MJTileId tile_id);
+
+bool is_tile_id_honors(MJTileId tile_id);
+bool is_tile_id_wind(MJTileId tile_id);
+bool is_tile_id_dragon(MJTileId tile_id);
+bool is_tile_id_man(MJTileId tile_id);
+bool is_tile_id_pin(MJTileId tile_id);
+bool is_tile_id_sou(MJTileId tile_id);
+
+uint32_t get_tile_type(MJTileId tile_id);

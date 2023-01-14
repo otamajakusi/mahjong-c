@@ -37,7 +37,7 @@ static bool is_valid_meld(const MJMeld *meld) {
         return false;
     }
     for (uint32_t i = 0; i < meld->len; i ++) {
-        if (!is_valid_tile_id(meld->tile_id[i])) {
+        if (!is_tile_id_valid(meld->tile_id[i])) {
             fprintf(stderr, "invalid meld tile %d\n", meld->tile_id[i]);
             return false;
         }
