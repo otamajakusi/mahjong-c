@@ -491,5 +491,5 @@ int32_t tile_get_score(
 #include "mahjong.h"
 
 bool is_valid_tile_id(MJTileId tile_id) {
-    return tile_id < MJ_TILE_ID_LEN;
+    return (tile_id >= MJ_M1 && tile_id <= MJ_DR);
 }

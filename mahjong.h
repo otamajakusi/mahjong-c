@@ -59,7 +59,6 @@
 #define MJ_MAX_YAKU_NAME_LEN        128
 
 typedef enum {
-  MJ_X = -1, // invalid
   MJ_M1 = 0,
   MJ_M3,
   MJ_M4,
@@ -91,7 +90,6 @@ typedef enum {
   MJ_DW,  // haku, dragon white
   MJ_DG,  // hatsu, dragon green
   MJ_DR,  // chun, dragon red
-  MJ_TILE_ID_LEN,
 } MJTileId;
 
 // chi, pon, kan(open and closed)

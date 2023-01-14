@@ -29,18 +29,30 @@
 
 #include "mahjong.h"
 #include "tile.h"
-#include "hand.h"
+#include "meld.h"
 
-bool is_valid_hands(const MJHands *hands) {
-    if (hands->len > MJ_MAX_HAND_LEN) {
+static bool is_valid_meld(const MJMeld *meld) {
+    if (meld->len != 3 && meld->len != 4) {
+        fprintf(stderr, "invalid meld len %d\n", meld->len);
         return false;
     }
-    for (uint32_t i = 0; i < hands->len; i ++) {
-        if (!is_valid_tile_id(hands->tile_id[i])) {
+    for (uint32_t i = 0; i < meld->len; i ++) {
+        if (!is_valid_tile_id(meld->tile_id[i])) {
+            fprintf(stderr, "invalid meld tile %d\n", meld->tile_id[i]);
             return false;
         }
     }
     return true;
 }
 
-
+bool is_valid_melds(const MJMelds *melds) {
+    if (melds->len > MJ_ELEMENTS_LEN) {
+        return false;
+    }
+    for (uint32_t i = 0; i < melds->len; i ++) {
+        if (!is_valid_meld(&melds->meld[i])) {
+            return false;
+        }
+    }
+    return true;
+}

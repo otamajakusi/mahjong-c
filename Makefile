@@ -1,16 +1,16 @@
-SRCS = tile.c hand.c
-SRCS_TEST = test.c
+SRCS = tile.c hand.c meld.c
+TEST_SRCS = test.c
 TARGET = libmahjong.so
-TARGET_TEST = test.elf
+TEST_TARGET = test.elf
 
-CC ?= gcc
-CFLAGS ?= -O3 -Wall -Wextra -Wshadow -Werror -ffunction-sections -fdata-sections
-LDFLAGS ?= -shared -fPIC
+CC = gcc
+CFLAGS = -O3 -Wall -Wextra -Wshadow -Werror -ffunction-sections -fdata-sections -fPIC
+LDFLAGS = -shared
 
 OBJS = $(patsubst %c,%o,$(filter %.c,$(SRCS)))
 DEPS = $(patsubst %c,%d,$(filter %.c,$(SRCS)))
-TEST_OBJS = $(patsubst %c,%o,$(filter %.c,$(SRCS_TEST)))
-TEST_DEPS = $(patsubst %c,%d,$(filter %.c,$(SRCS_TEST)))
+TEST_OBJS = $(patsubst %c,%o,$(filter %.c,$(TEST_SRCS)))
+TEST_DEPS = $(patsubst %c,%d,$(filter %.c,$(TEST_SRCS)))
 
 all: $(TARGET)
 
@@ -23,8 +23,11 @@ $(TEST_TARGET): $(TEST_OBJS) $(TARGET)
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(TARGET_TEST): $(TARGET)
+$(TEST_TARGET): $(TARGET)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 -include $(DEPS)
 -include $(TEST_DEPS)
+
+clean:
+	$(RM) $(OBJS) $(TEST_OBJS) $(TARGET) $(TEST_TARGET)
