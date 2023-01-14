@@ -51,5 +51,8 @@ bool is_tile_id_pin(MJTileId tile_id);
 bool is_tile_id_sou(MJTileId tile_id);
 
 uint32_t get_tile_type(MJTileId tile_id);
+uint32_t get_tile_number(MJTileId tile_id); // for man, pin and sou
 
 bool gen_tiles_from_hands(Tiles *tiles, const MJHands *hands);
+
+const char* tile_id_str(MJTileId tile_id);

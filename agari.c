@@ -30,6 +30,7 @@
 #include "mahjong.h"
 #include "tile.h"
 #include "element.h"
+#include "score.h"
 
 /* save triplets tile id to tile_id[n]. if there is two triplets, 2 should be set for len */
 typedef struct {
@@ -38,7 +39,8 @@ typedef struct {
 } _Triplets;
 
 static void gen_triplets_candidates(_Triplets *triplets, const Tiles *tiles) {
-    for (uint32_t i = 0; i < MJ_DR; i ++) {
+    memset(triplets, 0, sizeof(_Triplets));
+    for (uint32_t i = 0; i <= MJ_DR; i ++) {
         uint8_t tile_num = tiles->tiles[i];
         if (tile_num >= 3) { // pickup triplets candidate from tiles
             assert(triplets->len < MJ_ELEMENTS_LEN);
@@ -48,36 +50,43 @@ static void gen_triplets_candidates(_Triplets *triplets, const Tiles *tiles) {
     }
 }
 
-static int find_elements_as_sequence(const Tiles *tiles, Elements *tiles_melds) {
+/*
+ * tilesがすべて順子で成立するか確認する.
+ * 成立した面子はelemsに作成される.
+ */
+static int find_elements_as_sequence(const Tiles *tiles, Elements *elems) {
     Tiles _tiles;
     memcpy(&_tiles, tiles, sizeof(Tiles));
-    for (int i = 0; i < TILE_ID_LEN; i ++) {
+    for (int i = 0; i <= MJ_DR; i ++) {
         uint8_t tile_num = _tiles.tiles[i];
         if (tile_num) {
-            if (IS_WIND(i) || IS_DRAGON(i)) {
+            if (is_tile_id_honors(i)) {
                 return false;
             }
-            if (i == MAN8 || i == MAN9 || i == PIN8 || i == PIN9 || i == SOU8 || i == SOU9) {
+            uint32_t number = get_tile_number(i);
+            if (number == 7 || number == 8) { /* in case of M8, M9, P8, P9, S8, S9 */
                 return false;
             }
+
+            /* next and next of next do not exist */
             if (_tiles.tiles[i + 1] == 0 || _tiles.tiles[i + 2] == 0) {
                 return false;
             }
             _tiles.tiles[i] --;
             _tiles.tiles[i + 1] --;
             _tiles.tiles[i + 2] --;
-            tiles_melds->meld[tiles_melds->len].tile_id[0] = i;
-            tiles_melds->meld[tiles_melds->len].tile_id[1] = i + 1;
-            tiles_melds->meld[tiles_melds->len].tile_id[2] = i + 2;
-            tiles_melds->meld[tiles_melds->len].len = 3;
-            tiles_melds->meld[tiles_melds->len].is_closed = 1;
-            tiles_melds->len ++;
+            elems->meld[elems->len].tile_id[0] = i;
+            elems->meld[elems->len].tile_id[1] = i + 1;
+            elems->meld[elems->len].tile_id[2] = i + 2;
+            elems->meld[elems->len].len = 3;
+            elems->meld[elems->len].concealed = 1;
+            elems->len ++;
 
-            int found = find_melds_as_shuntsu(&_tiles, tiles_melds);
+            int found = find_elements_as_sequence(&_tiles, elems);
             if (found) {
                 return true;
             }
-            tiles_melds->len --;
+            elems->len --;
             _tiles.tiles[i] ++;
             _tiles.tiles[i + 1] ++;
             _tiles.tiles[i + 2] ++;
@@ -87,19 +96,20 @@ static int find_elements_as_sequence(const Tiles *tiles, Elements *tiles_melds) 
 }
 
 /* すべてが順子で構成されるか */
-static int find_agari_sequence(const Tiles *tiles) {
+static int find_agari_sequence(const Tiles *tiles, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
     Elements elems;
     memset(&elems, 0, sizeof(Elements));
 
     int agari = 0;
     if (find_elements_as_sequence(tiles, &elems)) {
+        calc_score(&elems, melded_elems, pair_tile, cfg);
         agari ++;
     }
     return agari;
 }
 
 /* 刻子候補を1つ取り出して残りが順子で構成されるか */
-static int find_agari_sequence_after_remove_one_triplets(const Tiles *tiles, const _Triplets *triplets) {
+static int find_agari_sequence_after_remove_one_triplets(const Tiles *tiles, const _Triplets *triplets, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
     Elements elems;
     Tiles _tiles;
     int agari = 0;
@@ -117,6 +127,7 @@ static int find_agari_sequence_after_remove_one_triplets(const Tiles *tiles, con
         elems.meld[0].len = 3;
         elems.meld[0].concealed = true;
         if (find_elements_as_sequence(&_tiles, &elems)) {
+            calc_score(&elems, melded_elems, pair_tile, cfg);
             agari ++;
         }
         _tiles.tiles[tile_id] += 3; // revert: remove triplets
@@ -124,9 +135,8 @@ static int find_agari_sequence_after_remove_one_triplets(const Tiles *tiles, con
     return agari;
 }
 
-
 /* 刻子候補をすべて取り出して残りが順子で構成されるか */
-static int find_agari_sequence_after_remove_all_triplets(const Tiles *tiles, const _Triplets *triplets) {
+static int find_agari_sequence_after_remove_all_triplets(const Tiles *tiles, const _Triplets *triplets, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
     Elements elems;
     Tiles _tiles;
     int agari = 0;
@@ -135,7 +145,7 @@ static int find_agari_sequence_after_remove_all_triplets(const Tiles *tiles, con
     memcpy(&_tiles, tiles, sizeof(Tiles));
 
     /* remove all triplets from tiles */
-    for (int i = 0; i < triplets->len; i ++) {
+    for (uint32_t i = 0; i < triplets->len; i ++) {
         MJTileId tile_id = triplets->tile_id[i];
         _tiles.tiles[tile_id] -= 3; // remove triplets
         elems.meld[elems.len].tile_id[0] = tile_id;
@@ -146,40 +156,37 @@ static int find_agari_sequence_after_remove_all_triplets(const Tiles *tiles, con
         elems.len ++;
     }
     if (find_elements_as_sequence(&_tiles, &elems)) {
+        calc_score(&elems, melded_elems, pair_tile, cfg);
         agari ++;
     }
     return agari;
 }
 
-/* NOTE: melded_elems includes an-kan */
+/* NOTE: melded_elems includes concealed-fours */
 static int find_agari_with_triplets_candidates(
         const _Triplets *triplets,
         const Tiles *concealed_tiles,
-        MJTileId pair_tile,
         const Elements *melded_elems,
-        MJTileId win_tile,
-        bool ron,
-        MJTileId player_wind,
-        MJTileId round_wind) {
+        MJTileId pair_tile,
+        ScoreConfig *cfg) {
     int agari = 0;
 
-    agari += find_agari_sequence(concealed_tiles);
+    agari += find_agari_sequence(concealed_tiles, melded_elems, pair_tile, cfg);
 
     if (triplets->len == 0) {
         return agari;
     }
 
-    agari += find_agari_sequence_after_remove_one_triplets(concealed_tiles, triplets);
+    agari += find_agari_sequence_after_remove_one_triplets(concealed_tiles, triplets, melded_elems, pair_tile, cfg);
 
     if (triplets->len == 1) {
         return agari;
     }
 
-    agari += find_agari_sequence_after_remove_all_triplets(concealed_tiles, triplets);
+    agari += find_agari_sequence_after_remove_all_triplets(concealed_tiles, triplets, melded_elems, pair_tile, cfg);
 
     return agari;
 }
-
 
 /*
  * tiles: concealed
@@ -192,6 +199,11 @@ bool find_agari(
     bool ron,
     const MJTileId player_wind,
     const MJTileId round_wind) {
+    ScoreConfig cfg = {win_tile, ron, player_wind, round_wind};
+
+    if (melded_elems->len == 0) {
+        calc_score_concealed_hands(concealed_tiles, ron);
+    }
 
     Tiles _concealed_tiles;
     memcpy(&_concealed_tiles, concealed_tiles, sizeof(Tiles));
@@ -202,7 +214,7 @@ bool find_agari(
             _Triplets triplets;
             gen_triplets_candidates(&triplets, &_concealed_tiles);
             int agari;
-            agari = find_agari_with_triplets_candidates(&triplets, &_concealed_tiles, i, melded_elems, win_tile, ron, player_wind, round_wind);
+            agari = find_agari_with_triplets_candidates(&triplets, &_concealed_tiles, melded_elems, i, &cfg);
             if (agari) {
                 printf("agari: pair: %s\n", tile_id_str(i));
             }

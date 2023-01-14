@@ -23,7 +23,19 @@
  */
 
 #include "score.h"
+#include "element.h"
+#include "yaku.h"
 
-int calc_score(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg) {
+bool calc_score_concealed_hands(const Tiles *tiles, bool ron) {
+    (void)tiles;
+    (void)ron;
+    return 0;
+}
+
+bool calc_score(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)concealed_elems;
+    (void)melded_elems;
+    (void)pair_tile;
+    (void)cfg;
     return 0;
 }

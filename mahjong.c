@@ -32,10 +32,9 @@
 #include "hand.h"
 #include "meld.h"
 #include "element.h"
+#include "agari.h"
 
-static bool is_melds_and_win_tile_in_tiles(const Tiles *tiles, const MJMelds *melds, MJTileId win_tile) {
-    Tiles _tiles;
-    memcpy(&_tiles, tiles, sizeof(Tiles));
+static bool remove_melds_from_tiles(Tiles *tiles, const MJMelds *melds) {
     for (uint32_t i = 0; i < melds->len; i ++) {
         const MJMeld *meld = &melds->meld[i];
         for (uint32_t j = 0; j < meld->len; j ++) {
@@ -44,12 +43,8 @@ static bool is_melds_and_win_tile_in_tiles(const Tiles *tiles, const MJMelds *me
                 fprintf(stderr, "tile in meld %d doesn't exists in hands\n", meld->tile_id[j]);
                 return false;
             }
-            _tiles.tiles[tile_id] --;
+            tiles->tiles[tile_id] --;
         }
-    }
-    if (_tiles.tiles[win_tile] == 0) {
-        fprintf(stderr, "win tile %d doesn't exists in hands\n", win_tile);
-        return false;
     }
     return true;
 }
@@ -83,13 +78,19 @@ int32_t mj_get_score(
     if (!gen_tiles_from_hands(&tiles, hands)) {
         return MJ_ERR_ILLEGAL_PARAM;
     }
-    if (!is_melds_and_win_tile_in_tiles(&tiles, melds, win_tile)) {
+    // make tiles = hands - melds
+    if (!remove_melds_from_tiles(&tiles, melds)) {
+        return MJ_ERR_ILLEGAL_PARAM;
+    }
+    if (tiles.tiles[win_tile] == 0) { // check if win_tile is in tiles
         return MJ_ERR_ILLEGAL_PARAM;
     }
 
-    Elements meld_elems;
-    if (!gen_elements_from_melds(&meld_elems, melds)) {
+    Elements melded_elems;
+    if (!gen_elements_from_melds(&melded_elems, melds)) {
         return MJ_ERR_ILLEGAL_PARAM;
     }
+
+    find_agari(&tiles, &melded_elems, win_tile, ron, player_wind, round_wind);
     return MJ_OK;
 }

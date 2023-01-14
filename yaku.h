@@ -24,58 +24,60 @@
 
 #pragma once
 
+#include "mahjong.h"
+#include "element.h"
 #include "score.h"
 
 // 1翻
-int is_pinfu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_tanyao(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_iipeiko(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_haku(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_hatsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_chun(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_ton(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_nan(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_sha(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_pei(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_pinfu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_tanyao(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_iipeiko(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_haku(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_hatsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_chun(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_ton(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_nan(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_sha(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_pei(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
 
 // 2翻
-int is_toitoi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_sanankou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_sanshoku_douko(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_sankantsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_shosangen(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_honroto(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_double_ton(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_double_nan(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_double_sha(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_double_pei(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+int is_toitoi(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_sanankou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_sanshoku_douko(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_sankantsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_shosangen(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_honroto(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_double_ton(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_double_nan(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_double_sha(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_double_pei(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
 
-// 以下食い下がり1翻
-int is_sanshoku(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_ittsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_chanta(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
-int is_chiitoitsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+// 2翻(食い下がり1翻)
+int is_sanshoku(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_ittsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_chanta(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_chiitoitsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
 
 // 3翻
-int is_ryanpeiko(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg); // 二盃口, 門前, 一盃口の上位役
-// 以下食い下がり2翻
-int is_honitsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);   // 混一色, チンイツの下位役
-int is_junchan(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);   // 純全帯么九(純チャン)(字牌を含まないチャンタ)
+int is_ryanpeiko(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg); // 二盃口, 門前, 一盃口の上位役
+// 3翻(食い下がり2翻)
+int is_honitsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);   // 混一色, チンイツの下位役
+int is_junchan(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);   // 純全帯么九(純チャン)(字牌を含まないチャンタ)
 
 // 6翻
-int is_chinitsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);  // 清一色(チンイツ)(字牌を使わないホンイツ)
+int is_chinitsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);  // 清一色(チンイツ)(字牌を使わないホンイツ)
 
 // 役満
-int is_kokushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);   // 国士無双, 門前
-int is_suuankou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);  // 四暗刻, 門前
-int is_daisangen(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg); // 大三元
-int is_ryuisou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);   // 緑一色(緑發が入っていなくてもよい)
-int is_tsuisou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);   // 字一色
-int is_shosuushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg); // 小四喜
-int is_daisuushi(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg); // 大四喜, 小四喜の上位役
-int is_chinroto(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);  // 清老頭(すべて1,9牌のみで揃える,鳴きOK), ホンロウトウの上位役
-int is_suukantsu(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg); // 四槓子
-int is_chuuren_poutou(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);  // 九蓮宝燈, 門前
+int is_kokushi(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);   // 国士無双, 門前
+int is_suuankou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);  // 四暗刻, 門前
+int is_daisangen(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg); // 大三元
+int is_ryuisou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);   // 緑一色(緑發が入っていなくてもよい)
+int is_tsuisou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);   // 字一色
+int is_shosuushi(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg); // 小四喜
+int is_daisuushi(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg); // 大四喜, 小四喜の上位役
+int is_chinroto(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);  // 清老頭(すべて1,9牌のみで揃える,鳴きOK), ホンロウトウの上位役
+int is_suukantsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg); // 四槓子
+int is_chuuren_poutou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);  // 九蓮宝燈, 門前
 
 
 #if 0

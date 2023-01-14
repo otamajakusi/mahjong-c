@@ -25,13 +25,19 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
+
+#include "mahjong.h"
 #include "tile.h"
+#include "element.h"
 
 typedef struct {
-    uint8_t win_tile;
-    int is_ron;
-    uint8_t player_wind;
-    uint8_t round_wind;
+  MJTileId win_tile;
+  bool ron;
+  MJTileId player_wind;
+  MJTileId round_wind;
 } ScoreConfig;
 
-int calc_score(const Melds *tiles_melds, const Melds *open_melds, uint8_t head_tile_id, const ScoreConfig *cfg);
+bool calc_score(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+/* for chiitoitsu and kokushi */
+bool calc_score_concealed_hands(const Tiles *tiles, bool ron);
