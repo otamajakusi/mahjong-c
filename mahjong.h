@@ -56,7 +56,9 @@
 #define MJ_ELEMENTS_LEN             4 // length of elements
 #define MJ_PAIR_LEN                 2 // length of pairs
 #define MJ_MAX_TILES_LEN_IN_ELEMENT 4 // max number of tiles in element
+#define MJ_MIN_TILES_LEN_IN_ELEMENT 3 // min number of tiles in element
 #define MJ_MAX_HAND_LEN             (MJ_MAX_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN)
+#define MJ_MIN_HAND_LEN             (MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN)
 
 #define MJ_MAX_YAKU_NAME_LEN        128
 
@@ -131,6 +133,7 @@ typedef struct {
  */
 int32_t mj_get_score(
       MJScore *score,
+      const MJHands *hands,
       const MJMelds *melds,
       MJTileId win_tile,
       bool ron,

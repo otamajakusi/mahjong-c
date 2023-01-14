@@ -37,6 +37,10 @@
 #define TILE_TYPE_DRAGON  (1 << 4)
 #define TILE_TYPE_INVALID (1 << 7)
 
+typedef struct {
+    MJTileId tiles[MJ_DR + 1];
+} Tiles;
+
 bool is_tile_id_valid(MJTileId tile_id);
 
 bool is_tile_id_honors(MJTileId tile_id);
@@ -47,3 +51,5 @@ bool is_tile_id_pin(MJTileId tile_id);
 bool is_tile_id_sou(MJTileId tile_id);
 
 uint32_t get_tile_type(MJTileId tile_id);
+
+bool gen_tiles_from_hands(Tiles *tiles, const MJHands *hands);

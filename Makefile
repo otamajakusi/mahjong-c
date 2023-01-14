@@ -1,4 +1,4 @@
-SRCS = tile.c hand.c meld.c
+SRCS = tile.c hand.c meld.c mahjong.c
 TEST_SRCS = test.c
 TARGET = libmahjong.so
 TEST_TARGET = test.elf

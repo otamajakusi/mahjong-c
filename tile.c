@@ -534,3 +534,15 @@ uint32_t get_tile_type(MJTileId tile_id) {
     }
     return TILE_TYPE_INVALID;
 }
+
+bool gen_tiles_from_hands(Tiles *tiles, const MJHands *hands) {
+    memset(tiles, 0, sizeof(Tiles));
+    for (uint32_t i = 0; i < hands->len; i ++) {
+        uint32_t tile_id = hands->tile_id[i];
+        if (tiles->tiles[tile_id] >= MJ_MAX_TILES_LEN_IN_ELEMENT) {
+            return false;
+        }
+        tiles->tiles[tile_id] ++;
+    }
+    return true;
+}
