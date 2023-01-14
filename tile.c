@@ -22,6 +22,7 @@
  *  SOFTWARE.
  */
 
+#if 0
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -480,4 +481,15 @@ int32_t tile_get_score(
     is_agari(&tiles, melds, &cfg);
     return 0;
 }
+#endif // if 0
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+
+#include "mahjong.h"
+
+bool is_valid_tile_id(MJTileId tile_id) {
+    return tile_id < MJ_TILE_ID_LEN;
+}

@@ -30,4 +30,4 @@
 
 #include "mahjong.h"
 
-bool is_valid_tile_id(MJTileId tile_id);
+bool is_valid_hand(const MJHands *hands);

@@ -22,12 +22,22 @@
  *  SOFTWARE.
  */
 
-#pragma once
-
-#include <stdint.h>
-#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "mahjong.h"
+#include "tile.h"
+#include "hand.h"
 
-bool is_valid_tile_id(MJTileId tile_id);
+bool is_valid_hand(const MJHands *hands) {
+    for (uint32_t i = 0; i < hands->len; i ++) {
+        if (!is_valid_tile_id(hands->tile_id[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
