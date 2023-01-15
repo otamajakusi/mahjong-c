@@ -527,6 +527,28 @@ bool is_tile_id_sou(MJTileId tile_id) {
     return (tile_id >= MJ_S1 && tile_id <= MJ_S9);
 }
 
+bool is_tile_id_yaochu(MJTileId tile_id) {
+    if (is_tile_id_honors(tile_id)) {
+        return true;
+    }
+    uint32_t number = get_tile_number(tile_id);
+    if (number == 0 || number == 8) {
+        return true;
+    }
+    return false;
+}
+
+bool is_tile_id_routou(MJTileId tile_id) {
+    if (is_tile_id_honors(tile_id)) {
+        return false;
+    }
+    uint32_t number = get_tile_number(tile_id);
+    if (number == 0 || number == 8) {
+        return true;
+    }
+    return false;
+}
+
 uint32_t get_tile_type(MJTileId tile_id) {
     if (0) {
     } else if (is_tile_id_man(tile_id)) {

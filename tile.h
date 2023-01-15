@@ -49,6 +49,10 @@ bool is_tile_id_dragon(MJTileId tile_id);
 bool is_tile_id_man(MJTileId tile_id);
 bool is_tile_id_pin(MJTileId tile_id);
 bool is_tile_id_sou(MJTileId tile_id);
+/* 1,9字牌 */
+bool is_tile_id_yaochu(MJTileId tile_id);
+/* 1,9牌 */
+bool is_tile_id_routou(MJTileId tile_id);
 
 uint32_t get_tile_type(MJTileId tile_id);
 uint32_t get_tile_number(MJTileId tile_id); // for man, pin and sou

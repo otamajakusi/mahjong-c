@@ -1031,41 +1031,192 @@ int is_tanyao(const Elements *concealed_elems, const Elements *melded_elems, MJT
 
 /* 一盃口: 門前: 必須, 説明: 同数同種の数牌の順子を2組を構成 */
 int is_iipeiko(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)pair_tile;
+    (void)cfg;
     if (has_elements_melded(melded_elems)) {
         return false;
     }
-    if (count_same_elements(concealed_elems)) {
+    if (count_elements_same_sequences(concealed_elems) == 0) {
+        return false;
     }
+    return true;
 }
 
 /* 白: 門前: 不要, 説明: 白の刻子を構成 */
-int is_haku(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_haku(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)pair_tile;
+    (void)cfg;
+    if (has_elements_tile_id(concealed_elems, MJ_DW) || has_elements_tile_id(melded_elems, MJ_DW)) {
+        return true;
+    }
+    return false;
+}
+
 /* 發: 門前: 不要, 説明: 發の刻子を構成 */
-int is_hatsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_hatsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)pair_tile;
+    (void)cfg;
+    if (has_elements_tile_id(concealed_elems, MJ_DG) || has_elements_tile_id(melded_elems, MJ_DG)) {
+        return true;
+    }
+    return false;
+}
+
 /* 中: 門前: 不要, 説明: 中の刻子を構成 */
-int is_chun(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_chun(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)pair_tile;
+    (void)cfg;
+    if (has_elements_tile_id(concealed_elems, MJ_DR) || has_elements_tile_id(melded_elems, MJ_DR)) {
+        return true;
+    }
+    return false;
+}
+
+static int is_wind(const Elements *concealed_elems, const Elements *melded_elems, const ScoreConfig *cfg, MJTileId wind) {
+    if (cfg->player_wind != wind && cfg->round_wind != wind) {
+        return false;
+    }
+    if (has_elements_tile_id(concealed_elems, wind) || has_elements_tile_id(melded_elems, wind)) {
+        return true;
+    }
+    return false;
+}
+
 /* 東: 門前: 不要, 説明: 東が役牌のとき東の刻子を構成 */
-int is_ton(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_ton(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)pair_tile;
+    return is_wind(concealed_elems, melded_elems, cfg, MJ_WT);
+}
+
 /* 南: 門前: 不要, 説明: 南が役牌のとき南の刻子を構成 */
-int is_nan(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_nan(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)pair_tile;
+    return is_wind(concealed_elems, melded_elems, cfg, MJ_WN);
+}
+
 /* 西: 門前: 不要, 説明: 西が役牌のとき西の刻子を構成 */
-int is_sha(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_sha(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)pair_tile;
+    return is_wind(concealed_elems, melded_elems, cfg, MJ_WS);
+}
+
 /* 北: 門前: 不要, 説明: 北が役牌のとき北の刻子を構成 */
-int is_pei(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_pei(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)pair_tile;
+    return is_wind(concealed_elems, melded_elems, cfg, MJ_WP);
+}
 
 /*** 2翻 ***/
 /* 対々和: 門前: 不要, 説明: 面子を刻子のみで構成 */
-int is_toitoi(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_toitoi(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)pair_tile;
+    (void)cfg;
+    uint32_t count = 0;
+    count += count_elements_triplets(concealed_elems);
+    count += count_elements_triplets(melded_elems);
+    count += count_elements_fours(melded_elems);
+    return count == MJ_ELEMENTS_LEN;
+}
+
 /* 三暗刻: 門前: 不要, 説明: 暗刻を3つ構成 */
-int is_sanankou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_sanankou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)pair_tile;
+    (void)cfg;
+    uint32_t count = 0;
+    count += count_elements_concealed_fours(melded_elems);
+    count += count_elements_triplets(concealed_elems);
+    if (count < 3) {
+        return false;
+    }
+    /* 刻子が3枚 && ロンアガリ && シャンポン待ち => 三暗刻不成立 */
+    if (count == 3 && cfg->ron && is_shanpon_machi(concealed_elems, cfg->win_tile)) {
+        return false;
+    }
+    return true;
+}
+
 /* 三色同刻: 門前: 不要, 説明: 同数異種の刻子を3つ構成 */
-int is_sanshoku_douko(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_sanshoku_douko(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)pair_tile;
+    (void)cfg;
+    Elements merged_elems;
+    merge_elements(&merged_elems, concealed_elems, melded_elems);
+    assert(merged_elems.len == MJ_ELEMENTS_LEN);
+    for (uint32_t i = 0; i < merged_elems.len - 2; i ++) {
+        const Element *elem = &merged_elems.meld[i];
+        if ((is_element_triplets(elem) || is_element_fours(elem))) {
+            if (is_tile_id_honors(elem->tile_id[0])) {
+                continue;
+            }
+            // found first triplets or fours 数牌
+            uint32_t type;
+            uint32_t number;
+            type = get_tile_type(elem->tile_id[0]);
+            number = get_tile_number(elem->tile_id[0]);
+            for (uint32_t j = i + 1; j < merged_elems.len; j ++) {
+                const Element *target = &merged_elems.meld[j];
+                if (is_element_triplets(target) || is_element_fours(target)) {
+                    if (is_tile_id_honors(target->tile_id[0])) {
+                        continue;
+                    }
+                    uint32_t target_number = get_tile_number(target->tile_id[0]);
+                    if (number == target_number) {
+                        type |= get_tile_type(target->tile_id[0]);
+                    }
+                }
+            }
+            if (type == (TILE_TYPE_MAN | TILE_TYPE_PIN | TILE_TYPE_SOU)) {
+                // found three types - man, pin and sou
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 /* 三槓子: 門前: 不要, 説明: 槓子を3つ構成 */
-int is_sankantsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_sankantsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)concealed_elems;
+    (void)pair_tile;
+    (void)cfg;
+    uint32_t count;
+    count = count_elements_fours(melded_elems);
+    return count >= 3;
+}
+
 /* 小三元: 門前: 不要, 説明: 三元牌を2つ刻子, 1つ雀頭で構成 */
-int is_shosangen(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_shosangen(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)cfg;
+    bool haku = has_elements_tile_id(concealed_elems, MJ_DW) || has_elements_tile_id(melded_elems, MJ_DW);
+    bool hatsu = has_elements_tile_id(concealed_elems, MJ_DG) || has_elements_tile_id(melded_elems, MJ_DG);
+    bool chun = has_elements_tile_id(concealed_elems, MJ_DR) || has_elements_tile_id(melded_elems, MJ_DR);
+    if ((!haku && !hatsu) ||
+        (!haku && !chun) ||
+        (!hatsu && !chun)) {
+        return false;
+    }
+    /* もし刻子が白撥中のどれか2つでできていたら, 雀頭は刻子で構成された白撥中と別の牌で構成される */
+    if (pair_tile != MJ_DW && pair_tile != MJ_DG && pair_tile != MJ_DR) {
+        return false;
+    }
+    return true;
+}
+
 /* 混老頭: 門前: 不要, 説明: 么九牌(1,9, 字牌)だけで構成(七対子もしくは対々和と必ず複合する) */
-int is_honroto(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_honroto(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)cfg;
+    if (!is_elements_yaochu(concealed_elems)) {
+        return false;
+    }
+    if (!is_elements_yaochu(melded_elems)) {
+        return false;
+    }
+    if (!is_tile_id_yaochu(pair_tile)) {
+        return false;
+    }
+    return true;
+}
+
 /* ダブ東: 門前: 不要, 説明: 東が自風かつ場風のとき東の刻子を構成 */
 int is_double_ton(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* ダブ南: 門前: 不要, 説明: 南が自風かつ場風のとき南の刻子を構成 */

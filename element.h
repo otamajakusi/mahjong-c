@@ -77,7 +77,9 @@ uint32_t count_elements_concealed_fours(const Elements *elems);
 bool has_elements_melded(const Elements *elems); /* 暗槓はconcealed扱い */
 
 bool is_ryanmen_machi(const Elements *elems, MJTileId win_tile);
+bool is_shanpon_machi(const Elements *elems, MJTileId win_tile);
 bool is_tanki_machi(MJTileId pair_tile, MJTileId win_tile);
-uint32_t count_same_elements(const Elements *elems);
+uint32_t count_elements_same_sequences(const Elements *elems);
 
 bool has_elements_tile_id(const Elements *elems, MJTileId tile_id);
+void merge_elements(Elements *dst, const Elements *e1, const Elements *e2);
