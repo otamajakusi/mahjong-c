@@ -32,7 +32,7 @@
 #include "element.h"
 #include "score.h"
 
-/* save triplets tile id to tile_id[n]. if there is two triplets, 2 should be set for len */
+/* save triplets tile id to tile_id[n]. e.g. if there is two triplets, 2 should be set for len */
 typedef struct {
     MJTileId tile_id[MJ_ELEMENTS_LEN];
     uint32_t len;
@@ -52,7 +52,7 @@ static void gen_triplets_candidates(_Triplets *triplets, const Tiles *tiles) {
 
 /*
  * tilesがすべて順子で成立するか確認する.
- * 成立した面子はelemsに作成される.
+ * 成立した面子はelemsに追加される.
  */
 static int find_elements_as_sequence(const Tiles *tiles, Elements *elems) {
     Tiles _tiles;
@@ -75,6 +75,7 @@ static int find_elements_as_sequence(const Tiles *tiles, Elements *elems) {
             _tiles.tiles[i] --;
             _tiles.tiles[i + 1] --;
             _tiles.tiles[i + 2] --;
+            assert(elems->len < MJ_ELEMENTS_LEN);
             elems->meld[elems->len].tile_id[0] = i;
             elems->meld[elems->len].tile_id[1] = i + 1;
             elems->meld[elems->len].tile_id[2] = i + 2;
@@ -148,6 +149,7 @@ static int find_agari_sequence_after_remove_all_triplets(const Tiles *tiles, con
     for (uint32_t i = 0; i < triplets->len; i ++) {
         MJTileId tile_id = triplets->tile_id[i];
         _tiles.tiles[tile_id] -= 3; // remove triplets
+        assert(elems.len < MJ_ELEMENTS_LEN);
         elems.meld[elems.len].tile_id[0] = tile_id;
         elems.meld[elems.len].tile_id[1] = tile_id;
         elems.meld[elems.len].tile_id[2] = tile_id;

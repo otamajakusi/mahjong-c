@@ -28,128 +28,163 @@
 #include "element.h"
 #include "score.h"
 
-// 1翻
+/*** 1翻 ***/
+/* 平和: 門前: 必須, 説明: 役牌以外で構成, 面子を順子のみで構成し両面待ちで上がる. ロンで30符, ツモで20符 */
 int is_pinfu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 断么九: 門前: 不要, 説明: 么九牌以外で構成 */
 int is_tanyao(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 一盃口: 門前: 必須, 説明: 同数同種の数牌の順子を2組を構成 */
 int is_iipeiko(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 白: 門前: 不要, 説明: 白の刻子を構成 */
 int is_haku(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 發: 門前: 不要, 説明: 發の刻子を構成 */
 int is_hatsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 中: 門前: 不要, 説明: 中の刻子を構成 */
 int is_chun(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 東: 門前: 不要, 説明: 東が役牌のとき東の刻子を構成 */
 int is_ton(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 南: 門前: 不要, 説明: 南が役牌のとき南の刻子を構成 */
 int is_nan(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 西: 門前: 不要, 説明: 西が役牌のとき西の刻子を構成 */
 int is_sha(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 北: 門前: 不要, 説明: 北が役牌のとき北の刻子を構成 */
 int is_pei(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
 
-// 2翻
+/*** 2翻 ***/
+/* 対々和: 門前: 不要, 説明: 面子を刻子のみで構成 */
 int is_toitoi(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 三暗刻: 門前: 不要, 説明: 暗刻を3つ構成 */
 int is_sanankou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 三色同刻: 門前: 不要, 説明: 同数異種の刻子を3つ構成 */
 int is_sanshoku_douko(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 三槓子: 門前: 不要, 説明: 槓子を3つ構成 */
 int is_sankantsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 小三元: 門前: 不要, 説明: 三元牌を2つ刻子, 1つ雀頭で構成 */
 int is_shosangen(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 混老頭: 門前: 不要, 説明: 么九牌(1,9, 字牌)だけで構成(七対子もしくは対々和と必ず複合する) */
 int is_honroto(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* ダブ東: 門前: 不要, 説明: 東が自風かつ場風のとき東の刻子を構成 */
 int is_double_ton(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* ダブ南: 門前: 不要, 説明: 南が自風かつ場風のとき南の刻子を構成 */
 int is_double_nan(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* ダブ西: 門前: 不要, 説明: 西が自風かつ場風のとき西の刻子を構成 */
 int is_double_sha(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* ダブ北: 門前: 不要, 説明: 北が自風かつ場風のとき北の刻子を構成 */
 int is_double_pei(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
-
-// 2翻(食い下がり1翻)
-int is_sanshoku(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
-int is_ittsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
-int is_chanta(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 七対子: 門前: 必要, 説明: 7種類の対子で構成. 常に25符. 同種の牌が4枚の場合は不成立. 一盃口, 二盃口と複合しない. */
 int is_chiitoitsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
 
-// 3翻
-int is_ryanpeiko(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg); // 二盃口, 門前, 一盃口の上位役
-// 3翻(食い下がり2翻)
-int is_honitsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);   // 混一色, チンイツの下位役
-int is_junchan(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);   // 純全帯么九(純チャン)(字牌を含まないチャンタ)
+/*** 2翻(食い下がり1翻) ***/
+/* 三色同順: 門前: 不要, 食い下がり: 1翻, 説明: 同数異種の順子を3つ構成 */
+int is_sanshoku(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 一気通貫: 門前: 不要, 食い下がり: 1翻, 説明: 同数順子で123,456,789を構成 */
+int is_ittsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 混全帯么九: 門前: 不要, 食い下がり: 1翻, 説明: すべての面子と雀頭に么九牌(1,9,字牌)を含む(123はOK) */
+int is_chanta(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
 
-// 6翻
-int is_chinitsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);  // 清一色(チンイツ)(字牌を使わないホンイツ)
+/*** 3翻 ***/
+/* 二盃口: 門前: 必須, 説明: 一盃口を2組を構成. 同種同順が2組でも成立. */
+int is_ryanpeiko(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/*** 3翻(食い下がり2翻) ***/
+/* 混一色: 門前: 不要, 食い下がり: 2翻, 説明: 同種の数牌と字牌のみで構成. */
+int is_honitsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 純全帯么九: 門前: 不要, 食い下がり: 2翻, 説明: すべての面子と雀頭を老頭牌(1,9牌)を含む(123はOK). 混全帯么九に字牌が含まれない場合の構成. */
+int is_junchan(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
 
-// 役満
-int is_kokushi(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);   // 国士無双, 門前
-int is_suuankou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);  // 四暗刻, 門前
-int is_daisangen(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg); // 大三元
-int is_ryuisou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);   // 緑一色(緑發が入っていなくてもよい)
-int is_tsuisou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);   // 字一色
-int is_shosuushi(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg); // 小四喜
-int is_daisuushi(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg); // 大四喜, 小四喜の上位役
-int is_chinroto(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);  // 清老頭(すべて1,9牌のみで揃える,鳴きOK), ホンロウトウの上位役
-int is_suukantsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg); // 四槓子
+/*** 6翻(食い下がり5翻) ***/
+/* 清一色: 門前: 不要, 食い下がり: 5翻, 説明: 同種の数牌のみで構成. */
+int is_chinitsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+
+/*** 役満 ***/
+/* 国士無双: 門前: 必要, 説明: すべての種類の么九牌で構成される. */
+int is_kokushi(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 四暗刻: 門前: 必要, 説明: 面子を暗刻(暗槓含む)で構成. 注意: ロンアガリで面子が揃う場合は明刻扱い. */
+int is_suuankou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 大三元: 門前: 不要, 説明: 三元牌をすべて刻子で構成 */
+int is_daisangen(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 緑一色: 門前: 不要, 説明: 面子を索子の23468と發から構成. 發が含まれていなくてもよい */
+int is_ryuisou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 字一色: 門前: 不要, 配がすべて字牌で4面子1雀頭もしくは七対子 */
+int is_tsuisou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 小四喜: 門前: 不要, 1つの風牌の刻子と風牌の雀頭で構成 */
+int is_shosuushi(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 大四喜: 門前: 不要, 風牌ですべての面子を構成 */
+int is_daisuushi(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 清老頭: 門前: 不要, すべて老頭牌(1,9牌)で構成. 混老頭の上位役 */
+int is_chinroto(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 四槓子: 門前: 不要, 4面子を槓子で構成 */
+int is_suukantsu(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 九蓮宝燈: 門前: 必要, 同種の数牌が1112345678999 + xで構成 */
 int is_chuuren_poutou(const Elements *concealed_melds, const Elements *open_melds, MJTileId pair_tile, const ScoreConfig *cfg);  // 九蓮宝燈, 門前
 
-
-#if 0
-// 30符6翻
-// https://npm2001.com/about/regulations/
-// 日本プロ麻雀協会
-// -> 7700
-// https://www.ma-jan.or.jp/guide/game_rule.html
-// 日本プロ麻雀連盟公式ルール
-// -> 7700
-// WRCルール
-// -> 8000(切り上げ)
-// https://m-league.jp/about/
-// Mリーグ
-// -> 8000(切り上げ)
-
-// 連風牌の対子は2符 (https://npm2001.com/about/regulations/)
-//
-// 1 Han
-// 1翻
-pinfu;    // 平和, 門前
-tanyao    // 断幺九
-iipeiko   // 一盃口, 門前
-haku      // 白
-hatsu     // 發
-chun      // 中
-ton       // 東
-nan       // 南
-sha       // 西
-pei       // 北
-
-// 2翻
-toitoi    // 対々和
-sanankou  // 三暗刻
-sanshoku_douko  // 三色同刻
-sankantsu // 三槓子
-shosangen // 小三元, 大三元の下位役
-honroto   // 混老頭(ホンロウトウ)(すべて1,9,字牌), チャンタの上位役
-// 以下食い下がり1翻
-sanshoku  // 三色同順
-ittsu     // 一気通貫
-chanta    // 全帯么九(チャンタ)(1,9,字牌を含む構成. 混老頭と異なり123などOK. 混老頭と複合しない)
-chiitoitsu  // 七対子(25符)
-
-// 3翻
-ryanpeiko // 二盃口, 門前, 一盃口の上位役
-// 以下食い下がり2翻
-honitsu   // 混一色, チンイツの下位役
-junchan   // 純全帯么九(純チャン)(字牌を含まないチャンタ)
-
-// 6翻
-chinitsu  // 清一色(チンイツ)(字牌を使わないホンイツ)
-
-// 役満
-kokushi   // 国士無双, 門前
-suuankou  // 四暗刻, 門前
-daisangen // 大三元
-ryuisou   // 緑一色(緑發が入っていなくてもよい)
-tsuisou   // 字一色
-shosuushi // 小四喜
-daisuushi // 大四喜, 小四喜の上位役
-chinroto  // 清老頭(すべて1,9牌のみで揃える,鳴きOK), ホンロウトウの上位役
-suukantsu // 四槓子
-chuuren_poutou  // 九蓮宝燈, 門前
-
-// 役満ノート
-大車輪は役満にならない
-大四喜はダブル役満にならない
-国士無双13面待ち(純正国士無双)はダブル役満にならない
-四暗刻単騎待ちはダブル役満にならない
-純正九蓮宝燈はダブル役満にならない
-
-// Mリーグでのアガリメモ
-// https://top3776.hatenablog.com/entry/2022/05/28/142033
-#endif
+/*
+ * [30符6翻の扱い]
+ * 1. 日本プロ麻雀協会
+ *    https://npm2001.com/about/regulations/
+ *    7700点
+ * 2. 日本プロ麻雀連盟公式ルール
+ *    https://www.ma-jan.or.jp/guide/game_rule.html
+ *    7700点
+ * 3. 日本プロ麻雀連盟WRCルール
+ *    https://www.ma-jan.or.jp/guide/game_rule.html
+ *    8000点(切り上げ)
+ * 4. Mリーグ
+ *    https://m-league.jp/about/
+ *    8000点(切り上げ)
+ *
+ * [連風牌の対子の符]
+ * 1. 日本プロ麻雀協会
+ *    https://npm2001.com/about/regulations/
+ *    2符
+ * 2. 日本プロ麻雀連盟公式ルール
+ *    https://www.ma-jan.or.jp/guide/game_rule.html
+ *    4符
+ * 3. 日本プロ麻雀連盟WRCルール
+ *    https://www.ma-jan.or.jp/guide/game_rule.html
+ *    2符
+ * 4. Mリーグ
+ *    https://m-league.jp/about/
+ *    2符
+ *
+ * [嶺上牌のツモ符]
+ * 1. 日本プロ麻雀協会
+ *    https://npm2001.com/about/regulations/
+ *    2符(明記が無いが以下の記述あり「嶺上牌によるアガリは全てツモアガリとする」)
+ * 2. 日本プロ麻雀連盟公式ルール
+ *    https://www.ma-jan.or.jp/guide/game_rule.html
+ *    0符(「嶺上牌にツモ符はつかない」)
+ * 3. 日本プロ麻雀連盟WRCルール
+ *    https://www.ma-jan.or.jp/guide/game_rule.html
+ *    2符(「嶺上牌にツモ符が２符つく」)
+ * 4. Mリーグ
+ *    https://m-league.jp/about/
+ *    2符(明記が無いが以下の記述あり「ツモアガリとする」)
+ *
+ * [役満の種類]
+ * 1. 日本プロ麻雀協会
+ *    https://npm2001.com/about/regulations/
+ *    天和, 地和, 十三幺九（国士無双）, 四暗刻, 大三元, 緑一色, 字一色, 小四喜, 大四喜, 清老頭, 四槓子, 九蓮宝燈
+ * 2. 日本プロ麻雀連盟公式ルール
+ *    https://www.ma-jan.or.jp/guide/game_rule.html
+ *    明記なし
+ * 3. 日本プロ麻雀連盟WRCルール
+ *    https://www.ma-jan.or.jp/guide/game_rule.html
+ *    明記なし
+ * 4. Mリーグ
+ *    https://m-league.jp/about/
+ *    天和, 地和, 国士無双, 四暗刻, 大三元, 緑一色, 字一色, 小四喜, 大四喜, 清老頭, 四槓子, 九蓮宝燈
+ *
+ * [緑一色の發]
+ * 1. 日本プロ麻雀協会
+ *    https://npm2001.com/about/regulations/
+ *    發が必要「索子牌の2・3・4・6・8、および緑發で構成されたアガリ形」
+ * 2. 日本プロ麻雀連盟公式ルール
+ *    https://www.ma-jan.or.jp/guide/game_rule.html
+ *    發が必要(「緑一色は發が含まれなければいけない」
+ * 3. 日本プロ麻雀連盟WRCルール
+ *    https://www.ma-jan.or.jp/guide/game_rule.html
+ *    發はなくてもよい(「緑一色は發がなくても可」)
+ * 4. Mリーグ
+ *    https://m-league.jp/about/
+ *    發はなくてもよい「緑發が入っていなくてもよい」
+ */

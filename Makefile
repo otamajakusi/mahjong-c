@@ -21,7 +21,7 @@ $(TEST_TARGET): $(TEST_OBJS) $(TARGET)
 	$(CC) $(LDFLAGS) $^ -o $@
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $< -MMD -MP
 
 -include $(DEPS)
 -include $(TEST_DEPS)
