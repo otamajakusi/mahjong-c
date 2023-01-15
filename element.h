@@ -63,8 +63,8 @@ bool is_element_concealed(const Element *elem);
 /* all elements */
 bool is_elements_chunchan(const Elements *elems);
 bool is_elements_routou(const Elements *elems);
-bool is_elements_yaochu(const Element *elems);
-bool has_element_yaochu(const Element *elem);
+bool is_elements_yaochu(const Elements *elems);
+bool has_elements_yaochu(const Elements *elems);
 bool is_elements_sequence(const Elements *elems);
 bool is_elements_triplets(const Elements *elems);
 bool is_elements_fours(const Elements *elems);
@@ -78,8 +78,6 @@ bool has_elements_melded(const Elements *elems); /* 暗槓はconcealed扱い */
 
 bool is_ryanmen_machi(const Elements *elems, MJTileId win_tile);
 bool is_tanki_machi(MJTileId pair_tile, MJTileId win_tile);
-//bool is_same_element(const Element *e1, const Element *e2); // -> static function
-/* count same elements count */
-bool count_same_elements(const Elements *elems);
+uint32_t count_same_elements(const Elements *elems);
 
 bool has_elements_tile_id(const Elements *elems, MJTileId tile_id);
