@@ -80,7 +80,8 @@ static int find_elements_as_sequence(const Tiles *tiles, Elements *elems) {
             elems->meld[elems->len].tile_id[1] = i + 1;
             elems->meld[elems->len].tile_id[2] = i + 2;
             elems->meld[elems->len].len = 3;
-            elems->meld[elems->len].concealed = 1;
+            elems->meld[elems->len].concealed = true;
+            elems->meld[elems->len].type = ELEM_TYPE_SEQUENCE;
             elems->len ++;
 
             int found = find_elements_as_sequence(&_tiles, elems);
@@ -127,6 +128,7 @@ static int find_agari_sequence_after_remove_one_triplets(const Tiles *tiles, con
         elems.meld[0].tile_id[2] = tile_id;
         elems.meld[0].len = 3;
         elems.meld[0].concealed = true;
+        elems.meld[0].type = ELEM_TYPE_TRIPLETS;
         if (find_elements_as_sequence(&_tiles, &elems)) {
             calc_score(&elems, melded_elems, pair_tile, cfg);
             agari ++;
@@ -155,6 +157,7 @@ static int find_agari_sequence_after_remove_all_triplets(const Tiles *tiles, con
         elems.meld[elems.len].tile_id[2] = tile_id;
         elems.meld[elems.len].len = 3;
         elems.meld[elems.len].concealed = true;
+        elems.meld[elems.len].type = ELEM_TYPE_TRIPLETS;
         elems.len ++;
     }
     if (find_elements_as_sequence(&_tiles, &elems)) {
