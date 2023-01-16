@@ -64,6 +64,7 @@
 
 typedef enum {
   MJ_M1 = 0,
+  MJ_M2,
   MJ_M3,
   MJ_M4,
   MJ_M5,
@@ -72,6 +73,7 @@ typedef enum {
   MJ_M8,
   MJ_M9,
   MJ_P1,
+  MJ_P2,
   MJ_P3,
   MJ_P4,
   MJ_P5,
@@ -80,6 +82,7 @@ typedef enum {
   MJ_P8,
   MJ_P9,
   MJ_S1,
+  MJ_S2,
   MJ_S3,
   MJ_S4,
   MJ_S5,

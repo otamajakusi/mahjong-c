@@ -50,6 +50,8 @@ bool is_element_fours(const Element *elem);
 bool is_element_chunchan(const Element *elem);
 /* 1 or 9 */
 bool is_element_routou(const Element *elem);
+/* 123, 789, 111, 999 */
+bool has_element_routou(const Element *elem);
 /* 1,9,字牌 */
 bool is_element_yaochu(const Element *elem);
 /* 123, 789, 111, 999 or 字牌 */
@@ -63,6 +65,7 @@ bool is_element_concealed(const Element *elem);
 /* all elements */
 bool is_elements_chunchan(const Elements *elems);
 bool is_elements_routou(const Elements *elems);
+bool has_elements_routou(const Elements *elems);
 bool is_elements_yaochu(const Elements *elems);
 bool has_elements_yaochu(const Elements *elems);
 bool is_elements_sequence(const Elements *elems);
@@ -70,6 +73,14 @@ bool is_elements_triplets(const Elements *elems);
 bool is_elements_fours(const Elements *elems);
 bool is_elements_concealed(const Elements *elems);
 
+/*
+ * counts same sequence element in elements
+ * 123, 123, 123, 123 => 6
+ * 123, 123, 123, xxx => 3
+ * 123, 123, yyy, xxx => 1
+ * 123, zzz, yyy, xxx => 0
+ * 123, 456, 123, 456 => 2
+ */
 uint32_t count_elements_sequence(const Elements *elems);
 uint32_t count_elements_triplets(const Elements *elems);
 uint32_t count_elements_fours(const Elements *elems);

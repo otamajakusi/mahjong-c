@@ -147,6 +147,26 @@ bool is_element_routou(const Element *elem) {
     return true;
 }
 
+bool has_element_routou(const Element *elem) {
+    for (uint32_t i = 0; i < elem->len; i ++) {
+        MJTileId tile_id = elem->tile_id[i];
+        if (is_tile_id_honors(tile_id)) {
+            return false;
+        }
+        uint32_t number = get_tile_number(tile_id);
+        if (elem->type == ELEM_TYPE_SEQUENCE) {
+            if (number != i && number != i + 6) { // 1,2,3 or 7,8,9
+                return false;
+            }
+        } else {
+            if (number != 0 && number != 8) { // 1 or 9
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 /* 1,9,字牌 */
 bool is_element_yaochu(const Element *elem) {
     for (uint32_t i = 0; i < elem->len; i ++) {
@@ -202,6 +222,10 @@ bool is_elements_chunchan(const Elements *elems) {
 
 bool is_elements_routou(const Elements *elems) {
     ELEMS_FOR_EACH(elems, is_element_routou);
+}
+
+bool has_elements_routou(const Elements *elems) {
+    ELEMS_FOR_EACH(elems, has_element_routou);
 }
 
 bool is_elements_yaochu(const Elements *elems) {
@@ -350,9 +374,17 @@ static uint32_t count_elements_same_sequences_from(uint32_t start, const Element
     }
     return count;
 }
+/*
+ * counts same sequence element in elements
+ * 123, 123, 123, 123 => 6
+ * 123, 123, 123, xxx => 3
+ * 123, 123, yyy, xxx => 1
+ * 123, zzz, yyy, xxx => 0
+ * 123, 456, 123, 456 => 2
+ */
 
 uint32_t count_elements_same_sequences(const Elements *elems) {
-    if (elems->len < 2) {
+    if (elems->len <= 1) {
         return 0;
     }
     uint32_t count = 0;
