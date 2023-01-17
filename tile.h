@@ -37,6 +37,17 @@
 #define TILE_TYPE_DRAGON  (1 << 4)
 #define TILE_TYPE_INVALID (1 << 7)
 
+#define TILE_NUM_1        (1 - 1)
+#define TILE_NUM_2        (2 - 1)
+#define TILE_NUM_3        (3 - 1)
+#define TILE_NUM_4        (4 - 1)
+#define TILE_NUM_5        (5 - 1)
+#define TILE_NUM_6        (6 - 1)
+#define TILE_NUM_7        (7 - 1)
+#define TILE_NUM_8        (8 - 1)
+#define TILE_NUM_9        (9 - 1)
+#define TILE_NUM_INVALID  (-1u)
+
 typedef struct {
     MJTileId tiles[MJ_DR + 1];
 } Tiles;

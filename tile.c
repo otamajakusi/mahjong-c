@@ -532,7 +532,7 @@ bool is_tile_id_yaochu(MJTileId tile_id) {
         return true;
     }
     uint32_t number = get_tile_number(tile_id);
-    if (number == 0 || number == 8) {
+    if (number == TILE_NUM_1 || number == TILE_NUM_9) {
         return true;
     }
     return false;
@@ -543,7 +543,7 @@ bool is_tile_id_routou(MJTileId tile_id) {
         return false;
     }
     uint32_t number = get_tile_number(tile_id);
-    if (number == 0 || number == 8) {
+    if (number == TILE_NUM_1 || number == TILE_NUM_9) {
         return true;
     }
     return false;
