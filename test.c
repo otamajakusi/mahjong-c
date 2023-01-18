@@ -6,6 +6,7 @@
 
 bool test() {
     test_tile();
+    test_meld();
     return true;
 }
 
