@@ -1,5 +1,5 @@
 SRCS = tile.c hand.c meld.c element.c agari.c score.c yaku.c mahjong.c
-TEST_SRCS = test.c test_tile.c test_meld.c
+TEST_SRCS = test.c test_tile.c test_meld.c test_element.c
 TARGET = libmahjong.so
 TEST_TARGET = test.elf
 
