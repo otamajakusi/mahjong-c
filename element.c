@@ -155,11 +155,11 @@ bool has_element_routou(const Element *elem) {
         }
         uint32_t number = get_tile_number(tile_id);
         if (elem->type == ELEM_TYPE_SEQUENCE) {
-            if (number != i && number != i + 6) { // 1,2,3 or 7,8,9
+            if (number != (TILE_NUM_1 + i) && number != (TILE_NUM_7 + i)) { // 1,2,3 or 7,8,9
                 return false;
             }
         } else {
-            if (number != 0 && number != 8) { // 1 or 9
+            if (number != TILE_NUM_1 && number != TILE_NUM_9) { // 1 or 9
                 return false;
             }
         }
@@ -187,11 +187,11 @@ bool has_element_yaochu(const Element *elem) {
         }
         uint32_t number = get_tile_number(tile_id);
         if (elem->type == ELEM_TYPE_SEQUENCE) {
-            if (number != i && number != i + 6) { // 1,2,3 or 7,8,9
+            if (number != (TILE_NUM_1 + i) && number != (TILE_NUM_7 + i)) { // 1,2,3 or 7,8,9
                 return false;
             }
         } else {
-            if (number != 0 && number != 8) { // 1 or 9
+            if (number != TILE_NUM_1 && number != TILE_NUM_9) { // 1 or 9
                 return false;
             }
         }
@@ -312,14 +312,14 @@ bool is_ryanmen_machi(const Elements *elems, MJTileId win_tile) {
 
         tile_id = elem->tile_id[0];
         number = get_tile_number(tile_id);
-        assert(number <= (7-1));
-        if (tile_id == win_tile && number != (7-1)) { // n,n+1,n+2の順子でアガリ牌nが7,8,9でなければ両面待ち
+        assert(number <= TILE_NUM_7);
+        if (tile_id == win_tile && number != TILE_NUM_7) { // n,n+1,n+2の順子でアガリ牌nが7でなければ両面待ち
             return true;
         }
         tile_id = elem->tile_id[2];
         number = get_tile_number(tile_id);
-        assert(number >= (3-1));
-        if (tile_id == win_tile && number != (3-1)) { // n,n+1,n+2の順子でアガリ牌n+2が3でなければ両面待ち
+        assert(number >= TILE_NUM_3);
+        if (tile_id == win_tile && number != TILE_NUM_3) { // n,n+1,n+2の順子でアガリ牌n+2が3でなければ両面待ち
             return true;
         }
     }

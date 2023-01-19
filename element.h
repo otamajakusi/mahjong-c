@@ -39,16 +39,19 @@ typedef enum {
   ELEM_TYPE_FOURS,
 } ElementType;
 
+/*
+ * melds should be checked with is_valid_melds befor hands.
+ */
 bool gen_elements_from_melds(Elements *elems, const MJMelds *melds);
 
-bool is_element_sequence(const Element *elem);
-bool is_element_triplet(const Element *elem);
-bool is_element_fours(const Element *elem);
+/*
+ * Elements or Element arguments of the following functions are assumed to be generated with gen_elements_from_melds.
+ */
 
 /* single element */
 /* 2..8 */
 bool is_element_chunchan(const Element *elem);
-/* 1 or 9 */
+/* only 111 or 999 */
 bool is_element_routou(const Element *elem);
 /* 123, 789, 111, 999 */
 bool has_element_routou(const Element *elem);
