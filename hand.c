@@ -32,7 +32,7 @@
 #include "hand.h"
 
 bool is_valid_hands(const MJHands *hands) {
-    if (hands->len > MJ_MAX_HAND_LEN) {
+    if (hands->len > MJ_MAX_HAND_LEN || hands->len < MJ_MIN_HAND_LEN) {
         return false;
     }
     for (uint32_t i = 0; i < hands->len; i ++) {

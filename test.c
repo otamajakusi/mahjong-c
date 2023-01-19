@@ -7,6 +7,7 @@
 bool test() {
     test_tile();
     test_meld();
+    test_hand();
     test_element();
     return true;
 }
