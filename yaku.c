@@ -1037,7 +1037,7 @@ int is_iipeiko(const Elements *concealed_elems, const Elements *melded_elems, MJ
     if (has_elements_melded(melded_elems)) {
         return false;
     }
-    if (count_elements_same_sequences(concealed_elems) == 0) {
+    if (count_elements_same_sequence(concealed_elems) == 0) {
         return false;
     }
     return true;
@@ -1355,7 +1355,7 @@ int is_ryanpeiko(const Elements *concealed_elems, const Elements *melded_elems, 
     if (has_elements_melded(melded_elems)) {
         return false;
     }
-    uint32_t count = count_elements_same_sequences(concealed_elems);
+    uint32_t count = count_elements_same_sequence(concealed_elems);
     if (count != 6 && count != 2) {
         return false;
     }

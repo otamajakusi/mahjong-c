@@ -266,6 +266,130 @@ void test_has_elements_yaochu() {
     assert(!has_elements_yaochu(&elems2));
 }
 
+void test_count_elements_sequence() {
+    Elements elems1 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{p7,p7,p7}, 3, false, ELEM_TYPE_TRIPLETS},
+            {{p7,p8,p9}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        3
+    };
+    assert(count_elements_sequence(&elems1) == 2);
+}
+
+void test_count_elements_triplets() {
+    Elements elems1 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{p7,p7,p7}, 3, false, ELEM_TYPE_TRIPLETS},
+            {{p7,p8,p9}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        3
+    };
+    assert(count_elements_triplets(&elems1) == 1);
+}
+
+void test_count_elements_fours() {
+    Elements elems1 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{p7,p7,p7}, 3, false, ELEM_TYPE_TRIPLETS},
+            {{s7,s7,s7,s7}, 3, false, ELEM_TYPE_FOURS},
+            {{wp,wp,wp,wp}, 3, false, ELEM_TYPE_FOURS},
+        },
+        4
+    };
+    assert(count_elements_fours(&elems1) == 2);
+}
+
+void test_count_elements_concealed_fours() {
+    Elements elems1 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{dg,dg,dg,dg}, 3, true, ELEM_TYPE_FOURS},
+            {{s7,s7,s7,s7}, 3, true, ELEM_TYPE_FOURS},
+            {{wp,wp,wp,wp}, 3, false, ELEM_TYPE_FOURS},
+        },
+        4
+    };
+    assert(count_elements_concealed_fours(&elems1) == 2);
+}
+
+void test_has_elements_melded() { /* 暗槓はconcealed扱い */
+    Elements elems1 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{dg,dg,dg,dg}, 3, true, ELEM_TYPE_FOURS},
+            {{s7,s7,s7,s7}, 3, true, ELEM_TYPE_FOURS},
+            {{wp,wp,wp,wp}, 3, false, ELEM_TYPE_FOURS},
+        },
+        4
+    };
+    Elements elems2 = {
+        {
+            {{dg,dg,dg,dg}, 3, true, ELEM_TYPE_FOURS},
+            {{s7,s7,s7,s7}, 3, true, ELEM_TYPE_FOURS},
+        },
+        2
+    };
+    assert(has_elements_melded(&elems1));
+    assert(!has_elements_melded(&elems2));
+}
+
+void test_is_ryanmen_machi() {
+    Elements elems1 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        1
+    };
+    Elements elems2 = {
+        {
+            {{m4,m5,m6}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        1
+    };
+    Elements elems3 = {
+        {
+            {{s6,s7,s8}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{m7,m8,m9}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        2
+    };
+    assert(is_ryanmen_machi(&elems1, m1));
+    assert(!is_ryanmen_machi(&elems1, m2));
+    assert(!is_ryanmen_machi(&elems1, m3));
+    assert(is_ryanmen_machi(&elems2, m4));
+    assert(!is_ryanmen_machi(&elems2, m5));
+    assert(is_ryanmen_machi(&elems2, m6));
+    assert(!is_ryanmen_machi(&elems3, m7));
+    assert(!is_ryanmen_machi(&elems3, m8));
+    assert(is_ryanmen_machi(&elems3, m9));
+}
+
+void test_is_shanpon_machi() {
+    Elements elems1 = {
+        {
+            {{m1,m1,m1}, 3, true, ELEM_TYPE_TRIPLETS},
+        },
+        1
+    };
+    Elements elems2 = {
+        {
+            {{s4,s5,s6}, 3, true, ELEM_TYPE_TRIPLETS},
+        },
+        1
+    };
+    assert(is_shanpon_machi(&elems1, m1));
+    assert(!is_shanpon_machi(&elems2, s6));
+}
+
+void test_is_tanki_machi() {
+    assert(is_tanki_machi(m1, m1));
+    assert(!is_tanki_machi(m2, m1));
+}
+
 /*
  * counts same sequence element in elements
  * 123, 123, 123, 123 => 6
@@ -274,20 +398,99 @@ void test_has_elements_yaochu() {
  * 123, zzz, yyy, xxx => 0
  * 123, 456, 123, 456 => 2
  */
-uint32_t test_count_elements_sequence(const Elements *elems);
+void test_count_elements_same_sequence() {
+    Elements elems1 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{p7,p8,p9}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{p7,p8,p9}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        3
+    };
+    Elements elems2 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{s9,s9,s9}, 3, false, ELEM_TYPE_TRIPLETS},
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        4
+    };
+    Elements elems3 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        4
+    };
+    Elements elems4 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{p6,p7,p8}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{p6,p7,p8}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        4
+    };
+    Elements elems5 = {
+        {
+            {{wt,wt,wt}, 3, false, ELEM_TYPE_TRIPLETS},
+            {{p6,p7,p8}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{wt,wt,wt}, 3, false, ELEM_TYPE_TRIPLETS},
+            {{p6,p7,p8}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        4
+    };
+    assert(count_elements_same_sequence(&elems1) == 1);
+    assert(count_elements_same_sequence(&elems2) == 3);
+    assert(count_elements_same_sequence(&elems3) == 6);
+    assert(count_elements_same_sequence(&elems4) == 2);
+    assert(count_elements_same_sequence(&elems5) == 1);
+}
 
-uint32_t test_count_elements_triplets(const Elements *elems);
-uint32_t test_count_elements_fours(const Elements *elems);
-uint32_t test_count_elements_concealed_fours(const Elements *elems);
-bool test_has_elements_melded(const Elements *elems); /* 暗槓はconcealed扱い */
+void test_has_elements_tile_id() {
+    Elements elems1 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{p6,p7,p8}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        2
+    };
+    assert(has_elements_tile_id(&elems1, p7));
+    assert(!has_elements_tile_id(&elems1, p9));
+}
 
-bool test_is_ryanmen_machi(const Elements *elems, MJTileId win_tile);
-bool test_is_shanpon_machi(const Elements *elems, MJTileId win_tile);
-bool test_is_tanki_machi(MJTileId pair_tile, MJTileId win_tile);
-uint32_t test_count_elements_same_sequences(const Elements *elems);
-
-bool test_has_elements_tile_id(const Elements *elems, MJTileId tile_id);
-void test_merge_elements(Elements *dst, const Elements *e1, const Elements *e2);
+void test_merge_elements() {
+    Elements elems1 = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{p6,p7,p8}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        2
+    };
+    Elements elems2 = {
+        {
+            {{ws,ws,ws}, 3, false, ELEM_TYPE_TRIPLETS},
+            {{s6,s7,s8}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        2
+    };
+    Elements act;
+    memset(&act, -1, sizeof(Elements));
+    Elements exp = {
+        {
+            {{m1,m2,m3}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{p6,p7,p8}, 3, false, ELEM_TYPE_SEQUENCE},
+            {{ws,ws,ws}, 3, false, ELEM_TYPE_TRIPLETS},
+            {{s6,s7,s8}, 3, false, ELEM_TYPE_SEQUENCE},
+        },
+        4
+    };
+    merge_elements(&act, &elems1, &elems2);
+    assert(memcmp(&act, &exp, sizeof(Elements)) == 0);
+}
 
 bool test_element() {
     test_gen_elements_from_melds();
@@ -305,5 +508,16 @@ bool test_element() {
     test_has_elements_routou();
     test_is_elements_yaochu();
     test_has_elements_yaochu();
+    test_count_elements_sequence();
+    test_count_elements_triplets();
+    test_count_elements_fours();
+    test_count_elements_concealed_fours();
+    test_has_elements_melded();
+    test_is_ryanmen_machi();
+    test_is_shanpon_machi();
+    test_is_tanki_machi();
+    test_count_elements_same_sequence();
+    test_has_elements_tile_id();
+    test_merge_elements();
     return true;
 }

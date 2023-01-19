@@ -363,7 +363,7 @@ static bool is_element_same_sequence(const Element *e1, const Element *e2) {
     return true;
 }
 
-static uint32_t count_elements_same_sequences_from(uint32_t start, const Elements *elems) {
+static uint32_t count_elements_same_sequence_from(uint32_t start, const Elements *elems) {
     uint32_t count = 0;
     assert(start < elems->len);
     const Element *elem = &elems->meld[start];
@@ -383,13 +383,13 @@ static uint32_t count_elements_same_sequences_from(uint32_t start, const Element
  * 123, 456, 123, 456 => 2
  */
 
-uint32_t count_elements_same_sequences(const Elements *elems) {
+uint32_t count_elements_same_sequence(const Elements *elems) {
     if (elems->len <= 1) {
         return 0;
     }
     uint32_t count = 0;
     for (uint32_t i = 0; i < elems->len - 1; i ++) {
-        count += count_elements_same_sequences_from(i, elems);
+        count += count_elements_same_sequence_from(i, elems);
     }
     return count;
 }
