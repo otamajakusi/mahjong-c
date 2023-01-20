@@ -49,9 +49,19 @@ void test_find_agari() {
     assert(test_find_agari_menzen(m1,m2,m3,m1,m2,m3,m1,m2,m3, s1,s2,s3, dg,dg));
     assert(test_find_agari_menzen(m1,m2,m3,m1,m2,m3,m1,m2,m3, m1,m2,m3, dr,dr));
 
+    assert(test_find_agari_menzen(m1,m1,m1,m2,m3,m4,m5,m6,m7, m8,m9,m9, m9,m1)); // 九蓮宝燈
+    assert(test_find_agari_menzen(m1,m1,m1,m2,m3,m4,m5,m6,m7, m8,m9,m9, m9,m2)); // 九蓮宝燈
+    assert(test_find_agari_menzen(m1,m1,m1,m2,m3,m4,m5,m6,m7, m8,m9,m9, m9,m3)); // 九蓮宝燈
+    assert(test_find_agari_menzen(m1,m1,m1,m2,m3,m4,m5,m6,m7, m8,m9,m9, m9,m4)); // 九蓮宝燈
+    assert(test_find_agari_menzen(m1,m1,m1,m2,m3,m4,m5,m6,m7, m8,m9,m9, m9,m5)); // 九蓮宝燈
+    assert(test_find_agari_menzen(m1,m1,m1,m2,m3,m4,m5,m6,m7, m8,m9,m9, m9,m6)); // 九蓮宝燈
+    assert(test_find_agari_menzen(m1,m1,m1,m2,m3,m4,m5,m6,m7, m8,m9,m9, m9,m7)); // 九蓮宝燈
+    assert(test_find_agari_menzen(m1,m1,m1,m2,m3,m4,m5,m6,m7, m8,m9,m9, m9,m8)); // 九蓮宝燈
+    assert(test_find_agari_menzen(m1,m1,m1,m2,m3,m4,m5,m6,m7, m8,m9,m9, m9,m9)); // 九蓮宝燈
+
     // https://www.engineer-log.com/entry/2018/06/14/mahjong-algorithm
-    assert(test_find_agari_menzen(m2,m3,m3,m3,m3,m4,m4,m4,m5,m5,m6,m6, m8,m8));
-    assert(test_find_agari_menzen(m1,m1,m5,m5,m5,m6,m7,m7,m7,m8,m8,m8, m9,m9));
+    assert(test_find_agari_menzen(p2,p3,p3,p3,p3,p4,p4,p4,p5,p5,p6,p6, p8,p8));
+    assert(test_find_agari_menzen(p1,p1,p5,p5,p5,p6,p7,p7,p7,p8,p8,p8, p9,p9));
 
     // https://mj-dragon.com/calc/basic/kotenho.html
     assert(test_find_agari_menzen(m2,m3,m4,p2,p2,p3,p3,p4,p4,p5,p5,s2,s3,s4)); // シャンポン待ち
