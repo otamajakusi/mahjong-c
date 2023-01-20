@@ -9,6 +9,7 @@ bool test() {
     test_meld();
     test_hand();
     test_element();
+    test_agari();
     return true;
 }
 

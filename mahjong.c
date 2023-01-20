@@ -32,6 +32,7 @@
 #include "hand.h"
 #include "meld.h"
 #include "element.h"
+#include "score.h"
 #include "agari.h"
 
 static bool remove_melds_from_tiles(Tiles *tiles, const MJMelds *melds) {
@@ -47,6 +48,19 @@ static bool remove_melds_from_tiles(Tiles *tiles, const MJMelds *melds) {
         }
     }
     return true;
+}
+
+/* for 国士無双, 七対子 */
+static void score_tiles(const Tiles *tiles, void *arg) {
+    (void)tiles;
+    (void)arg;
+}
+
+static void score_elements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg) {
+    (void)concealed;
+    (void)melded;
+    (void)pair;
+    (void)arg;
 }
 
 int32_t mj_get_score(
@@ -91,6 +105,8 @@ int32_t mj_get_score(
         return MJ_ERR_ILLEGAL_PARAM;
     }
 
-    find_agari(&tiles, &melded_elems, win_tile, ron, player_wind, round_wind);
+    ScoreConfig score_cfg = {win_tile, ron, player_wind, round_wind};
+
+    find_agari(&tiles, &melded_elems, score_tiles, score_elements, &score_cfg);
     return MJ_OK;
 }

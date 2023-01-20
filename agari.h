@@ -32,11 +32,12 @@
 #include "tile.h"
 #include "element.h"
 
+typedef void AgariCallbackTiles(const Tiles *tiles, void *arg);
+typedef void AgariCallbackElements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg);
+
 bool find_agari(
     const Tiles *tiles,
     const Elements *elems,
-    MJTileId win_tile,
-    bool ron,
-    const MJTileId player_wind,
-    const MJTileId round_wind);
-
+    AgariCallbackTiles *cb_tiles,
+    AgariCallbackElements *cb_elements,
+    void *cbarg);

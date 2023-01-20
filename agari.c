@@ -30,7 +30,7 @@
 #include "mahjong.h"
 #include "tile.h"
 #include "element.h"
-#include "score.h"
+#include "agari.h"
 
 /*
  * [アガリ判定について]
@@ -163,20 +163,31 @@ static int find_elements_as_sequence(const Tiles *tiles, Elements *elems) {
 }
 
 /* すべてが順子で構成されるか */
-static int find_agari_sequence(const Tiles *tiles, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+static int find_agari_sequence(
+        const Tiles *tiles,
+        const Elements *melded_elems,
+        MJTileId pair_tile,
+        AgariCallbackElements *cb_elements,
+        void *cbarg) {
     Elements elems;
     memset(&elems, 0, sizeof(Elements));
 
     int agari = 0;
     if (find_elements_as_sequence(tiles, &elems)) {
-        calc_score(&elems, melded_elems, pair_tile, cfg);
+        cb_elements(&elems, melded_elems, pair_tile, cbarg);
         agari ++;
     }
     return agari;
 }
 
 /* 刻子候補を1つ取り出して残りが順子で構成されるか */
-static int find_agari_sequence_after_remove_one_triplets(const Tiles *tiles, const _Triplets *triplets, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+static int find_agari_sequence_after_remove_one_triplets(
+        const Tiles *tiles,
+        const _Triplets *triplets,
+        const Elements *melded_elems,
+        MJTileId pair_tile,
+        AgariCallbackElements *cb_elements,
+        void *cbarg) {
     Elements elems;
     Tiles _tiles;
     int agari = 0;
@@ -195,7 +206,7 @@ static int find_agari_sequence_after_remove_one_triplets(const Tiles *tiles, con
         elems.meld[0].concealed = true;
         elems.meld[0].type = ELEM_TYPE_TRIPLETS;
         if (find_elements_as_sequence(&_tiles, &elems)) {
-            calc_score(&elems, melded_elems, pair_tile, cfg);
+            cb_elements(&elems, melded_elems, pair_tile, cbarg);
             agari ++;
         }
         _tiles.tiles[tile_id] += 3; // revert: remove triplets
@@ -204,7 +215,13 @@ static int find_agari_sequence_after_remove_one_triplets(const Tiles *tiles, con
 }
 
 /* 刻子候補をすべて取り出して残りが順子で構成されるか */
-static int find_agari_sequence_after_remove_all_triplets(const Tiles *tiles, const _Triplets *triplets, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+static int find_agari_sequence_after_remove_all_triplets(
+        const Tiles *tiles,
+        const _Triplets *triplets,
+        const Elements *melded_elems,
+        MJTileId pair_tile,
+        AgariCallbackElements *cb_elements,
+        void *cbarg) {
     Elements elems;
     Tiles _tiles;
     int agari = 0;
@@ -226,7 +243,7 @@ static int find_agari_sequence_after_remove_all_triplets(const Tiles *tiles, con
         elems.len ++;
     }
     if (find_elements_as_sequence(&_tiles, &elems)) {
-        calc_score(&elems, melded_elems, pair_tile, cfg);
+        cb_elements(&elems, melded_elems, pair_tile, cbarg);
         agari ++;
     }
     return agari;
@@ -238,22 +255,23 @@ static int find_agari_with_triplets_candidates(
         const Tiles *concealed_tiles,
         const Elements *melded_elems,
         MJTileId pair_tile,
-        ScoreConfig *cfg) {
+        AgariCallbackElements *cb_elements,
+        void *cbarg) {
     int agari = 0;
 
-    agari += find_agari_sequence(concealed_tiles, melded_elems, pair_tile, cfg);
+    agari += find_agari_sequence(concealed_tiles, melded_elems, pair_tile, cb_elements, cbarg);
 
     if (triplets->len == 0) {
         return agari;
     }
 
-    agari += find_agari_sequence_after_remove_one_triplets(concealed_tiles, triplets, melded_elems, pair_tile, cfg);
+    agari += find_agari_sequence_after_remove_one_triplets(concealed_tiles, triplets, melded_elems, pair_tile, cb_elements, cbarg);
 
     if (triplets->len == 1) {
         return agari;
     }
 
-    agari += find_agari_sequence_after_remove_all_triplets(concealed_tiles, triplets, melded_elems, pair_tile, cfg);
+    agari += find_agari_sequence_after_remove_all_triplets(concealed_tiles, triplets, melded_elems, pair_tile, cb_elements, cbarg);
 
     return agari;
 }
@@ -265,14 +283,12 @@ static int find_agari_with_triplets_candidates(
 bool find_agari(
     const Tiles *concealed_tiles,
     const Elements *melded_elems,
-    MJTileId win_tile,
-    bool ron,
-    const MJTileId player_wind,
-    const MJTileId round_wind) {
-    ScoreConfig cfg = {win_tile, ron, player_wind, round_wind};
+    AgariCallbackTiles *cb_tiles,
+    AgariCallbackElements *cb_elements,
+    void *cbarg) {
 
     if (melded_elems->len == 0) {
-        calc_score_concealed_hands(concealed_tiles, ron);
+        cb_tiles(concealed_tiles, cbarg);
     }
 
     Tiles _concealed_tiles;
@@ -284,9 +300,9 @@ bool find_agari(
             _Triplets triplets;
             gen_triplets_candidates(&triplets, &_concealed_tiles);
             int agari;
-            agari = find_agari_with_triplets_candidates(&triplets, &_concealed_tiles, melded_elems, i, &cfg);
+            agari = find_agari_with_triplets_candidates(&triplets, &_concealed_tiles, melded_elems, i, cb_elements, cbarg);
             if (agari) {
-                printf("agari: pair: %s\n", tile_id_str(i));
+                printf("agari %d: pair: %s\n", agari, tile_id_str(i));
             }
             _concealed_tiles.tiles[i] += 2; // revert: remove pair from tiles
         }

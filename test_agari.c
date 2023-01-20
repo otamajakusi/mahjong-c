@@ -5,6 +5,18 @@
 #include "test_agari.h"
 #include "test_util.h"
 
+static void cb_tiles(const Tiles *tiles, void *arg) {
+    (void)tiles;
+    (void)arg;
+}
+
+static void cb_elements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg) {
+    (void)concealed;
+    (void)melded;
+    (void)pair;
+    (void)arg;
+}
+
 static bool test_find_agari_menzen(
         MJTileId t1,
         MJTileId t2,
@@ -27,18 +39,15 @@ static bool test_find_agari_menzen(
     Tiles tiles;
     assert(gen_tiles_from_hands(&tiles, &hands));
     Elements elems = {{},0};
-    bool ron = false;
-    MJTileId win_tile = t1;
-    MJTileId player_wind = MJ_WT;
-    MJTileId round_wind = MJ_WT;
 
-    return find_agari(&tiles, &elems, win_tile, ron, player_wind, round_wind);
+    return find_agari(&tiles, &elems, cb_tiles, cb_elements, NULL);
 }
 
 
 void test_find_agari() {
     assert(test_find_agari_menzen(m1,m2,m3,m1,m2,m3,p1,p2,p3, s1,s2,s3, dw,dw));
-    assert(test_find_agari_menzen(m1,m2,m3,m1,m2,m3,m1,m2,m3, s1,s2,s3, dw,dw));
+    assert(test_find_agari_menzen(m1,m2,m3,m1,m2,m3,m1,m2,m3, s1,s2,s3, dg,dg));
+    assert(test_find_agari_menzen(m1,m2,m3,m1,m2,m3,m1,m2,m3, m1,m2,m3, dr,dr));
 
     // https://www.engineer-log.com/entry/2018/06/14/mahjong-algorithm
     assert(test_find_agari_menzen(m2,m3,m3,m3,m3,m4,m4,m4,m5,m5,m6,m6, m8,m8));
