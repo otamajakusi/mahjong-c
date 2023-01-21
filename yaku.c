@@ -73,10 +73,8 @@ int is_pinfu(const Elements *concealed_elems, const Elements *melded_elems, MJTi
 
 /* 断么九: 門前: 不要, 説明: 么九牌以外で構成 */
 int is_tanyao(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
-    if (is_tile_id_dragon(pair_tile)) {
-        return false;
-    }
-    if (pair_tile == cfg->player_wind || pair_tile == cfg->round_wind) {
+    (void)cfg;
+    if (is_tile_id_yaochu(pair_tile)) {
         return false;
     }
     if (!is_elements_chunchan(concealed_elems)) {
@@ -432,7 +430,7 @@ int is_ittsu(const Elements *concealed_elems, const Elements *melded_elems, MJTi
                     if (type != get_tile_type(target->tile_id[0])) {
                         continue;
                     }
-                    area = 1u << (target_number / 3);
+                    area |= 1u << (target_number / 3);
                 }
             }
             if (area == 7) {
@@ -701,7 +699,7 @@ int is_tsuisou7(const Tiles *tiles) {
     return count == 7;
 }
 
-/* 小四喜: 門前: 不要, 1つの風牌の刻子と風牌の雀頭で構成 */
+/* 小四喜: 門前: 不要, 3つの風牌の刻子と風牌の雀頭で構成 */
 int is_shosuushi(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
     (void)cfg;
     Elements merged_elems;
@@ -715,12 +713,9 @@ int is_shosuushi(const Elements *concealed_elems, const Elements *melded_elems, 
         }
     }
     if (!is_tile_id_wind(pair_tile)) {
-        count ++;
-    }
-    if (count < 4) {
         return false;
     }
-    return true;
+    return count == 3;
 }
 
 /* 大四喜: 門前: 不要, 風牌ですべての面子を構成 */
@@ -737,10 +732,7 @@ int is_daisuushi(const Elements *concealed_elems, const Elements *melded_elems, 
             count ++;
         }
     }
-    if (count < 4) {
-        return false;
-    }
-    return true;
+    return count == 4;
 }
 
 /* 清老頭: 門前: 不要, すべて老頭牌(1,9牌)で構成. 混老頭の上位役 */
@@ -773,7 +765,7 @@ int is_chuuren_poutou(const Elements *concealed_elems, const Elements *melded_el
     (void)melded_elems;
     (void)pair_tile;
     (void)cfg;
-    return true;
+    return false;
 }
 
 

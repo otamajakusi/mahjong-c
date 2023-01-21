@@ -4,3 +4,4 @@
 #include "test_hand.h"
 #include "test_element.h"
 #include "test_agari.h"
+#include "test_score.h"

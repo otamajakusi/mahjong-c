@@ -72,7 +72,7 @@ bool calc_score_concealed_hands(MJScore *score, const Tiles *tiles, const ScoreC
     bool chiitoitsu = is_chiitoitsu(tiles); // 2han
     if (chiitoitsu) {
         score->fu = FU_CHIITOITSU;
-        append_score(score, 1, "chiitoitsu ");
+        append_score(score, 2, "chiitoitsu ");
     } else {
         return false;
     }

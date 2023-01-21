@@ -10,6 +10,7 @@ bool test() {
     test_hand();
     test_element();
     test_agari();
+    test_score();
     return true;
 }
 
