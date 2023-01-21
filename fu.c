@@ -43,7 +43,7 @@ uint32_t calc_fu(const Elements *concealed, const Elements *melded, MJTileId pai
     if (!cfg->ron) { // 自摸
         fu += 2;
     }
-    if (melded->len == 0 && cfg->ron) { // 門前ロン
+    if (is_elements_concealed(melded) && cfg->ron) { // 門前ロン(暗槓は門前扱い)
         fu += 10;
     }
     if (is_tile_id_dragon(pair)) {
@@ -61,10 +61,19 @@ uint32_t calc_fu(const Elements *concealed, const Elements *melded, MJTileId pai
     for (uint32_t i = 0; i < concealed->len; i ++) {
         const Element *elem = &concealed->meld[i];
         if (is_element_triplets(elem)) {
+            MJTileId tile_id = elem->tile_id[0];
             if (is_element_chunchan(elem)) {
-                fu += 4; // 暗刻(中張牌)
+                if (tile_id == cfg->win_tile && cfg->ron) { // この刻子はロンで作成された刻子なので明刻扱い
+                    fu += 2; // 明刻(中張牌)
+                } else {
+                    fu += 4; // 暗刻(中張牌)
+                }
             } else {
-                fu += 8; // 暗刻(么九牌)
+                if (tile_id == cfg->win_tile && cfg->ron) { // この刻子はロンで作成された刻子なので明刻扱い
+                    fu += 4; // 明刻(么九牌)
+                } else {
+                    fu += 8; // 暗刻(么九牌)
+                }
             }
         }
     }
@@ -75,24 +84,25 @@ uint32_t calc_fu(const Elements *concealed, const Elements *melded, MJTileId pai
             if (is_element_chunchan(elem)) {
                 fu += 2; // 明刻(中張牌)
             } else {
-                fu += 4; // 明刻(中張牌)
+                fu += 4; // 明刻(么九牌)
             }
         } else if (is_element_fours(elem)) {
-            if (is_element_concealed(elem)) {
+            if (!is_element_concealed(elem)) {
                 if (is_element_chunchan(elem)) {
-                    fu += 16; // 暗刻(中張牌)
+                    fu += 8; // 明槓(中張牌)
                 } else {
-                    fu += 32; // 暗刻(么九牌)
+                    fu += 16; // 明槓(么九牌)
                 }
             } else {
                 if (is_element_chunchan(elem)) {
-                    fu += 8; // 明刻(中張牌)
+                    fu += 16; // 暗槓(中張牌)
                 } else {
-                    fu += 16; // 明刻(么九牌)
+                    fu += 32; // 暗槓(么九牌)
                 }
             }
         }
     }
-    return round_up(fu == 20 ? 30 : fu, 10); // 20符は30符に切り上げる
+    fu = fu == 20 ? 30 : fu; // 20符は30符に切り上げる
+    return round_up(fu, 10); // 1の位を切り上げ
 }
 

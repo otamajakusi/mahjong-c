@@ -32,12 +32,6 @@
 #include "yaku.h"
 #include "fu.h"
 
-static void set_score(MJScore *score, uint32_t han, uint32_t fu, const char* yaku_name) {
-    strcpy(score->yaku_name, yaku_name);
-    score->han = han;
-    score->fu = fu;
-}
-
 static void append_score(MJScore *score, uint32_t han, const char* yaku_name) {
     uint32_t name_len = strlen(score->yaku_name);
     uint32_t n = MJ_MAX_YAKU_NAME_LEN - name_len - 1;
@@ -46,66 +40,75 @@ static void append_score(MJScore *score, uint32_t han, const char* yaku_name) {
     score->han += han;
 }
 
+static void append_score_kuisagari(MJScore *score, uint32_t han, const char* yaku_name, const Elements *melded) {
+    if (!is_elements_concealed(melded)) {
+        han --;
+    }
+    return append_score(score, han, yaku_name);
+}
+
 bool calc_score_concealed_hands(MJScore *score, const Tiles *tiles, const ScoreConfig *cfg) {
     memset(score, 0, sizeof(MJScore));
 
+    // 国士無双
     bool kokushi = is_kokushi(tiles); // 13han
     if (kokushi) {
-        set_score(score, 13, 0, "kokushi ");
-        return true; // early return
+        score->fu = 0;
+        append_score(score, 13, "kokushi ");
     }
 
     // 字一色
     bool tsuisou = is_tsuisou7(tiles);
     if (tsuisou) {
-        set_score(score, 13, 25, "tsuisou ");
-        return true; // early return
+        score->fu = FU_CHIITOITSU;
+        append_score(score, 13, "tsuisou ");
     }
 
-    // 清一色
+    if (kokushi || tsuisou) {
+        return true;
+    }
+
+    // 七対子
+    bool chiitoitsu = is_chiitoitsu(tiles); // 2han
+    if (chiitoitsu) {
+        score->fu = FU_CHIITOITSU;
+        append_score(score, 1, "chiitoitsu ");
+    } else {
+        return false;
+    }
+
+    // 清一色(七対子)
     bool chinitsu = is_chinitsu7(tiles); // 6han
     if (chinitsu) {
         append_score(score, 6, "chinitsu ");
     }
    
     if (!chinitsu) { // honitsu and chinitsu are exclusive
-        // 混一色
+        // 混一色(七対子)
         bool honitsu = is_honitsu7(tiles); // 3han
         if (honitsu) {
             append_score(score, 3, "honitsu ");
         }
     }
 
-    // 混老頭
+    // 混老頭(七対子)
     bool honroto = is_honroto7(tiles); // 2han
     if (honroto) {
         append_score(score, 2, "honroto ");
     }
 
-    // 七対子
-    bool chiitoitsu = is_chiitoitsu(tiles); // 2han
-    if (chiitoitsu) {
-        append_score(score, 1, "chiitoitsu ");
-        return false;
-    }
-
-    // 断么九
+    // 断么九(七対子)
     bool tanyao = is_tanyao7(tiles); // 1han
     if (tanyao) {
         append_score(score, 1, "tanyao ");
     }
 
-    if (!chiitoitsu) {
-        return false;
-    }
     if (!cfg->ron) {
         append_score(score, 1, "tsumo ");
     }
-    score->han = 25;
     return true;
 }
 
-/* TODO: 食い下がり, 符 */
 bool calc_score(MJScore *score, const Elements *concealed, const Elements *melded, MJTileId pair, const ScoreConfig *cfg) {
     memset(score, 0, sizeof(MJScore));
 
@@ -164,7 +167,7 @@ bool calc_score(MJScore *score, const Elements *concealed, const Elements *melde
     /* 清一色: 門前: 不要, 食い下がり: 5翻, 説明: 同種の数牌のみで構成. 七対子と複合する. */
     bool chinitsu = is_chinitsu(concealed, melded, pair, cfg);
     if (chinitsu) {
-        append_score(score, 6, "chinitsu ");
+        append_score_kuisagari(score, 6, "chinitsu ", melded);
     }
  
     /*** 3翻 ***/
@@ -178,14 +181,14 @@ bool calc_score(MJScore *score, const Elements *concealed, const Elements *melde
     if (!chinitsu) { // honitsu and chinitsu are exclusive
         bool honitsu = is_honitsu(concealed, melded, pair, cfg);
         if (honitsu) {
-            append_score(score, 3, "honitsu ");
+            append_score_kuisagari(score, 3, "honitsu ", melded);
         }
     }
     /* 純全帯么九: 門前: 不要, 食い下がり: 2翻, 説明: すべての面子と雀頭を老頭牌(1,9牌)を含む(123はOK). 混全帯么九に字牌が含まれない場合の構成.
      *             七対子と複合しない(複合する場合清老頭となるため) */
     bool junchan = is_junchan(concealed, melded, pair, cfg);
     if (junchan) {
-        append_score(score, 3, "junchan ");
+        append_score_kuisagari(score, 3, "junchan ", melded);
     }
     
     /*** 2翻 ***/
@@ -244,19 +247,19 @@ bool calc_score(MJScore *score, const Elements *concealed, const Elements *melde
     /* 三色同順: 門前: 不要, 食い下がり: 1翻, 説明: 同数異種の順子を3つ構成 */
     bool sanshoku = is_sanshoku(concealed, melded, pair, cfg);
     if (sanshoku) {
-        append_score(score, 2, "sanshoku ");
+        append_score_kuisagari(score, 2, "sanshoku ", melded);
     }
     /* 一気通貫: 門前: 不要, 食い下がり: 1翻, 説明: 同数順子で123,456,789を構成 */
     bool ittsu = is_ittsu(concealed, melded, pair, cfg);
     if (ittsu) {
-        append_score(score, 2, "ittsu ");
+        append_score_kuisagari(score, 2, "ittsu ", melded);
     }
     /* 混全帯么九: 門前: 不要, 食い下がり: 1翻, 説明: すべての面子と雀頭に么九牌(1,9,字牌)を含む(123はOK).
      *             七対子と複合しない(複合する場合混老頭となるため) */
     if (!junchan && !honroto) { // (chanta and junchan) and (chanta and honroto) are exclusive respectivelly
         bool chanta = is_chanta(concealed, melded, pair, cfg);
         if (chanta) {
-            append_score(score, 2, "chanta ");
+            append_score_kuisagari(score, 2, "chanta ", melded);
         }
     }
   
@@ -321,6 +324,11 @@ bool calc_score(MJScore *score, const Elements *concealed, const Elements *melde
         if (pei) {
             append_score(score, 1, "pei ");
         }
+    }
+    /* 門前清自摸和: 門前: 必要 */
+    bool tsumo = is_tsumo(concealed, melded, pair, cfg);
+    if (tsumo) {
+        append_score(score, 1, "tsumo ");
     }
     score->fu = calc_fu(concealed, melded, pair, cfg, pinfu);
     return true;

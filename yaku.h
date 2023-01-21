@@ -51,6 +51,8 @@ int is_nan(const Elements *concealed_elems, const Elements *melded_elems, MJTile
 int is_sha(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* 北: 門前: 不要, 説明: 北が役牌のとき北の刻子を構成 */
 int is_pei(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 門前清自摸和: 門前: 必要 */
+int is_tsumo(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 
 /*** 2翻 ***/
 /* 対々和: 門前: 不要, 説明: 面子を刻子のみで構成 */

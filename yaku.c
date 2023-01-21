@@ -183,6 +183,13 @@ int is_pei(const Elements *concealed_elems, const Elements *melded_elems, MJTile
     return is_wind(concealed_elems, melded_elems, cfg, MJ_WP);
 }
 
+/* 門前清自摸和: 門前: 必要 */
+int is_tsumo(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
+    (void)concealed_elems;
+    (void)pair_tile;
+    return !cfg->ron && is_elements_concealed(melded_elems);
+}
+
 /*** 2翻 ***/
 /* 対々和: 門前: 不要, 説明: 面子を刻子のみで構成 */
 int is_toitoi(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
