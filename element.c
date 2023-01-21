@@ -326,6 +326,45 @@ bool is_ryanmen_machi(const Elements *elems, MJTileId win_tile) {
     return false;
 }
 
+bool is_kanchan_machi(const Elements *elems, MJTileId win_tile) {
+    for (uint32_t i = 0; i < elems->len; i ++) {
+        const Element *elem = &elems->meld[i];
+        if (!is_element_sequence(elem)) {
+            continue;
+        }
+        MJTileId tile_id;
+
+        tile_id = elem->tile_id[1];
+        if (tile_id == win_tile) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool is_penchan_machi(const Elements *elems, MJTileId win_tile) {
+    for (uint32_t i = 0; i < elems->len; i ++) {
+        const Element *elem = &elems->meld[i];
+        if (!is_element_sequence(elem)) {
+            continue;
+        }
+        MJTileId tile_id;
+        uint32_t number;
+
+        tile_id = elem->tile_id[0];
+        number = get_tile_number(tile_id);
+        if (tile_id == win_tile && number == TILE_NUM_7) { // 789で7がアガリ牌
+            return true;
+        }
+        tile_id = elem->tile_id[2];
+        number = get_tile_number(tile_id);
+        if (tile_id == win_tile && number == TILE_NUM_3) { // 123で3がアガリ牌
+            return true;
+        }
+    }
+    return false;
+}
+
 /* 三暗刻, 四暗刻のアガリの刻子を調べる */
 bool is_shanpon_machi(const Elements *elems, MJTileId win_tile) {
     for (uint32_t i = 0; i < elems->len; i ++) {

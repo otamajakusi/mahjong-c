@@ -83,6 +83,8 @@ uint32_t count_elements_concealed_fours(const Elements *elems);
 bool has_elements_melded(const Elements *elems); /* 暗槓はconcealed扱い */
 
 bool is_ryanmen_machi(const Elements *elems, MJTileId win_tile);
+bool is_kanchan_machi(const Elements *elems, MJTileId win_tile);
+bool is_penchan_machi(const Elements *elems, MJTileId win_tile);
 bool is_shanpon_machi(const Elements *elems, MJTileId win_tile);
 bool is_tanki_machi(MJTileId pair_tile, MJTileId win_tile);
 /*
