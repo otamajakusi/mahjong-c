@@ -761,6 +761,12 @@ int is_suukantsu(const Elements *concealed_elems, const Elements *melded_elems, 
 
 /* 九蓮宝燈: 門前: 必要, 同種の数牌が1112345678999 + xで構成 */
 /* TODO */
-int is_chuuren_poutou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);  // 九蓮宝燈, 門前
+int is_chuuren_poutou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {  // 九蓮宝燈, 門前
+    (void)concealed_elems;
+    (void)melded_elems;
+    (void)pair_tile;
+    (void)cfg;
+    return true;
+}
 
 

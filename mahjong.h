@@ -60,7 +60,7 @@
 #define MJ_MAX_HAND_LEN             (MJ_MAX_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN)
 #define MJ_MIN_HAND_LEN             (MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN)
 
-#define MJ_MAX_YAKU_NAME_LEN        128
+#define MJ_MAX_YAKU_NAME_LEN        2048
 
 typedef enum {
   MJ_M1 = 0,
