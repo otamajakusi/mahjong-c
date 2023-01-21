@@ -35,7 +35,7 @@
 typedef void AgariCallbackTiles(const Tiles *tiles, void *arg);
 typedef void AgariCallbackElements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg);
 
-bool find_agari(
+uint32_t find_agari(
     const Tiles *tiles,
     const Elements *elems,
     AgariCallbackTiles *cb_tiles,

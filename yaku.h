@@ -33,6 +33,8 @@
 int is_pinfu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* 断么九: 門前: 不要, 説明: 么九牌以外で構成 */
 int is_tanyao(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 断么九(七対子): 門前: 不要, 説明: 么九牌以外で構成 */
+int is_tanyao7(const Tiles *tiles);
 /* 一盃口: 門前: 必須, 説明: 同数同種の数牌の順子を2組を構成 */
 int is_iipeiko(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* 白: 門前: 不要, 説明: 白の刻子を構成 */
@@ -61,8 +63,10 @@ int is_sanshoku_douko(const Elements *concealed_elems, const Elements *melded_el
 int is_sankantsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* 小三元: 門前: 不要, 説明: 三元牌を2つ刻子, 1つ雀頭で構成 */
 int is_shosangen(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
-/* 混老頭: 門前: 不要, 説明: 么九牌(1,9, 字牌)だけで構成(七対子もしくは対々和と必ず複合する) */
+/* 混老頭: 門前: 不要, 説明: 么九牌(1,9, 字牌)だけで構成. 七対子もしくは対々和と必ず複合する. */
 int is_honroto(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 混老頭(七対子): 門前: 必要, 説明: 么九牌(1,9, 字牌)だけで構成 */
+int is_honroto7(const Tiles *tiles);
 /* ダブ東: 門前: 不要, 説明: 東が自風かつ場風のとき東の刻子を構成 */
 int is_double_ton(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* ダブ南: 門前: 不要, 説明: 南が自風かつ場風のとき南の刻子を構成 */
@@ -72,32 +76,38 @@ int is_double_sha(const Elements *concealed_elems, const Elements *melded_elems,
 /* ダブ北: 門前: 不要, 説明: 北が自風かつ場風のとき北の刻子を構成 */
 int is_double_pei(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* 七対子: 門前: 必要, 説明: 7種類の対子で構成. 常に25符. 同種の牌が4枚の場合は不成立. 一盃口, 二盃口と複合しない. */
-int is_chiitoitsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_chiitoitsu(const Tiles *tiles);
 
 /*** 2翻(食い下がり1翻) ***/
 /* 三色同順: 門前: 不要, 食い下がり: 1翻, 説明: 同数異種の順子を3つ構成 */
 int is_sanshoku(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* 一気通貫: 門前: 不要, 食い下がり: 1翻, 説明: 同数順子で123,456,789を構成 */
 int is_ittsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
-/* 混全帯么九: 門前: 不要, 食い下がり: 1翻, 説明: すべての面子と雀頭に么九牌(1,9,字牌)を含む(123はOK) */
+/* 混全帯么九: 門前: 不要, 食い下がり: 1翻, 説明: すべての面子と雀頭に么九牌(1,9,字牌)を含む(123はOK).
+ *             七対子と複合しない(複合する場合混老頭となるため) */
 int is_chanta(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 
 /*** 3翻 ***/
 /* 二盃口: 門前: 必須, 説明: 一盃口を2組を構成. 同種同順が2組でも成立. */
 int is_ryanpeiko(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /*** 3翻(食い下がり2翻) ***/
-/* 混一色: 門前: 不要, 食い下がり: 2翻, 説明: 同種の数牌と字牌のみで構成. */
+/* 混一色: 門前: 不要, 食い下がり: 2翻, 説明: 同種の数牌と字牌のみで構成. 七対子と複合する. */
 int is_honitsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
-/* 純全帯么九: 門前: 不要, 食い下がり: 2翻, 説明: すべての面子と雀頭を老頭牌(1,9牌)を含む(123はOK). 混全帯么九に字牌が含まれない場合の構成. */
+/* 混一色(七対子): 門前: 必要, 説明: 同種の数牌と字牌のみで構成. */
+int is_honitsu7(const Tiles *tiles);
+/* 純全帯么九: 門前: 不要, 食い下がり: 2翻, 説明: すべての面子と雀頭を老頭牌(1,9牌)を含む(123はOK). 混全帯么九に字牌が含まれない場合の構成.
+ *             七対子と複合しない(複合する場合清老頭となるため) */
 int is_junchan(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 
 /*** 6翻(食い下がり5翻) ***/
-/* 清一色: 門前: 不要, 食い下がり: 5翻, 説明: 同種の数牌のみで構成. */
+/* 清一色: 門前: 不要, 食い下がり: 5翻, 説明: 同種の数牌のみで構成. 七対子と複合する. */
 int is_chinitsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 清一色(七対子): 門前: 必要, 説明: 同種の数牌のみで構成. */
+int is_chinitsu7(const Tiles *tiles);
 
 /*** 役満 ***/
 /* 国士無双: 門前: 必要, 説明: すべての種類の么九牌で構成される. */
-int is_kokushi(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_kokushi(const Tiles *tiles);
 /* 四暗刻: 門前: 必要, 説明: 面子を暗刻(暗槓含む)で構成. 注意: ロンアガリで面子が揃う場合は明刻扱い. */
 int is_suuankou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* 大三元: 門前: 不要, 説明: 三元牌をすべて刻子で構成 */
@@ -106,11 +116,13 @@ int is_daisangen(const Elements *concealed_elems, const Elements *melded_elems, 
 int is_ryuisou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* 字一色: 門前: 不要, 配がすべて字牌で4面子1雀頭もしくは七対子 */
 int is_tsuisou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+/* 字一色(七対子): 門前: 必要, 配がすべて字牌 */
+int is_tsuisou7(const Tiles *tiles);
 /* 小四喜: 門前: 不要, 1つの風牌の刻子と風牌の雀頭で構成 */
 int is_shosuushi(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* 大四喜: 門前: 不要, 風牌ですべての面子を構成 */
 int is_daisuushi(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
-/* 清老頭: 門前: 不要, すべて老頭牌(1,9牌)で構成. 混老頭の上位役 */
+/* 清老頭: 門前: 不要, すべて老頭牌(1,9牌)で構成. 混老頭の上位役 (1,9牌は3種類しか無いので七対子と複合しない) */
 int is_chinroto(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* 四槓子: 門前: 不要, 4面子を槓子で構成 */
 int is_suukantsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);

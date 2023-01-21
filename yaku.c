@@ -47,6 +47,11 @@
 
 /*** 1翻 ***/
 /* 平和: 門前: 必須, 説明: 役牌以外で構成, 面子を順子のみで構成し両面待ちで上がる. ロンで30符, ツモで20符 */
+/*
+ * NOTE:
+ * 平和の面子/雀頭構成で,両面/ペンチャン待ちの両方採用できる形の場合, 
+ * 例えば 123345 xxx yyy zz で, 3がアガリ牌の場合, 常に両面を採用し得点の高くなる平和1翻を採用する.
+ */
 int is_pinfu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
     if (melded_elems->len) {
         return false;
@@ -81,6 +86,24 @@ int is_tanyao(const Elements *concealed_elems, const Elements *melded_elems, MJT
         return false;
     }
     return true;
+}
+
+/* 断么九(七対子): 門前: 不要, 説明: 么九牌以外で構成 */
+int is_tanyao7(const Tiles *tiles) {
+    uint32_t count = 0;
+    for (uint32_t i = 0; i < MJ_DR + 1; i ++) {
+        uint32_t num = tiles->tiles[i];
+        if (num > 2 || num == 1) { /* 同種の牌が4枚の場合は不成立 */
+            return false;
+        }
+        if (num == 2) {
+            if (is_tile_id_yaochu(i)) {
+                return false;
+            }
+            count ++;
+        }
+    }
+    return count == 7;
 }
 
 /* 一盃口: 門前: 必須, 説明: 同数同種の数牌の順子を2組を構成 */
@@ -257,7 +280,6 @@ int is_shosangen(const Elements *concealed_elems, const Elements *melded_elems, 
 }
 
 /* 混老頭: 門前: 不要, 説明: 么九牌(1,9, 字牌)だけで構成(七対子もしくは対々和と必ず複合する) */
-/* TODO: 七対子対応 */
 int is_honroto(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
     (void)cfg;
     if (!is_elements_yaochu(concealed_elems)) {
@@ -270,6 +292,24 @@ int is_honroto(const Elements *concealed_elems, const Elements *melded_elems, MJ
         return false;
     }
     return true;
+}
+
+/* 混老頭(七対子): 門前: 必要, 説明: 么九牌(1,9, 字牌)だけで構成 */
+int is_honroto7(const Tiles *tiles) {
+    uint32_t count = 0;
+    for (uint32_t i = 0; i < MJ_DR + 1; i ++) {
+        uint32_t num = tiles->tiles[i];
+        if (num > 2 || num == 1) { /* 同種の牌が4枚の場合は不成立 */
+            return false;
+        }
+        if (num == 2) {
+            if (!is_tile_id_yaochu(i)) {
+                return false;
+            }
+            count ++;
+        }
+    }
+    return count == 7;
 }
 
 static int is_double_wind(const Elements *concealed_elems, const Elements *melded_elems, const ScoreConfig *cfg, MJTileId wind) {
@@ -307,8 +347,19 @@ int is_double_pei(const Elements *concealed_elems, const Elements *melded_elems,
 }
 
 /* 七対子: 門前: 必要, 説明: 7種類の対子で構成. 常に25符. 同種の牌が4枚の場合は不成立. 一盃口, 二盃口と複合しない. */
-/* TODO */
-int is_chiitoitsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_chiitoitsu(const Tiles *tiles) {
+    uint32_t count = 0;
+    for (uint32_t i = 0; i < MJ_DR + 1; i ++) {
+        uint32_t num = tiles->tiles[i];
+        if (num > 2 || num == 1) { /* 同種の牌が4枚の場合は不成立 */
+            return false;
+        }
+        if (num == 2) {
+            count ++;
+        }
+    }
+    return count == 7;
+}
 
 /*** 2翻(食い下がり1翻) ***/
 /* 三色同順: 門前: 不要, 食い下がり: 1翻, 説明: 同数異種の順子を3つ構成 */
@@ -438,6 +489,29 @@ int is_honitsu(const Elements *concealed_elems, const Elements *melded_elems, MJ
     return true;
 }
 
+/* 混一色(七対子): 門前: 必要, 説明: 同種の数牌と字牌のみで構成. */
+int is_honitsu7(const Tiles *tiles) {
+    uint32_t count = 0;
+    uint32_t type = 0;
+    for (uint32_t i = 0; i < MJ_DR + 1; i ++) {
+        uint32_t num = tiles->tiles[i];
+        if (num > 2 || num == 1) { /* 同種の牌が4枚の場合は不成立 */
+            return false;
+        }
+        if (num == 2) {
+            type |= get_tile_type(i);
+            count ++;
+        }
+    }
+    /* mask out wind and dragon and confirm that it has only one number type. */
+    if ((type & ~(TILE_TYPE_WIND | TILE_TYPE_DRAGON)) != TILE_TYPE_MAN &&
+        (type & ~(TILE_TYPE_WIND | TILE_TYPE_DRAGON)) != TILE_TYPE_PIN &&
+        (type & ~(TILE_TYPE_WIND | TILE_TYPE_DRAGON)) != TILE_TYPE_SOU) {
+        return false;
+    }
+    return count == 7;
+}
+
 /* 純全帯么九: 門前: 不要, 食い下がり: 2翻, 説明: すべての面子と雀頭を老頭牌(1,9牌)を含む(123はOK). 混全帯么九に字牌が含まれない場合の構成. */
 int is_junchan(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
     (void)cfg;
@@ -456,7 +530,6 @@ int is_junchan(const Elements *concealed_elems, const Elements *melded_elems, MJ
 
 /*** 6翻(食い下がり5翻) ***/
 /* 清一色: 門前: 不要, 食い下がり: 5翻, 説明: 同種の数牌のみで構成. */
-/* TODO: 七対子 */
 int is_chinitsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
     (void)cfg;
     Elements merged_elems;
@@ -474,10 +547,55 @@ int is_chinitsu(const Elements *concealed_elems, const Elements *melded_elems, M
     }
     return true;
 }
+
+/* 清一色(七対子): 門前: 必要, 説明: 同種の数牌のみで構成. */
+int is_chinitsu7(const Tiles *tiles) {
+    uint32_t count = 0;
+    uint32_t type = 0;
+    for (uint32_t i = 0; i < MJ_DR + 1; i ++) {
+        uint32_t num = tiles->tiles[i];
+        if (num > 2 || num == 1) { /* 同種の牌が4枚の場合は不成立 */
+            return false;
+        }
+        if (num == 2) {
+            type |= get_tile_type(i);
+            count ++;
+        }
+    }
+    /* type has only one number type. */
+    if (type != TILE_TYPE_MAN &&
+        type != TILE_TYPE_PIN &&
+        type != TILE_TYPE_SOU) {
+        return false;
+    }
+    return count == 7;
+}
+
+
 /*** 役満 ***/
 /* 国士無双: 門前: 必要, 説明: すべての種類の么九牌で構成される. */
-/* TODO */
-int is_kokushi(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
+int is_kokushi(const Tiles *tiles) {
+    const MJTileId kokushi[] = {
+        MJ_M1, MJ_M9, MJ_P1, MJ_P9, MJ_S1, MJ_S9,
+        MJ_WT, MJ_WN, MJ_WS, MJ_WP,
+        MJ_DW, MJ_DG, MJ_DR
+    };
+    bool found_pair = false;
+    for (uint32_t i = 0; i < sizeof(kokushi) / sizeof(MJTileId); i ++) {
+        if (tiles->tiles[kokushi[i]] > 2) {
+            return false;
+        }
+        if (tiles->tiles[kokushi[i]] == 2) {
+            if (found_pair) { // already pair is found.
+                return false;
+            }
+            found_pair = true;
+        } else if (tiles->tiles[kokushi[i]] == 0) {
+            return false;
+        }
+    }
+    return true;
+}
 
 /* 四暗刻: 門前: 必要, 説明: 面子を暗刻(暗槓含む)で構成. 注意: ロンアガリで面子が揃う場合は明刻扱い. */
 int is_suuankou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
@@ -557,6 +675,23 @@ int is_tsuisou(const Elements *concealed_elems, const Elements *melded_elems, MJ
         return false;
     }
     return true;
+}
+
+int is_tsuisou7(const Tiles *tiles) {
+    uint32_t count = 0;
+    for (uint32_t i = 0; i < MJ_DR + 1; i ++) {
+        uint32_t num = tiles->tiles[i];
+        if (num > 2 || num == 1) { /* 同種の牌が4枚の場合は不成立 */
+            return false;
+        }
+        if (num == 2) {
+            if (!is_tile_id_honors(i)) {
+                return false;
+            }
+            count ++;
+        }
+    }
+    return count == 7;
 }
 
 /* 小四喜: 門前: 不要, 1つの風牌の刻子と風牌の雀頭で構成 */

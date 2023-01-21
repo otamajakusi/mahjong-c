@@ -280,7 +280,7 @@ static int find_agari_with_triplets_candidates(
  * tiles: concealed
  * melds: melded (includes an-kan)
  */
-bool find_agari(
+uint32_t find_agari(
     const Tiles *concealed_tiles,
     const Elements *melded_elems,
     AgariCallbackTiles *cb_tiles,
@@ -294,18 +294,20 @@ bool find_agari(
     Tiles _concealed_tiles;
     memcpy(&_concealed_tiles, concealed_tiles, sizeof(Tiles));
 
+    int agari = 0;
     for (uint32_t i = 0; i <= MJ_DR; i ++) {
         if (concealed_tiles->tiles[i] >= MJ_PAIR_LEN) {
             _concealed_tiles.tiles[i] -= MJ_PAIR_LEN; // remove pair from tiles
             _Triplets triplets;
             gen_triplets_candidates(&triplets, &_concealed_tiles);
-            int agari;
-            agari = find_agari_with_triplets_candidates(&triplets, &_concealed_tiles, melded_elems, i, cb_elements, cbarg);
-            if (agari) {
+            int found;
+            found = find_agari_with_triplets_candidates(&triplets, &_concealed_tiles, melded_elems, i, cb_elements, cbarg);
+            agari += found;
+            if (found) {
                 printf("agari %d: pair: %s\n", agari, tile_id_str(i));
             }
             _concealed_tiles.tiles[i] += 2; // revert: remove pair from tiles
         }
     }
-    return true;
+    return agari;
 }
