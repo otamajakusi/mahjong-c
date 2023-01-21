@@ -97,5 +97,15 @@ bool is_tanki_machi(MJTileId pair_tile, MJTileId win_tile);
  */
 uint32_t count_elements_same_sequence(const Elements *elems);
 
+/*
+ * compare if e1 and e2 has same elements
+ * e.g.
+ * e1 = {{{{m1,m2,m3},3,true},{{s1,s2,s3},3,true},{{m4,m5,m6},3,true}}, 3};
+ * e2 = {{{{m4,m5,m6},3,true},{{s1,s2,s3},3,true},{{m1,m2,m3},3,true}}, 3};
+ * e1 and e2 are the same.
+ */
+bool is_same_element(const Element *e1, const Element *e2);
+bool is_same_elements(const Elements *e1, const Elements *e2);
+
 bool has_elements_tile_id(const Elements *elems, MJTileId tile_id);
 void merge_elements(Elements *dst, const Elements *e1, const Elements *e2);

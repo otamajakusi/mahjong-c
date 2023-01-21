@@ -128,7 +128,7 @@ int is_daisuushi(const Elements *concealed_elems, const Elements *melded_elems, 
 int is_chinroto(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 /* 四槓子: 門前: 不要, 4面子を槓子で構成 */
 int is_suukantsu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
-/* 九蓮宝燈: 門前: 必要, 同種の数牌が1112345678999 + xで構成 */
+/* 九蓮宝燈: 門前: 必要, 同種の数牌が1112345678999 + xで構成. NOTE: 暗槓は不成立. */
 int is_chuuren_poutou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
 
 /*

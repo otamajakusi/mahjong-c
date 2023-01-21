@@ -758,11 +758,36 @@ int is_suukantsu(const Elements *concealed_elems, const Elements *melded_elems, 
     return count_elements_fours(melded_elems) == 4;
 }
 
-/* 九蓮宝燈: 門前: 必要, 同種の数牌が1112345678999 + xで構成 */
+/* 九蓮宝燈: 門前: 必要, 同種の数牌が1112345678999 + xで構成. NOTE: 暗槓は不成立. */
 /* TODO */
 int is_chuuren_poutou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {  // 九蓮宝燈, 門前
+    if (melded_elems->len) { // 暗槓も不成立
+        return false;
+    }
+    uint32_t type = 0;
+    for (uint32_t i = 0; i < concealed_elems->len; i ++) {
+        const Element *elem = &concealed_elems->meld[i];
+        type |= get_tile_type(elem->tile_id[0]);
+    }
+    type |= get_tile_type(pair_tile);
+    /* has only one type */
+    if (type != TILE_TYPE_MAN && type != TILE_TYPE_PIN && type != TILE_TYPE_SOU) {
+        return false;
+    }
+
+    //uint32_t pair_number;
+    /*
+     * 111 123 456 789 99
+     * 111 22 345 678 999
+     * 11 123 345 678 999
+     * 111 234 456 789 99
+     * 111 234 55 678 999
+     * 11 123 456 678 999
+     * 111 234 567 789 99
+     * 111 234 567 88 999
+     * 11 123 456 789 999
+     */
     (void)concealed_elems;
-    (void)melded_elems;
     (void)pair_tile;
     (void)cfg;
     return false;

@@ -450,6 +450,84 @@ void test_count_elements_same_sequence() {
     assert(count_elements_same_sequence(&elems5) == 1);
 }
 
+void test_is_same_elements() {
+    {
+        MJMelds me1 = {
+            {
+                {{wt,wt,wt},3,true,-1},
+                {{s5,s6,s7},3,true,-1},
+                {{p7,p8,p9},3,true,-1},
+                {{m3,m4,m5},3,true,-1},
+            },
+            4,
+        };
+        MJMelds me2 = {
+            {
+                {{m3,m4,m5},3,true,-1},
+                {{wt,wt,wt},3,true,-1},
+                {{p7,p8,p9},3,true,-1},
+                {{s5,s6,s7},3,true,-1},
+            },
+            4,
+        };
+        Elements e1;
+        Elements e2;
+        gen_elements_from_melds(&e1, &me1);
+        gen_elements_from_melds(&e2, &me2);
+        assert(is_same_elements(&e1, &e2));
+    }
+    {
+        MJMelds me1 = {
+            {
+                {{s5,s5,s5},3,true,-1},
+                {{s5,s6,s7},3,true,-1},
+                {{p7,p8,p9},3,true,-1},
+                {{m3,m4,m5},3,true,-1},
+            },
+            4,
+        };
+        MJMelds me2 = {
+            {
+                {{m3,m4,m5},3,true,-1},
+                {{s5,s5,s5},3,true,-1},
+                {{p7,p8,p9},3,true,-1},
+                {{s5,s6,s7},3,true,-1},
+            },
+            4,
+        };
+        Elements e1;
+        Elements e2;
+        gen_elements_from_melds(&e1, &me1);
+        gen_elements_from_melds(&e2, &me2);
+        assert(is_same_elements(&e1, &e2));
+    }
+    {
+        MJMelds me1 = {
+            {
+                {{s5,s5,s5},3,true,-1},
+                {{s5,s6,s7},3,true,-1},
+                {{p7,p8,p9},3,true,-1},
+                {{m3,m4,m5},3,true,-1},
+            },
+            4,
+        };
+        MJMelds me2 = {
+            {
+                {{m3,m4,m5},3,true,-1},
+                {{s5,s5,s5},3,true,-1},
+                {{p7,p7,p7},3,true,-1},
+                {{s5,s6,s7},3,true,-1},
+            },
+            4,
+        };
+        Elements e1;
+        Elements e2;
+        gen_elements_from_melds(&e1, &me1);
+        gen_elements_from_melds(&e2, &me2);
+        assert(!is_same_elements(&e1, &e2));
+    }
+}
+
 void test_has_elements_tile_id() {
     Elements elems1 = {
         {
@@ -517,6 +595,7 @@ bool test_element() {
     test_is_shanpon_machi();
     test_is_tanki_machi();
     test_count_elements_same_sequence();
+    test_is_same_elements();
     test_has_elements_tile_id();
     test_merge_elements();
     return true;

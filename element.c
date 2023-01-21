@@ -30,6 +30,7 @@
 #include "mahjong.h"
 #include "tile.h"
 #include "element.h"
+#include "util.h"
 
 #define ELEMS_FOR_EACH(elems, callback) \
     for (uint32_t i = 0; i < (elems)->len; i ++) { \
@@ -44,14 +45,31 @@ static int tile_cmp(const void *p1, const void *p2) {
     return *(const MJTileId*)p1 - *(const MJTileId*)p2;
 }
 
-static void sort_element(Element *elem) {
+static void sort_tile(Element *elem) {
     qsort(&elem->tile_id[0], elem->len, sizeof(elem->tile_id[0]), tile_cmp);
 }
 
-static void sort_elements(Elements *elems) {
+static void sort_tile_elements(Elements *elems) {
     for (uint32_t i = 0; i < elems->len; i ++) {
-        sort_element(&elems->meld[i]);
+        sort_tile(&elems->meld[i]);
     }
+}
+
+static int element_cmp(const void *p1, const void *p2) {
+    const Element *e1;
+    const Element *e2;
+    e1 = (const Element*)p1;
+    e2 = (const Element*)p2;
+    if (e1->tile_id[0] == e2->tile_id[0]) {
+        return e1->type - e2->type;
+    } else {
+        return e1->tile_id[0] - e2->tile_id[0];
+    }
+}
+
+static void sort_elements(Elements *elems) {
+    qsort(&elems->meld[0], elems->len, sizeof(MJMeld), element_cmp);
+    util_dump_melds(elems);
 }
 
 /*
@@ -108,7 +126,7 @@ static bool is_fours(const Element *elem) {
 
 bool gen_elements_from_melds(Elements *elems, const MJMelds *melds) {
     memcpy(elems, melds, sizeof(Elements));
-    sort_elements(elems);
+    sort_tile_elements(elems);
     for (uint32_t i = 0; i < elems->len; i ++) {
         Element *elem = &elems->meld[i];
         if (is_sequece(elem)) {
@@ -440,6 +458,39 @@ static int has_element_tile_id(const Element *elem, MJTileId tile_id) {
         }
     }
     return false;
+}
+
+bool is_same_element(const Element *e1, const Element *e2) {
+    if (e1->len != e2->len) {
+        return false;
+    }
+    if (e1->type != e2->type) {
+        return false;
+    }
+    for (uint32_t i = 0; i < e1->len; i ++) {
+        if (e1->tile_id[i] != e2->tile_id[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool is_same_elements(const Elements *e1, const Elements *e2) {
+    if (e1->len != e2->len) {
+        return false;
+    }
+    Elements _e1;
+    Elements _e2;
+    memcpy(&_e1, e1, sizeof(Elements));
+    memcpy(&_e2, e2, sizeof(Elements));
+    sort_elements(&_e1);
+    sort_elements(&_e2);
+    for (uint32_t i = 0; i < _e1.len; i ++) {
+        if (!is_same_element(&_e1.meld[i], &_e2.meld[i])) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool has_elements_tile_id(const Elements *elems, MJTileId tile_id) {
