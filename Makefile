@@ -26,7 +26,7 @@ $(TEST_TARGET): $(TEST_OBJS) $(TARGET)
 -include $(DEPS)
 -include $(TEST_DEPS)
 
-test:
+test: $(TEST_TARGET)
 	LD_LIBRARY_PATH=. ./$(TEST_TARGET)
 
 clean:

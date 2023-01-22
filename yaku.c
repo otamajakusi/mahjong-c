@@ -793,7 +793,7 @@ int is_chuuren_poutou(const Elements *concealed_elems, const Elements *melded_el
     bool found_x = false;
     for (uint32_t i = 0; i < sizeof(tile_number) / sizeof(tile_number[0]); i ++) {
         if (i == TILE_NUM_1 || i == TILE_NUM_9) {
-            if (tile_number[i] == 4) {  // x==1 or x==9
+            if (tile_number[i] == 4) {  // x==1 or 9
                 if (found_x) { // x is already found
                     return false;
                 }
@@ -802,7 +802,7 @@ int is_chuuren_poutou(const Elements *concealed_elems, const Elements *melded_el
                 return false;
             }
         } else {
-            if (tile_number[i] == 2) { // x==2 or x==3, ...x==8
+            if (tile_number[i] == 2) { // x==2,3,4,5,6,7 or 8
                 if (found_x) { // x is already found
                     return false;
                 }
