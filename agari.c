@@ -304,7 +304,7 @@ uint32_t find_agari(
             found = find_agari_with_triplets_candidates(&triplets, &_concealed_tiles, melded_elems, i, cb_elements, cbarg);
             agari += found;
             if (found) {
-                printf("agari %d: pair: %s\n", agari, tile_id_str(i));
+                fprintf(stderr, "agari %d: pair: %s\n", agari, tile_id_str(i));
             }
             _concealed_tiles.tiles[i] += 2; // revert: remove pair from tiles
         }

@@ -39,6 +39,7 @@ static void _test_mj_get_score(
 
 void test_mj_get_score() {
     _test_mj_get_score(m1,m2,m3,p1,p2,p3,s1,s2,s3,s1,s2,s3,s9,s9, p1, 1, wt, wt, 7, 30, "junchan sanshoku pinfu iipeiko ");
+    _test_mj_get_score(m1,m2,m3,p1,p2,p3,wn,wn,wn,s2,s3,s4,s9,s9, p1, 1, wt, wt, 0, 40, ""); // 役なし
     // https://mj-dragon.com/calc/basic/kotenho.html
     _test_mj_get_score(m3,m3,m4,m4,m5,m5,p9,p9,s4,s4,s5,s5,s6,s6, s5, 1, wt, wt, 3, 40, "ryanpeiko ");
     _test_mj_get_score(m2,m3,m4,p2,p2,p3,p3,p4,p4,p5,p5,s2,s3,s4, p3, 1, wt, wt, 4, 40, "sanshoku tanyao iipeiko ");
