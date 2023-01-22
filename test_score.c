@@ -4,7 +4,7 @@
 #include "test_score.h"
 #include "test_util.h"
 
-static void _test_calc_score_concealed_hands(
+static void _test_calc_score_with_tiles(
         /* input */
         MJTileId t1,
         MJTileId t2,
@@ -38,7 +38,7 @@ static void _test_calc_score_concealed_hands(
     assert(gen_tiles_from_hands(&tiles, &hands));
 
     ScoreConfig cfg = {win_tile, ron, player_wind, round_wind};
-    assert(calc_score_concealed_hands(&score, &tiles, &cfg) == retval);
+    assert(calc_score_with_tiles(&score, &tiles, &cfg) == retval);
     if (retval) {
         assert(score.han == han);
         assert(score.fu == fu);
@@ -46,18 +46,18 @@ static void _test_calc_score_concealed_hands(
     }
 }
 
-void test_calc_score_concealed_hands() {
+void test_calc_score_with_tiles() {
     /*                                1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,pa,win,ron,pw,rw, ret, han,fu, yaku_name */
-    _test_calc_score_concealed_hands(dw,dg,dr,m1,p1,s1,m9,p9,s9,wt,wn,ws,wp, dr, 1, wt,wt, true, 13, 0, "kokushi ");
-    _test_calc_score_concealed_hands(m1,m1,m2,m2,m3,m3,p3,p3,p4,p4,p5,p5,wt, wt, 1, wt,wt, true, 2, 25, "chiitoitsu ");
-    _test_calc_score_concealed_hands(m1,m1,m2,m2,m3,m3,p3,p3,p4,p4,p5,p5,wt, wt, 0, wt,wt, true, 3, 25, "chiitoitsu tsumo ");
-    _test_calc_score_concealed_hands(s2,s2,m2,m2,m3,m3,p3,p3,p4,p4,p5,p5,p6, p5, 1, wt,wt, true, 3, 25, "chiitoitsu tanyao ");
-    _test_calc_score_concealed_hands(wt,wt,wn,wn,ws,ws,wp,wp,dw,dw,dg,dg,dr, dr, 1, wt,wt, true, 13, 25, "tsuisou ");
-    _test_calc_score_concealed_hands(p1,p1,p3,p3,p4,p4,p6,p6,wt,wt,wn,wn,wp, wp, 1, wt,wt, true, 5, 25, "chiitoitsu honitsu ");
-    _test_calc_score_concealed_hands(p1,p1,p3,p3,p4,p4,p6,p6,p7,p7,p8,p8,p9, p1, 1, wt,wt, true, 8, 25, "chiitoitsu chinitsu ");
-    _test_calc_score_concealed_hands(p1,p1,p9,p9,m1,m1,s1,s1,wt,wt,dw,dw,dr, dr, 1, wt,wt, true, 4, 25, "chiitoitsu honroto ");
-    _test_calc_score_concealed_hands(p1,p1,p9,p9,m1,m1,s1,s1,wt,wt,dw,dw,dr, dr, 1, wt,wt, true, 4, 25, "chiitoitsu honroto ");
-    _test_calc_score_concealed_hands(p1,p1,p9,p9,m1,m1,s1,s1,wt,wt,dw,dw,m1, dr, 1, wt,wt, false, 0, 0, ""); // non chiitoitsu
+    _test_calc_score_with_tiles(dw,dg,dr,m1,p1,s1,m9,p9,s9,wt,wn,ws,wp, dr, 1, wt,wt, true, 13, 0, "kokushi ");
+    _test_calc_score_with_tiles(m1,m1,m2,m2,m3,m3,p3,p3,p4,p4,p5,p5,wt, wt, 1, wt,wt, true, 2, 25, "chiitoitsu ");
+    _test_calc_score_with_tiles(m1,m1,m2,m2,m3,m3,p3,p3,p4,p4,p5,p5,wt, wt, 0, wt,wt, true, 3, 25, "chiitoitsu tsumo ");
+    _test_calc_score_with_tiles(s2,s2,m2,m2,m3,m3,p3,p3,p4,p4,p5,p5,p6, p5, 1, wt,wt, true, 3, 25, "chiitoitsu tanyao ");
+    _test_calc_score_with_tiles(wt,wt,wn,wn,ws,ws,wp,wp,dw,dw,dg,dg,dr, dr, 1, wt,wt, true, 13, 25, "tsuisou ");
+    _test_calc_score_with_tiles(p1,p1,p3,p3,p4,p4,p6,p6,wt,wt,wn,wn,wp, wp, 1, wt,wt, true, 5, 25, "chiitoitsu honitsu ");
+    _test_calc_score_with_tiles(p1,p1,p3,p3,p4,p4,p6,p6,p7,p7,p8,p8,p9, p1, 1, wt,wt, true, 8, 25, "chiitoitsu chinitsu ");
+    _test_calc_score_with_tiles(p1,p1,p9,p9,m1,m1,s1,s1,wt,wt,dw,dw,dr, dr, 1, wt,wt, true, 4, 25, "chiitoitsu honroto ");
+    _test_calc_score_with_tiles(p1,p1,p9,p9,m1,m1,s1,s1,wt,wt,dw,dw,dr, dr, 1, wt,wt, true, 4, 25, "chiitoitsu honroto ");
+    _test_calc_score_with_tiles(p1,p1,p9,p9,m1,m1,s1,s1,wt,wt,dw,dw,m1, dr, 1, wt,wt, false, 0, 0, ""); // non chiitoitsu
 }
 
 static void _test_calc_score0( /* 門前 */
@@ -285,7 +285,7 @@ void test_calc_score() {
 }
 
 bool test_score() {
-    test_calc_score_concealed_hands();
+    test_calc_score_with_tiles();
     test_calc_score();
     return true;
 }

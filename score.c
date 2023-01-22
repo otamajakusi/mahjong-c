@@ -32,6 +32,27 @@
 #include "yaku.h"
 #include "fu.h"
 
+/*
+ * 複数アガリの点数の比較
+ * 同じアガリ配で複数通りのアガリがある場合に翻と符を必ず比較しないといけないか？
+ * たとえば複数のアガリ A. 60符1翻, B. 30符2翻 があり得るか？
+ * 場合:
+ * 40符1翻と20符2翻(子1300)
+ * 50符1翻と25符2翻(子1600)
+ * 60符1翻と30符2翻(子2000)
+ * 80符1翻と40符2翻(子2600)
+ * 40符2翻と20符3翻(子2600)
+ * 50符2翻と25符3翻(子3200)
+ * 60符2翻と30符3翻(子3900)
+ * 25符は七対子の場合で七対子が面子役になるためには二盃口となり50符1翻にならない.
+ * 同じアガリ配で大きく異なる符となるためには順子構成が刻子構成にもなる場合で
+ * 例えば 123,123,123,678,99 と 111,222,333,678,99 の場合
+ * 20符2翻(平和,**自摸**)なので後者は常に三暗刻が付き1翻で止まらない.
+ * 30符2翻と60符1翻は30の符の差があり, これは順子<->刻子の構成だけでは作れない.
+ * 123,123,123 を 111,222,333 と捉えた場合16符の差しかない.
+ * つまり翻を比較して同じなら符を比較して大小を比較できる.
+ */
+
 static void append_score(MJScore *score, uint32_t han, const char* yaku_name) {
     uint32_t name_len = strlen(score->yaku_name);
     uint32_t n = MJ_MAX_YAKU_NAME_LEN - name_len - 1;
@@ -47,31 +68,33 @@ static void append_score_kuisagari(MJScore *score, uint32_t han, const char* yak
     return append_score(score, han, yaku_name);
 }
 
-bool calc_score_concealed_hands(MJScore *score, const Tiles *tiles, const ScoreConfig *cfg) {
+static void finalize_score(MJScore *score, uint32_t fu) {
+    score->fu = fu;
+}
+
+bool calc_score_with_tiles(MJScore *score, const Tiles *tiles, const ScoreConfig *cfg) {
     memset(score, 0, sizeof(MJScore));
 
     // 国士無双
     bool kokushi = is_kokushi(tiles); // 13han
     if (kokushi) {
-        score->fu = 0;
         append_score(score, 13, "kokushi ");
     }
 
     // 字一色
     bool tsuisou = is_tsuisou7(tiles);
     if (tsuisou) {
-        score->fu = FU_CHIITOITSU;
         append_score(score, 13, "tsuisou ");
     }
 
     if (kokushi || tsuisou) {
+        finalize_score(score, kokushi ? 0 : FU_CHIITOITSU);
         return true;
     }
 
     // 七対子
     bool chiitoitsu = is_chiitoitsu(tiles); // 2han
     if (chiitoitsu) {
-        score->fu = FU_CHIITOITSU;
         append_score(score, 2, "chiitoitsu ");
     } else {
         return false;
@@ -106,6 +129,7 @@ bool calc_score_concealed_hands(MJScore *score, const Tiles *tiles, const ScoreC
     if (!cfg->ron) {
         append_score(score, 1, "tsumo ");
     }
+    finalize_score(score, FU_CHIITOITSU);
     return true;
 }
 
@@ -159,7 +183,7 @@ bool calc_score(MJScore *score, const Elements *concealed, const Elements *melde
         append_score(score, 13, "chuuren_poutou ");
     }
     if (suuankou || daisangen || ryuisou || tsuisou || shosuushi || daisuushi || chinroto || suukantsu || chuuren_poutou) {
-        score->fu = calc_fu(concealed, melded, pair, cfg, false);
+        finalize_score(score, calc_fu(concealed, melded, pair, cfg, false));
         return true; // early return since yakuman
     }
 
@@ -330,6 +354,6 @@ bool calc_score(MJScore *score, const Elements *concealed, const Elements *melde
     if (tsumo) {
         append_score(score, 1, "tsumo ");
     }
-    score->fu = calc_fu(concealed, melded, pair, cfg, pinfu);
+    finalize_score(score, calc_fu(concealed, melded, pair, cfg, pinfu));
     return true;
 }

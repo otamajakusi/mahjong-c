@@ -9,8 +9,9 @@ bool test() {
     test_meld();
     test_hand();
     test_element();
-    test_agari();
     test_score();
+    test_agari();
+    test_mahjong();
     return true;
 }
 

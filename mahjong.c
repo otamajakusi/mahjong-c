@@ -50,17 +50,63 @@ static bool remove_melds_from_tiles(Tiles *tiles, const MJMelds *melds) {
     return true;
 }
 
+/*
+ * [複数アガリの点数の比較]
+ * 同じアガリ配で複数通りのアガリがある場合に翻と符を必ず比較しないといけないか？
+ * たとえば複数のアガリ A. 60符1翻, B. 30符2翻 があり得るか？
+ * 場合:
+ * 40符1翻と20符2翻(子1300)
+ * 50符1翻と25符2翻(子1600)
+ * 60符1翻と30符2翻(子2000)
+ * 80符1翻と40符2翻(子2600)
+ * 40符2翻と20符3翻(子2600)
+ * 50符2翻と25符3翻(子3200)
+ * 60符2翻と30符3翻(子3900)
+ * 25符は七対子の場合で七対子が面子役になるためには二盃口となり50符1翻にならない.
+ * 同じアガリ配で大きく異なる符となるためには順子構成が刻子構成にもなる場合で
+ * 例えば 123,123,123,678,99 と 111,222,333,678,99 の場合
+ * 20符2翻(平和,**自摸**)なので後者は常に三暗刻が付き1翻で止まらない.
+ * 30符2翻と60符1翻は30の符の差があり, これは順子<->刻子の構成だけでは作れない.
+ * 123,123,123 を 111,222,333 と捉えた場合16符の差しかない.
+ * つまり翻を比較して同じなら符を比較して大小を比較できる.
+ */
+
+typedef struct {
+    MJScore score;
+    ScoreConfig score_config;
+} _Score;
+
 /* for 国士無双, 七対子 */
 static void score_tiles(const Tiles *tiles, void *arg) {
-    (void)tiles;
-    (void)arg;
+    _Score *_score = (_Score*)arg;
+    MJScore score;
+    calc_score_with_tiles(&score, tiles, &_score->score_config);
+    // save greater score
+    if (score.han) {
+        fprintf(stderr, "%s\n", score.yaku_name);
+    }
+    if ((score.han > _score->score.han) || (score.han == _score->score.han && score.fu > _score->score.fu)) {
+        fprintf(stderr, "changed %d:%d:%s --> %d:%d:%s\n", 
+                _score->score.han, _score->score.fu, _score->score.yaku_name, 
+                score.han, score.fu, score.yaku_name);
+        memcpy(&_score->score, &score, sizeof(MJScore));
+    }
 }
 
 static void score_elements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg) {
-    (void)concealed;
-    (void)melded;
-    (void)pair;
-    (void)arg;
+    _Score *_score = (_Score*)arg;
+    MJScore score;
+    calc_score(&score, concealed, melded, pair, &_score->score_config);
+    if (score.han) {
+        fprintf(stderr, "%s\n", score.yaku_name);
+    }
+    // save greater score
+    if ((score.han > _score->score.han) || (score.han == _score->score.han && score.fu > _score->score.fu)) {
+        fprintf(stderr, "changed %d:%d:%s --> %d:%d:%s\n", 
+                _score->score.han, _score->score.fu, _score->score.yaku_name, 
+                score.han, score.fu, score.yaku_name);
+        memcpy(&_score->score, &score, sizeof(MJScore));
+    }
 }
 
 int32_t mj_get_score(
@@ -105,8 +151,12 @@ int32_t mj_get_score(
         return MJ_ERR_ILLEGAL_PARAM;
     }
 
-    ScoreConfig score_cfg = {win_tile, ron, player_wind, round_wind};
+    _Score _score = {
+        {0, 0, ""},
+        {win_tile, ron, player_wind, round_wind},
+    };
 
-    find_agari(&tiles, &melded_elems, score_tiles, score_elements, &score_cfg);
+    find_agari(&tiles, &melded_elems, score_tiles, score_elements, &_score);
+    memcpy(score, &_score.score, sizeof(MJScore));
     return MJ_OK;
 }
