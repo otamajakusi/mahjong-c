@@ -160,7 +160,15 @@ void test_calc_score() {
     _test_calc_score0(wt,wt,wt, ws,ws,ws, wp,wp,wp, wn,wn,wn,  m2, wn,  1, ws, wt, 13, 60, "daisuushi "); // 大四喜
     _test_calc_score0(s9,s9,s9, s1,s1,s1, p1,p1,p1, p9,p9,p9,  m1, p9,  1, ws, wt, 13, 60, "chinroto "); // 清老頭
     // TODO: 四槓子
-    // TODO: 九蓮宝燈
+    _test_calc_score0(m1,m1,m1, m1,m2,m3, m4,m5,m6, m7,m8,m9,  m9, m9,  1, ws, wt, 13, 40, "chuuren_poutou "); // 九蓮宝燈(x=1)
+    _test_calc_score0(m1,m1,m1, m3,m4,m5, m6,m7,m8, m9,m9,m9,  m2, m9,  1, ws, wt, 13, 50, "chuuren_poutou "); // 九蓮宝燈(x=2)
+    _test_calc_score0(m1,m2,m3, m3,m4,m5, m6,m7,m8, m9,m9,m9,  m1, m9,  1, ws, wt, 13, 40, "chuuren_poutou "); // 九蓮宝燈(x=3)
+    _test_calc_score0(m1,m1,m1, m2,m3,m4, m4,m5,m6, m7,m8,m9,  m9, m9,  1, ws, wt, 13, 40, "chuuren_poutou "); // 九蓮宝燈(x=4)
+    _test_calc_score0(m1,m1,m1, m2,m3,m4, m6,m7,m8, m9,m9,m9,  m5, m9,  1, ws, wt, 13, 50, "chuuren_poutou "); // 九蓮宝燈(x=5)
+    _test_calc_score0(m1,m2,m3, m4,m5,m6, m6,m7,m8, m9,m9,m9,  m1, m9,  1, ws, wt, 13, 40, "chuuren_poutou "); // 九蓮宝燈(x=6)
+    _test_calc_score0(m1,m1,m1, m2,m3,m4, m5,m6,m7, m7,m8,m9,  m9, m9,  1, ws, wt, 13, 40, "chuuren_poutou "); // 九蓮宝燈(x=7)
+    _test_calc_score0(m1,m1,m1, m2,m3,m4, m5,m6,m7, m9,m9,m9,  m8, m9,  1, ws, wt, 13, 50, "chuuren_poutou "); // 九蓮宝燈(x=8)
+    _test_calc_score0(m1,m2,m3, m4,m5,m6, m7,m8,m9, m9,m9,m9,  m1, m9,  1, ws, wt, 13, 40, "chuuren_poutou "); // 九蓮宝燈(x=9)
     /*                                                       pair,win,ron, pw, rw,han, fu, yaku_name */
 }
 

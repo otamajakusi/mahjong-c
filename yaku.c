@@ -759,38 +759,63 @@ int is_suukantsu(const Elements *concealed_elems, const Elements *melded_elems, 
 }
 
 /* 九蓮宝燈: 門前: 必要, 同種の数牌が1112345678999 + xで構成. NOTE: 暗槓は不成立. */
-/* TODO */
-int is_chuuren_poutou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {  // 九蓮宝燈, 門前
+int is_chuuren_poutou(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg) {
     if (melded_elems->len) { // 暗槓も不成立
         return false;
     }
-    uint32_t type = 0;
-    for (uint32_t i = 0; i < concealed_elems->len; i ++) {
-        const Element *elem = &concealed_elems->meld[i];
-        type |= get_tile_type(elem->tile_id[0]);
-    }
-    type |= get_tile_type(pair_tile);
-    /* has only one type */
-    if (type != TILE_TYPE_MAN && type != TILE_TYPE_PIN && type != TILE_TYPE_SOU) {
+    if (!is_chinitsu(concealed_elems, melded_elems, pair_tile, cfg)) {
         return false;
     }
-
-    //uint32_t pair_number;
+    // count tile number for each number
+    uint32_t tile_number[9] = {0,0,0,0,0,0,0,0,0};
+    for (uint32_t i = 0; i < concealed_elems->len; i ++) {
+        const Element *elem = &concealed_elems->meld[i];
+        for (uint32_t j = 0; j < elem->len; j ++) {
+            uint32_t number = get_tile_number(elem->tile_id[j]);
+            tile_number[number] ++;
+        }
+    }
+    uint32_t pari_number = get_tile_number(pair_tile);
+    tile_number[pari_number] += 2;
     /*
-     * 111 123 456 789 99
-     * 111 22 345 678 999
-     * 11 123 345 678 999
-     * 111 234 456 789 99
-     * 111 234 55 678 999
-     * 11 123 456 678 999
-     * 111 234 567 789 99
-     * 111 234 567 88 999
-     * 11 123 456 789 999
+     * 111 123 456 789 99 (x=1)
+     * 111 22 345 678 999 (x=2)
+     * 11 123 345 678 999 (x=3)
+     * 111 234 456 789 99 (x=4)
+     * 111 234 55 678 999 (x=5)
+     * 11 123 456 678 999 (x=6)
+     * 111 234 567 789 99 (x=7)
+     * 111 234 567 88 999 (x=8)
+     * 11 123 456 789 999 (x=9)
      */
-    (void)concealed_elems;
-    (void)pair_tile;
-    (void)cfg;
-    return false;
+
+    // check if "1112345678999 + x"
+    bool found_x = false;
+    for (uint32_t i = 0; i < sizeof(tile_number) / sizeof(tile_number[0]); i ++) {
+        if (i == TILE_NUM_1 || i == TILE_NUM_9) {
+            if (tile_number[i] == 4) {  // x==1 or x==9
+                if (found_x) { // x is already found
+                    return false;
+                }
+                found_x = true;
+            } else if (tile_number[i] != 3) {
+                return false;
+            }
+        } else {
+            if (tile_number[i] == 2) { // x==2 or x==3, ...x==8
+                if (found_x) { // x is already found
+                    return false;
+                }
+                found_x = true;
+            } else if (tile_number[i] != 1) {
+                return false;
+            }
+        }
+    }
+    if (!found_x) { // illegal number of tiles (this case doesn't occur, or bug)
+        return false;
+    }
+    return true;
 }
 
 
