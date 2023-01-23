@@ -1,6 +1,6 @@
-SRCS = tile.c hand.c meld.c element.c agari.c score.c yaku.c fu.c mahjong.c util.c
-TEST_SRCS = test.c test_tile.c test_meld.c test_hand.c test_element.c test_agari.c test_score.c test_mahjong.c
-EXAMPLE_SRCS = example.c
+SRCS = src/tile.c src/hand.c src/meld.c src/element.c src/agari.c src/score.c src/yaku.c src/fu.c src/mahjong.c src/util.c
+TEST_SRCS = test/test.c test/test_tile.c test/test_meld.c test/test_hand.c test/test_element.c test/test_agari.c test/test_score.c test/test_mahjong.c
+EXAMPLE_SRCS = example/example.c
 TARGET = libmahjong.so
 TEST_TARGET = test.elf
 EXAMPLE_TARGET = example.elf
@@ -28,7 +28,7 @@ $(EXAMPLE_TARGET): $(EXAMPLE_OBJS) $(TARGET)
 	$(CC) -L. $^ -o $@
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $< -MMD -MP
+	$(CC) $(CFLAGS) -Isrc -c -o $@ $< -MMD -MP
 
 -include $(DEPS)
 -include $(TEST_DEPS)
