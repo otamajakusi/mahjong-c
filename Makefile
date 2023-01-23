@@ -28,7 +28,7 @@ $(EXAMPLE_TARGET): $(EXAMPLE_OBJS) $(TARGET)
 	$(CC) -L. $^ -o $@
 
 %.o: %.c
-	$(CC) $(CFLAGS) -Isrc -c -o $@ $< -MMD -MP
+	$(CC) $(CFLAGS) -Iinclude -c -o $@ $< -MMD -MP
 
 -include $(DEPS)
 -include $(TEST_DEPS)
