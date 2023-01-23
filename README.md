@@ -1,4 +1,4 @@
-![test](https://github.com/otamajakusi/mahjong-c/actions/workflowstest.yaml/badge.svg)
+![test](https://github.com/otamajakusi/mahjong-c/actions/workflows/test.yaml/badge.svg)
 
 # mahjong-c
 
