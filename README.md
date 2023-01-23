@@ -25,7 +25,7 @@ $ make example
 han: 4, fu: 40, yaku: sanshoku tanyao iipeiko
 ```
 
-example.cのアガリ形は「平和, 断么九, 一盃口」とも解釈できますが、高点法により「三色同順, 断么九, 一盃口」を出力します。
+example.cのアガリ形は「平和, 断么九, 一盃口」とも解釈できますが、高点法により正しく「三色同順, 断么九, 一盃口」を出力します。
 
 ## Licence
 
