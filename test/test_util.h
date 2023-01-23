@@ -37,4 +37,5 @@ enum {
   dw = MJ_DW,
   dg = MJ_DG,
   dr = MJ_DR,
+  xx = -1u,
 };

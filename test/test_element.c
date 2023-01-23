@@ -9,10 +9,10 @@ void test_gen_elements_from_melds() {
     /* 1 */
     MJMelds melds1 = {
         {
-            {{m3,m1,m2}, 3, false, -1},
-            {{p2,p3,p1}, 3, false, -1},
-            {{dr,dr,dr}, 3, false, -1},
-            {{wt,wt,wt,wt}, 4, true, -1},
+            {{m3,m1,m2}, 3, false, xx},
+            {{p2,p3,p1}, 3, false, xx},
+            {{dr,dr,dr}, 3, false, xx},
+            {{wt,wt,wt,wt}, 4, true, xx},
         },
         4
     };
@@ -33,10 +33,10 @@ void test_gen_elements_from_melds() {
 
     MJMelds melds2 = {
         {
-            {{m3,m3,m2}, 3, false, -1}, // neither sequence nor triplets
-            {{p2,p3,p1}, 3, false, -1},
-            {{dr,dr,dr}, 3, false, -1},
-            {{wt,wt,wt,wt}, 4, true, -1},
+            {{m3,m3,m2}, 3, false, xx}, // neither sequence nor triplets
+            {{p2,p3,p1}, 3, false, xx},
+            {{dr,dr,dr}, 3, false, xx},
+            {{wt,wt,wt,wt}, 4, true, xx},
         },
         4
     };
@@ -44,10 +44,10 @@ void test_gen_elements_from_melds() {
 
     MJMelds melds3 = {
         {
-            {{m3,m1,-1}, 3, false, -1}, // illegal tile id
-            {{p2,p3,p1}, 3, false, -1},
-            {{dr,dr,dr}, 3, false, -1},
-            {{wt,wt,wt,wt}, 4, true, -1},
+            {{m3,m1,xx}, 3, false, xx}, // illegal tile id
+            {{p2,p3,p1}, 3, false, xx},
+            {{dr,dr,dr}, 3, false, xx},
+            {{wt,wt,wt,wt}, 4, true, xx},
         },
         4
     };
@@ -454,19 +454,19 @@ void test_is_same_elements() {
     {
         MJMelds me1 = {
             {
-                {{wt,wt,wt},3,true,-1},
-                {{s5,s6,s7},3,true,-1},
-                {{p7,p8,p9},3,true,-1},
-                {{m3,m4,m5},3,true,-1},
+                {{wt,wt,wt},3,true,xx},
+                {{s5,s6,s7},3,true,xx},
+                {{p7,p8,p9},3,true,xx},
+                {{m3,m4,m5},3,true,xx},
             },
             4,
         };
         MJMelds me2 = {
             {
-                {{m3,m4,m5},3,true,-1},
-                {{wt,wt,wt},3,true,-1},
-                {{p7,p8,p9},3,true,-1},
-                {{s5,s6,s7},3,true,-1},
+                {{m3,m4,m5},3,true,xx},
+                {{wt,wt,wt},3,true,xx},
+                {{p7,p8,p9},3,true,xx},
+                {{s5,s6,s7},3,true,xx},
             },
             4,
         };
@@ -479,19 +479,19 @@ void test_is_same_elements() {
     {
         MJMelds me1 = {
             {
-                {{s5,s5,s5},3,true,-1},
-                {{s5,s6,s7},3,true,-1},
-                {{p7,p8,p9},3,true,-1},
-                {{m3,m4,m5},3,true,-1},
+                {{s5,s5,s5},3,true,xx},
+                {{s5,s6,s7},3,true,xx},
+                {{p7,p8,p9},3,true,xx},
+                {{m3,m4,m5},3,true,xx},
             },
             4,
         };
         MJMelds me2 = {
             {
-                {{m3,m4,m5},3,true,-1},
-                {{s5,s5,s5},3,true,-1},
-                {{p7,p8,p9},3,true,-1},
-                {{s5,s6,s7},3,true,-1},
+                {{m3,m4,m5},3,true,xx},
+                {{s5,s5,s5},3,true,xx},
+                {{p7,p8,p9},3,true,xx},
+                {{s5,s6,s7},3,true,xx},
             },
             4,
         };
@@ -504,19 +504,19 @@ void test_is_same_elements() {
     {
         MJMelds me1 = {
             {
-                {{s5,s5,s5},3,true,-1},
-                {{s5,s6,s7},3,true,-1},
-                {{p7,p8,p9},3,true,-1},
-                {{m3,m4,m5},3,true,-1},
+                {{s5,s5,s5},3,true,xx},
+                {{s5,s6,s7},3,true,xx},
+                {{p7,p8,p9},3,true,xx},
+                {{m3,m4,m5},3,true,xx},
             },
             4,
         };
         MJMelds me2 = {
             {
-                {{m3,m4,m5},3,true,-1},
-                {{s5,s5,s5},3,true,-1},
-                {{p7,p7,p7},3,true,-1},
-                {{s5,s6,s7},3,true,-1},
+                {{m3,m4,m5},3,true,xx},
+                {{s5,s5,s5},3,true,xx},
+                {{p7,p7,p7},3,true,xx},
+                {{s5,s6,s7},3,true,xx},
             },
             4,
         };

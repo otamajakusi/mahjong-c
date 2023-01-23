@@ -42,7 +42,7 @@
     return true
 
 static int tile_cmp(const void *p1, const void *p2) {
-    return *(const MJTileId*)p1 - *(const MJTileId*)p2;
+    return (signed)*(const MJTileId*)p1 - (signed)*(const MJTileId*)p2;
 }
 
 static void sort_tile(Element *elem) {
@@ -61,9 +61,9 @@ static int element_cmp(const void *p1, const void *p2) {
     e1 = (const Element*)p1;
     e2 = (const Element*)p2;
     if (e1->tile_id[0] == e2->tile_id[0]) {
-        return e1->type - e2->type;
+        return (signed)e1->type - (signed)e2->type;
     } else {
-        return e1->tile_id[0] - e2->tile_id[0];
+        return (signed)e1->tile_id[0] - (signed)e2->tile_id[0];
     }
 }
 

@@ -6,7 +6,7 @@ TEST_TARGET = test.elf
 EXAMPLE_TARGET = example.elf
 
 CC = gcc
-CFLAGS = -O3 -Wall -Wextra -Wshadow -Werror -ffunction-sections -fdata-sections -fPIC
+CFLAGS = -O3 -Wall -Wextra -Wshadow -Wconversion -Wno-enum-conversion -Werror -ffunction-sections -fdata-sections -fPIC
 LDFLAGS = -shared
 
 OBJS = $(patsubst %c,%o,$(filter %.c,$(SRCS)))

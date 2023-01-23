@@ -30,22 +30,22 @@
 
 #include "mahjong.h"
 
-#define TILE_TYPE_MAN     (1 << 0)
-#define TILE_TYPE_PIN     (1 << 1)
-#define TILE_TYPE_SOU     (1 << 2)
-#define TILE_TYPE_WIND    (1 << 3)
-#define TILE_TYPE_DRAGON  (1 << 4)
-#define TILE_TYPE_INVALID (1 << 7)
+#define TILE_TYPE_MAN     (1u << 0)
+#define TILE_TYPE_PIN     (1u << 1)
+#define TILE_TYPE_SOU     (1u << 2)
+#define TILE_TYPE_WIND    (1u << 3)
+#define TILE_TYPE_DRAGON  (1u << 4)
+#define TILE_TYPE_INVALID (1u << 7)
 
-#define TILE_NUM_1        (1 - 1)
-#define TILE_NUM_2        (2 - 1)
-#define TILE_NUM_3        (3 - 1)
-#define TILE_NUM_4        (4 - 1)
-#define TILE_NUM_5        (5 - 1)
-#define TILE_NUM_6        (6 - 1)
-#define TILE_NUM_7        (7 - 1)
-#define TILE_NUM_8        (8 - 1)
-#define TILE_NUM_9        (9 - 1)
+#define TILE_NUM_1        (1u - 1)
+#define TILE_NUM_2        (2u - 1)
+#define TILE_NUM_3        (3u - 1)
+#define TILE_NUM_4        (4u - 1)
+#define TILE_NUM_5        (5u - 1)
+#define TILE_NUM_6        (6u - 1)
+#define TILE_NUM_7        (7u - 1)
+#define TILE_NUM_8        (8u - 1)
+#define TILE_NUM_9        (9u - 1)
 #define TILE_NUM_INVALID  (-1u)
 
 typedef struct {

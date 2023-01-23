@@ -89,10 +89,10 @@ static void _test_calc_score0( /* 門前 */
     Elements melded;
     MJMelds melds = {
         {
-            {{e11,e12,e13}, 3, true, -1},
-            {{e21,e22,e23}, 3, true, -1},
-            {{e31,e32,e33}, 3, true, -1},
-            {{e41,e42,e43}, 3, true, -1},
+            {{e11,e12,e13}, 3, true, xx},
+            {{e21,e22,e23}, 3, true, xx},
+            {{e31,e32,e33}, 3, true, xx},
+            {{e41,e42,e43}, 3, true, xx},
         },
         4,
     };
@@ -144,10 +144,10 @@ static void _test_calc_score1( /* 全副露(暗槓含む) */
     Elements melded;
     MJMelds melds = {
         {
-            {{e11,e12,e13,e14,}, (int)e14 < 0 ? 3 : 4, e1_concealed, -1},
-            {{e21,e22,e23,e24,}, (int)e24 < 0 ? 3 : 4, e2_concealed, -1},
-            {{e31,e32,e33,e34,}, (int)e34 < 0 ? 3 : 4, e3_concealed, -1},
-            {{e41,e42,e43,e44,}, (int)e44 < 0 ? 3 : 4, e4_concealed, -1},
+            {{e11,e12,e13,e14,}, (int)e14 < 0 ? 3 : 4, e1_concealed, xx},
+            {{e21,e22,e23,e24,}, (int)e24 < 0 ? 3 : 4, e2_concealed, xx},
+            {{e31,e32,e33,e34,}, (int)e34 < 0 ? 3 : 4, e3_concealed, xx},
+            {{e41,e42,e43,e44,}, (int)e44 < 0 ? 3 : 4, e4_concealed, xx},
         },
         4,
     };
@@ -230,55 +230,55 @@ void test_calc_score() {
 
     /*                 1, 2, 3, 4, c,  1, 2, 3, 4, c,  1, 2, 3, 4, c,  1, 2, 3, 4, c,pair,win,ron, pw, rw,han, fu, yaku_name */
     /*** 1翻 ***/
-    _test_calc_score1(m1,m2,m3,-1, 0, p2,p3,p4,-1, 0, s3,s4,s5,-1, 0, s7,s8,s9,-1, 0,  m1, s9,  1, wt, wt,  0, 30, ""); // 役なし(x平和(ロン))
-    _test_calc_score1(m1,m2,m3,-1, 0, p2,p3,p4,-1, 0, s3,s4,s5,-1, 0, s7,s8,s9,-1, 0,  m1, s9,  0, wt, wt,  0, 30, ""); // 役なし(x平和(自摸))
-    _test_calc_score1(m1,m2,m3,-1, 0, p2,p3,p4,-1, 0, s3,s4,s5,-1, 0, s7,s8,s9,-1, 0,  m1, m3,  1, wt, wt,  0, 30, ""); // 役なし(ペンチャン待ち)
-    _test_calc_score1(m1,m2,m3,-1, 0, p2,p3,p4,-1, 0, s3,s4,s5,-1, 0, s7,s8,s9,-1, 0,  m1, p3,  1, wt, wt,  0, 30, ""); // 役なし(カンチャン待ち)
-    _test_calc_score1(m1,m2,m3,-1, 0, p2,p3,p4,-1, 0, s3,s4,s5,-1, 0, s7,s8,s9,-1, 0,  m1, p3,  0, wt, wt,  0, 30, ""); // 役なし(x自摸)
-    _test_calc_score1(m2,m3,m4,-1, 0, p2,p3,p4,-1, 0, s3,s4,s5,-1, 0, s6,s7,s8,-1, 0,  m2, p3,  0, wt, wt,  1, 30, "tanyao "); // 断么九
-    _test_calc_score1(m2,m3,m4,-1, 0, p2,p3,p4,-1, 0, p3,p4,p5,-1, 0, s6,s7,s8,-1, 0,  m2, p3,  0, wt, wt,  1, 30, "tanyao "); // 断么九(x平和,x断么九)
-    _test_calc_score1(m1,m1,m1,-1, 0, p2,p3,p4,-1, 0, p2,p3,p4,-1, 0, s6,s7,s8,-1, 0,  m2, p4,  0, wt, wt,  0, 30, ""); // 役なし(x一盃口)
-    _test_calc_score1(m1,m1,m1,-1, 0, p2,p3,p4,-1, 0, p2,p3,p4,-1, 0, dw,dw,dw,-1, 0,  m2, p4,  0, wt, wt,  1, 30, "haku "); // 白(x一盃口)
-    _test_calc_score1(m1,m2,m3,-1, 0, p2,p3,p4,-1, 0, dg,dg,dg,-1, 0, dw,dw,dw,-1, 0,  m9, p3,  0, wt, wt,  2, 30, "haku hatsu "); // 白,發
-    _test_calc_score1(m1,m2,m3,-1, 0, dr,dr,dr,-1, 0, p3,p3,p3,-1, 0, dw,dw,dw,-1, 0,  m9, p3,  0, wt, wt,  2, 40, "haku chun "); // 白,中
-    _test_calc_score1(m1,m2,m3,-1, 0, p2,p3,p4,-1, 0, s3,s4,s5,-1, 0, wt,wt,wt,-1, 0,  m1, wt,  0, wt, wn,  1, 30, "ton "); // 東
-    _test_calc_score1(m1,m2,m3,-1, 0, p2,p3,p4,-1, 0, s3,s4,s5,-1, 0, wn,wn,wn,-1, 0,  m1, wn,  0, wt, wn,  1, 30, "nan "); // 南
-    _test_calc_score1(m1,m2,m3,-1, 0, p2,p3,p4,-1, 0, s3,s4,s5,-1, 0, ws,ws,ws,-1, 0,  m1, ws,  0, ws, wn,  1, 30, "sha "); // 西
-    _test_calc_score1(m1,m2,m3,-1, 0, p2,p3,p4,-1, 0, s3,s4,s5,-1, 0, wp,wp,wp,-1, 0,  m1, wp,  0, ws, wp,  1, 30, "pei "); // 北
+    _test_calc_score1(m1,m2,m3,xx, 0, p2,p3,p4,xx, 0, s3,s4,s5,xx, 0, s7,s8,s9,xx, 0,  m1, s9,  1, wt, wt,  0, 30, ""); // 役なし(x平和(ロン))
+    _test_calc_score1(m1,m2,m3,xx, 0, p2,p3,p4,xx, 0, s3,s4,s5,xx, 0, s7,s8,s9,xx, 0,  m1, s9,  0, wt, wt,  0, 30, ""); // 役なし(x平和(自摸))
+    _test_calc_score1(m1,m2,m3,xx, 0, p2,p3,p4,xx, 0, s3,s4,s5,xx, 0, s7,s8,s9,xx, 0,  m1, m3,  1, wt, wt,  0, 30, ""); // 役なし(ペンチャン待ち)
+    _test_calc_score1(m1,m2,m3,xx, 0, p2,p3,p4,xx, 0, s3,s4,s5,xx, 0, s7,s8,s9,xx, 0,  m1, p3,  1, wt, wt,  0, 30, ""); // 役なし(カンチャン待ち)
+    _test_calc_score1(m1,m2,m3,xx, 0, p2,p3,p4,xx, 0, s3,s4,s5,xx, 0, s7,s8,s9,xx, 0,  m1, p3,  0, wt, wt,  0, 30, ""); // 役なし(x自摸)
+    _test_calc_score1(m2,m3,m4,xx, 0, p2,p3,p4,xx, 0, s3,s4,s5,xx, 0, s6,s7,s8,xx, 0,  m2, p3,  0, wt, wt,  1, 30, "tanyao "); // 断么九
+    _test_calc_score1(m2,m3,m4,xx, 0, p2,p3,p4,xx, 0, p3,p4,p5,xx, 0, s6,s7,s8,xx, 0,  m2, p3,  0, wt, wt,  1, 30, "tanyao "); // 断么九(x平和,x断么九)
+    _test_calc_score1(m1,m1,m1,xx, 0, p2,p3,p4,xx, 0, p2,p3,p4,xx, 0, s6,s7,s8,xx, 0,  m2, p4,  0, wt, wt,  0, 30, ""); // 役なし(x一盃口)
+    _test_calc_score1(m1,m1,m1,xx, 0, p2,p3,p4,xx, 0, p2,p3,p4,xx, 0, dw,dw,dw,xx, 0,  m2, p4,  0, wt, wt,  1, 30, "haku "); // 白(x一盃口)
+    _test_calc_score1(m1,m2,m3,xx, 0, p2,p3,p4,xx, 0, dg,dg,dg,xx, 0, dw,dw,dw,xx, 0,  m9, p3,  0, wt, wt,  2, 30, "haku hatsu "); // 白,發
+    _test_calc_score1(m1,m2,m3,xx, 0, dr,dr,dr,xx, 0, p3,p3,p3,xx, 0, dw,dw,dw,xx, 0,  m9, p3,  0, wt, wt,  2, 40, "haku chun "); // 白,中
+    _test_calc_score1(m1,m2,m3,xx, 0, p2,p3,p4,xx, 0, s3,s4,s5,xx, 0, wt,wt,wt,xx, 0,  m1, wt,  0, wt, wn,  1, 30, "ton "); // 東
+    _test_calc_score1(m1,m2,m3,xx, 0, p2,p3,p4,xx, 0, s3,s4,s5,xx, 0, wn,wn,wn,xx, 0,  m1, wn,  0, wt, wn,  1, 30, "nan "); // 南
+    _test_calc_score1(m1,m2,m3,xx, 0, p2,p3,p4,xx, 0, s3,s4,s5,xx, 0, ws,ws,ws,xx, 0,  m1, ws,  0, ws, wn,  1, 30, "sha "); // 西
+    _test_calc_score1(m1,m2,m3,xx, 0, p2,p3,p4,xx, 0, s3,s4,s5,xx, 0, wp,wp,wp,xx, 0,  m1, wp,  0, ws, wp,  1, 30, "pei "); // 北
     /*** 2翻(食い下がり1翻) ***/
-    _test_calc_score1(m2,m3,m4,-1, 0, p2,p3,p4,-1, 0, s2,s3,s4,-1, 0, wp,wp,wp,-1, 0,  m1, wp,  0, ws, wt,  1, 30, "sanshoku "); // 三色同順
-    _test_calc_score1(m1,m2,m3,-1, 0, m7,m8,m9,-1, 0, m4,m5,m6,-1, 0, wp,wp,wp,-1, 0,  s5, wp,  0, ws, wt,  1, 30, "ittsu "); // 一気通貫
-    _test_calc_score1(m1,m2,m3,-1, 0, p7,p8,p9,-1, 0, m4,m5,m6,-1, 0, wp,wp,wp,-1, 0,  s5, wp,  0, ws, wt,  0, 30, ""); // 役なし(x一気通貫)
-    _test_calc_score1(m1,m2,m3,-1, 0, p7,p8,p9,-1, 0, s1,s2,s3,-1, 0, wp,wp,wp,-1, 0,  s1, wp,  0, ws, wt,  1, 30, "chanta "); // 混全帯么九
-    _test_calc_score1(m1,m1,m1,-1, 0, p7,p7,p7,-1, 0, s2,s2,s2,-1, 0, s4,s4,s4,-1, 0,  s3, p7,  1, ws, wt,  2, 30, "toitoi "); // 対々和(x三暗刻)
-    _test_calc_score1(m1,m1,m1,-1, 0, p7,p7,p7,-1, 0, s2,s2,s2,-1, 0, s4,s4,s4,-1, 0,  s3, p7,  0, ws, wt,  2, 40, "toitoi "); // 対々和(x三暗刻)(自摸+2符)
-    _test_calc_score1(m1,m1,m1,-1, 0, p7,p8,p9,-1, 0, s2,s2,s2,-1, 0, s4,s4,s4,-1, 0,  s3, p7,  0, ws, wt,  0, 30, ""); // 役なし(x三暗刻)
-    _test_calc_score1(m2,m2,m2,-1, 0, p7,p8,p9,-1, 0, s2,s2,s2,-1, 0, p2,p2,p2,-1, 0,  s3, p2,  0, ws, wt,  2, 30, "sanshoku_douko "); // 三色同刻
-    _test_calc_score1(m2,m2,m2,m2, 0, p7,p8,p9,-1, 0, s2,s2,s2,s2, 0, p3,p3,p3,p3, 0,  s3, p3,  0, ws, wt,  2, 50, "sankantsu "); // 三槓子
-    _test_calc_score1(dw,dw,dw,-1, 0, dr,dr,dr,-1, 0, s3,s4,s5,-1, 0, p2,p2,p2,-1, 0,  dg, dr,  0, ws, wt,  4, 40, "shosangen haku chun "); // 小三元,白,中
-    _test_calc_score1(m1,m1,m1,-1, 0, m9,m9,m9,-1, 0, s1,s1,s1,-1, 0, wp,wp,wp,-1, 0,  dg, m1,  0, ws, wt,  4, 40, "toitoi honroto "); // 対々和,(x三暗刻),混老頭
-    _test_calc_score1(m1,m1,m1,-1, 0, m6,m7,m8,-1, 0, s1,s1,s1,-1, 0, wt,wt,wt,-1, 0,  m2, m1,  0, wt, wt,  2, 40, "double_ton "); // ダブ東
-    _test_calc_score1(m1,m1,m1,-1, 0, m6,m7,m8,-1, 0, s1,s1,s1,-1, 0, wn,wn,wn,-1, 0,  m2, m1,  0, wn, wn,  2, 40, "double_nan "); // ダブ南
-    _test_calc_score1(m1,m1,m1,-1, 0, m6,m7,m8,-1, 0, s1,s1,s1,-1, 0, ws,ws,ws,-1, 0,  m2, m1,  0, ws, ws,  2, 40, "double_sha "); // ダブ西
-    _test_calc_score1(m1,m1,m1,-1, 0, m6,m7,m8,-1, 0, s1,s1,s1,-1, 0, wp,wp,wp,-1, 0,  m2, m1,  0, wp, wp,  2, 40, "double_pei "); // ダブ北
+    _test_calc_score1(m2,m3,m4,xx, 0, p2,p3,p4,xx, 0, s2,s3,s4,xx, 0, wp,wp,wp,xx, 0,  m1, wp,  0, ws, wt,  1, 30, "sanshoku "); // 三色同順
+    _test_calc_score1(m1,m2,m3,xx, 0, m7,m8,m9,xx, 0, m4,m5,m6,xx, 0, wp,wp,wp,xx, 0,  s5, wp,  0, ws, wt,  1, 30, "ittsu "); // 一気通貫
+    _test_calc_score1(m1,m2,m3,xx, 0, p7,p8,p9,xx, 0, m4,m5,m6,xx, 0, wp,wp,wp,xx, 0,  s5, wp,  0, ws, wt,  0, 30, ""); // 役なし(x一気通貫)
+    _test_calc_score1(m1,m2,m3,xx, 0, p7,p8,p9,xx, 0, s1,s2,s3,xx, 0, wp,wp,wp,xx, 0,  s1, wp,  0, ws, wt,  1, 30, "chanta "); // 混全帯么九
+    _test_calc_score1(m1,m1,m1,xx, 0, p7,p7,p7,xx, 0, s2,s2,s2,xx, 0, s4,s4,s4,xx, 0,  s3, p7,  1, ws, wt,  2, 30, "toitoi "); // 対々和(x三暗刻)
+    _test_calc_score1(m1,m1,m1,xx, 0, p7,p7,p7,xx, 0, s2,s2,s2,xx, 0, s4,s4,s4,xx, 0,  s3, p7,  0, ws, wt,  2, 40, "toitoi "); // 対々和(x三暗刻)(自摸+2符)
+    _test_calc_score1(m1,m1,m1,xx, 0, p7,p8,p9,xx, 0, s2,s2,s2,xx, 0, s4,s4,s4,xx, 0,  s3, p7,  0, ws, wt,  0, 30, ""); // 役なし(x三暗刻)
+    _test_calc_score1(m2,m2,m2,xx, 0, p7,p8,p9,xx, 0, s2,s2,s2,xx, 0, p2,p2,p2,xx, 0,  s3, p2,  0, ws, wt,  2, 30, "sanshoku_douko "); // 三色同刻
+    _test_calc_score1(m2,m2,m2,m2, 0, p7,p8,p9,xx, 0, s2,s2,s2,s2, 0, p3,p3,p3,p3, 0,  s3, p3,  0, ws, wt,  2, 50, "sankantsu "); // 三槓子
+    _test_calc_score1(dw,dw,dw,xx, 0, dr,dr,dr,xx, 0, s3,s4,s5,xx, 0, p2,p2,p2,xx, 0,  dg, dr,  0, ws, wt,  4, 40, "shosangen haku chun "); // 小三元,白,中
+    _test_calc_score1(m1,m1,m1,xx, 0, m9,m9,m9,xx, 0, s1,s1,s1,xx, 0, wp,wp,wp,xx, 0,  dg, m1,  0, ws, wt,  4, 40, "toitoi honroto "); // 対々和,(x三暗刻),混老頭
+    _test_calc_score1(m1,m1,m1,xx, 0, m6,m7,m8,xx, 0, s1,s1,s1,xx, 0, wt,wt,wt,xx, 0,  m2, m1,  0, wt, wt,  2, 40, "double_ton "); // ダブ東
+    _test_calc_score1(m1,m1,m1,xx, 0, m6,m7,m8,xx, 0, s1,s1,s1,xx, 0, wn,wn,wn,xx, 0,  m2, m1,  0, wn, wn,  2, 40, "double_nan "); // ダブ南
+    _test_calc_score1(m1,m1,m1,xx, 0, m6,m7,m8,xx, 0, s1,s1,s1,xx, 0, ws,ws,ws,xx, 0,  m2, m1,  0, ws, ws,  2, 40, "double_sha "); // ダブ西
+    _test_calc_score1(m1,m1,m1,xx, 0, m6,m7,m8,xx, 0, s1,s1,s1,xx, 0, wp,wp,wp,xx, 0,  m2, m1,  0, wp, wp,  2, 40, "double_pei "); // ダブ北
     /*** 3翻(食い下がり2翻) ***/
-    _test_calc_score1(m1,m1,m1,-1, 0, m6,m7,m8,-1, 0, m5,m6,m7,-1, 0, wp,wp,wp,-1, 0,  m2, m1,  0, wt, wt,  2, 30, "honitsu "); // 混一色
-    _test_calc_score1(m1,m1,m1,-1, 0, m7,m8,m9,-1, 0, p1,p2,p3,-1, 0, p9,p9,p9,-1, 0,  s9, m1,  0, wt, wt,  2, 30, "junchan "); // 純全帯么九
+    _test_calc_score1(m1,m1,m1,xx, 0, m6,m7,m8,xx, 0, m5,m6,m7,xx, 0, wp,wp,wp,xx, 0,  m2, m1,  0, wt, wt,  2, 30, "honitsu "); // 混一色
+    _test_calc_score1(m1,m1,m1,xx, 0, m7,m8,m9,xx, 0, p1,p2,p3,xx, 0, p9,p9,p9,xx, 0,  s9, m1,  0, wt, wt,  2, 30, "junchan "); // 純全帯么九
     /*** 3翻 ***/
-    _test_calc_score1(m2,m3,m4,-1, 0, p7,p8,p9,-1, 0, m2,m3,m4,-1, 0, p7,p8,p9,-1, 0,  m2, m3,  0, wt, wt,  0, 30, ""); // 役なし(x二盃口)
-    _test_calc_score1(m2,m3,m4,-1, 0, p7,p8,p9,-1, 0, m2,m3,m4,-1, 0, p7,p8,p9,-1, 0,  m2, m2,  0, wt, wt,  0, 30, ""); // 役なし(x二盃口,x平和)
+    _test_calc_score1(m2,m3,m4,xx, 0, p7,p8,p9,xx, 0, m2,m3,m4,xx, 0, p7,p8,p9,xx, 0,  m2, m3,  0, wt, wt,  0, 30, ""); // 役なし(x二盃口)
+    _test_calc_score1(m2,m3,m4,xx, 0, p7,p8,p9,xx, 0, m2,m3,m4,xx, 0, p7,p8,p9,xx, 0,  m2, m2,  0, wt, wt,  0, 30, ""); // 役なし(x二盃口,x平和)
     /*** 6翻(食い下がり5翻) ***/
-    _test_calc_score1(m2,m3,m4,-1, 0, m3,m4,m5,-1, 0, m5,m5,m5,-1, 0, m7,m8,m9,-1, 0,  m1, m9,  0, wt, wt,  5, 30, "chinitsu "); // 清一色
+    _test_calc_score1(m2,m3,m4,xx, 0, m3,m4,m5,xx, 0, m5,m5,m5,xx, 0, m7,m8,m9,xx, 0,  m1, m9,  0, wt, wt,  5, 30, "chinitsu "); // 清一色
     /*** 役満 ***/
     _test_calc_score1(s2,s2,s2,s2, 1, m3,m3,m3,m3, 1, wt,wt,wt,wt, 1, dg,dg,dg,dg, 1,  m1, m1,  0, wt, wt, 26,120, "suuankou suukantsu "); // 四暗刻,四槓子
-    _test_calc_score1(dw,dw,dw,dw, 0, dr,dr,dr,-1, 0, s3,s4,s5,-1, 0, dg,dg,dg,-1, 0,  m1, s3,  0, wt, wt, 13, 50, "daisangen "); // 大三元
-    _test_calc_score1(s2,s2,s2,-1, 0, s2,s3,s4,-1, 0, s6,s6,s6,-1, 0, dg,dg,dg,-1, 0,  s8, dg,  0, wt, wt, 13, 30, "ryuisou "); // 緑一色
-    _test_calc_score1(wt,wt,wt,-1, 0, dw,dw,dw,-1, 0, dg,dg,dg,-1, 0, wn,wn,wn,-1, 0,  wp, wn,  0, wt, wt, 13, 40, "tsuisou "); // 字一色
-    _test_calc_score1(wt,wt,wt,-1, 0, ws,ws,ws,-1, 0, s7,s8,s9,-1, 0, wn,wn,wn,-1, 0,  wp, wn,  0, wt, wt, 13, 40, "shosuushi "); // 小四喜
-    _test_calc_score1(wt,wt,wt,-1, 0, ws,ws,ws,-1, 0, wp,wp,wp,-1, 0, wn,wn,wn,-1, 0,  m2, wn,  0, wt, wt, 13, 40, "daisuushi "); // 大四喜
-    _test_calc_score1(s9,s9,s9,-1, 0, s1,s1,s1,-1, 0, p1,p1,p1,-1, 0, p9,p9,p9,-1, 0,  m1, p9,  0, wt, wt, 13, 40, "chinroto "); // 清老頭
+    _test_calc_score1(dw,dw,dw,dw, 0, dr,dr,dr,xx, 0, s3,s4,s5,xx, 0, dg,dg,dg,xx, 0,  m1, s3,  0, wt, wt, 13, 50, "daisangen "); // 大三元
+    _test_calc_score1(s2,s2,s2,xx, 0, s2,s3,s4,xx, 0, s6,s6,s6,xx, 0, dg,dg,dg,xx, 0,  s8, dg,  0, wt, wt, 13, 30, "ryuisou "); // 緑一色
+    _test_calc_score1(wt,wt,wt,xx, 0, dw,dw,dw,xx, 0, dg,dg,dg,xx, 0, wn,wn,wn,xx, 0,  wp, wn,  0, wt, wt, 13, 40, "tsuisou "); // 字一色
+    _test_calc_score1(wt,wt,wt,xx, 0, ws,ws,ws,xx, 0, s7,s8,s9,xx, 0, wn,wn,wn,xx, 0,  wp, wn,  0, wt, wt, 13, 40, "shosuushi "); // 小四喜
+    _test_calc_score1(wt,wt,wt,xx, 0, ws,ws,ws,xx, 0, wp,wp,wp,xx, 0, wn,wn,wn,xx, 0,  m2, wn,  0, wt, wt, 13, 40, "daisuushi "); // 大四喜
+    _test_calc_score1(s9,s9,s9,xx, 0, s1,s1,s1,xx, 0, p1,p1,p1,xx, 0, p9,p9,p9,xx, 0,  m1, p9,  0, wt, wt, 13, 40, "chinroto "); // 清老頭
     _test_calc_score1(s8,s8,s8,s8, 0, s1,s1,s1,s1, 0, p1,p1,p1,p1, 0, p9,p9,p9,p9, 0,  m1, p9,  0, wt, wt, 13, 80, "suukantsu "); // 四槓子
-    _test_calc_score1(wt,wt,wt,wt, 0, dw,dw,dw,-1, 0, dg,dg,dg,-1, 0, dr,dr,dr,-1, 0,  wp, dr,  0, wt, wt, 26, 50, "daisangen tsuisou "); // 大三元,字一色
+    _test_calc_score1(wt,wt,wt,wt, 0, dw,dw,dw,xx, 0, dg,dg,dg,xx, 0, dr,dr,dr,xx, 0,  wp, dr,  0, wt, wt, 26, 50, "daisangen tsuisou "); // 大三元,字一色
     _test_calc_score1(wt,wt,wt,wt, 1, dw,dw,dw,dw, 1, dg,dg,dg,dg, 1, dr,dr,dr,dr, 1,  wp, wp,  0, wt, wt, 52,160, "suuankou daisangen tsuisou suukantsu "); // 四暗刻,大三元,字一色,四槓子
     /*                 1, 2, 3, 4, c,  1, 2, 3, 4, c,  1, 2, 3, 4, c,  1, 2, 3, 4, c,pair,win,ron, pw, rw,han, fu, yaku_name */
 

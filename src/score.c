@@ -54,7 +54,7 @@
  */
 
 static void append_score(MJScore *score, uint32_t han, const char* yaku_name) {
-    uint32_t name_len = strlen(score->yaku_name);
+    uint32_t name_len = (uint32_t)strlen(score->yaku_name);
     uint32_t n = MJ_MAX_YAKU_NAME_LEN - name_len - 1;
     assert(n >= strlen(yaku_name));
     strncat(&score->yaku_name[name_len], yaku_name, n);
