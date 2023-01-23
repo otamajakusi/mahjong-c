@@ -1,3 +1,5 @@
+![test](https://github.com/otamajakusi/mahjong-c/actions/workflowstest.yaml/badge.svg)
+
 # mahjong-c
 
 This repository provides a mahjong agari detection and score calculation library written in C.
