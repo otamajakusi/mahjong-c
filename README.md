@@ -15,7 +15,7 @@ The following is a list of the different interpretations depending on the rules.
 - 緑一色の發: なくてもよい(M-League compliant)
 - その他国士無双13面待ちや四暗刻単騎待ちをダブル役満とするローカルルールはMリーグを含め公式なルールでは採用されていません
 
-See [src/yaku.h](src/yaku.h) for more details.
+See [include/yaku.h](include/yaku.h) for more details.
 
 ## Examples
 
