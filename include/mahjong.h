@@ -52,6 +52,7 @@
 #define MJ_ERR_ILLEGAL_PARAM        -1
 #define MJ_ERR_NUM_TILES_SHORT      -2
 #define MJ_ERR_NUM_TILES_LARGE      -3
+#define MJ_ERR_AGARI_NOT_FOUND      -4
 
 #define MJ_ELEMENTS_LEN             4 // length of elements
 #define MJ_PAIR_LEN                 2 // length of pairs

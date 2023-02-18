@@ -156,7 +156,10 @@ int32_t mj_get_score(
         {win_tile, ron, player_wind, round_wind},
     };
 
-    find_agari(&tiles, &melded_elems, score_tiles, score_elements, &_score);
+    uint32_t agari = find_agari(&tiles, &melded_elems, score_tiles, score_elements, &_score);
+    if (agari == 0) {
+        return MJ_ERR_AGARI_NOT_FOUND;
+    }
     memcpy(score, &_score.score, sizeof(MJScore));
     return MJ_OK;
 }
