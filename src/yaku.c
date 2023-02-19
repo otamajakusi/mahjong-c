@@ -486,7 +486,9 @@ int is_honitsu(const Elements *concealed_elems, const Elements *melded_elems, MJ
         }
         type |= get_tile_type(elem->tile_id[0]);
     }
-    type |= get_tile_type(pair_tile);
+    if (!is_tile_id_honors(pair_tile)) {
+        type |= get_tile_type(pair_tile);
+    }
     /* has only one type */
     if (type != TILE_TYPE_MAN && type != TILE_TYPE_PIN && type != TILE_TYPE_SOU) {
         return false;

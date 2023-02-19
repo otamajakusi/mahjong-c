@@ -198,6 +198,7 @@ void test_calc_score() {
     _test_calc_score0(m1,m1,m1, m6,m7,m8, s1,s1,s1, wp,wp,wp,  m2, m1,  1, wp, wp,  2, 50, "double_pei "); // ダブ北
     /*** 3翻(食い下がり2翻) ***/
     _test_calc_score0(m1,m1,m1, m6,m7,m8, m5,m6,m7, wp,wp,wp,  m2, m1,  1, wt, wt,  3, 50, "honitsu "); // 混一色
+    _test_calc_score0(p5,p5,p5, p6,p7,p8, p2,p2,p2, ws,ws,ws,  wp, ws,  1, ws, wt,  4, 50, "honitsu sha "); // 混一色(頭が字牌)
     _test_calc_score0(m1,m1,m1, m7,m8,m9, p1,p2,p3, p9,p9,p9,  s9, m1,  1, wt, wt,  3, 50, "junchan "); // 純全帯么九
     /*** 3翻 ***/
     _test_calc_score0(m2,m3,m4, p7,p8,p9, m2,m3,m4, p7,p8,p9,  m2, m3,  1, wt, wt,  3, 40, "ryanpeiko "); // 二盃口
@@ -281,7 +282,6 @@ void test_calc_score() {
     _test_calc_score1(wt,wt,wt,wt, 0, dw,dw,dw,xx, 0, dg,dg,dg,xx, 0, dr,dr,dr,xx, 0,  wp, dr,  0, wt, wt, 26, 50, "daisangen tsuisou "); // 大三元,字一色
     _test_calc_score1(wt,wt,wt,wt, 1, dw,dw,dw,dw, 1, dg,dg,dg,dg, 1, dr,dr,dr,dr, 1,  wp, wp,  0, wt, wt, 52,160, "suuankou daisangen tsuisou suukantsu "); // 四暗刻,大三元,字一色,四槓子
     /*                 1, 2, 3, 4, c,  1, 2, 3, 4, c,  1, 2, 3, 4, c,  1, 2, 3, 4, c,pair,win,ron, pw, rw,han, fu, yaku_name */
-
 }
 
 bool test_score() {
