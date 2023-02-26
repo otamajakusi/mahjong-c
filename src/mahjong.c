@@ -77,10 +77,10 @@ typedef struct {
 } _Score;
 
 /* for 国士無双, 七対子 */
-static void score_tiles(const Tiles *tiles, void *arg) {
+static bool score_tiles(const Tiles *tiles, void *arg) {
     _Score *_score = (_Score*)arg;
     MJScore score;
-    calc_score_with_tiles(&score, tiles, &_score->score_config);
+    bool agari = calc_score_with_tiles(&score, tiles, &_score->score_config);
     // save greater score
     if (score.han) {
         fprintf(stderr, "%s\n", score.yaku_name);
@@ -91,12 +91,13 @@ static void score_tiles(const Tiles *tiles, void *arg) {
                 score.han, score.fu, score.yaku_name);
         memcpy(&_score->score, &score, sizeof(MJScore));
     }
+    return agari;
 }
 
-static void score_elements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg) {
+static bool score_elements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg) {
     _Score *_score = (_Score*)arg;
     MJScore score;
-    calc_score(&score, concealed, melded, pair, &_score->score_config);
+    bool agari = calc_score(&score, concealed, melded, pair, &_score->score_config);
     if (score.han) {
         fprintf(stderr, "%s\n", score.yaku_name);
     }
@@ -107,6 +108,7 @@ static void score_elements(const Elements *concealed, const Elements *melded, MJ
                 score.han, score.fu, score.yaku_name);
         memcpy(&_score->score, &score, sizeof(MJScore));
     }
+    return agari;
 }
 
 int32_t mj_get_score(

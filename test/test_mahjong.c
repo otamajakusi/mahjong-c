@@ -34,6 +34,7 @@ static void _test_mj_get_score(
     MJMelds melds = {{},0};
     assert(mj_get_score(&score, &hands, &melds, win_tile, ron, player_wind, round_wind) == ret);
     if (ret == MJ_OK) {
+        // fprintf(stderr, "han %d, fu %d, yaku %s\n", score.han, score.fu, score.yaku_name);
         assert(score.han == han);
         assert(score.fu == fu);
         assert(strcmp(score.yaku_name, yaku_name) == 0);
@@ -52,6 +53,12 @@ void test_mj_get_score() {
     _test_mj_get_score(m1,m1,m2,m3,p7,p7,p7,p8,p8,p8,p9,p9,p9,m1, m1, 1, wt, wt, MJ_OK, 5, 30, "junchan pinfu iipeiko ");
     // error
     _test_mj_get_score(dw,m1,m2,m3,p7,p7,p7,p8,p8,p8,p9,p9,p9,m1, m1, 1, wt, wt, MJ_ERR_AGARI_NOT_FOUND, 0, 0, "");
+    // chiitoitsu
+    _test_mj_get_score(m1,m1,m3,m3,p2,p2,s1,s1,s3,s3,wt,wt,s9,s9, s9, 1, wt, wt, MJ_OK, 2, 25, "chiitoitsu ");
+    // ryanpeiko
+    _test_mj_get_score(m1,m1,m2,m2,m3,m3,s2,s2,s3,s3,s4,s4,wn,wn, s3, 1, wt, wt, MJ_OK, 3, 40, "ryanpeiko ");
+    // kokushi
+    _test_mj_get_score(m1,m9,p1,p9,s1,s9,wt,wn,ws,wp,dw,dg,dr,m1, m1, 1, wt, wt, MJ_OK,13,  0, "kokushi ");
 }
 
 bool test_mahjong() {

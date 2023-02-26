@@ -287,20 +287,23 @@ uint32_t find_agari(
     AgariCallbackElements *cb_elements,
     void *cbarg) {
 
+    uint32_t found;
+    uint32_t agari = 0;
     if (melded_elems->len == 0) {
-        cb_tiles(concealed_tiles, cbarg);
+        found = (uint32_t)cb_tiles(concealed_tiles, cbarg);
+        if (found) {
+            agari ++;
+        }
     }
 
     Tiles _concealed_tiles;
     memcpy(&_concealed_tiles, concealed_tiles, sizeof(Tiles));
 
-    uint32_t agari = 0;
     for (uint32_t i = 0; i <= MJ_DR; i ++) {
         if (concealed_tiles->tiles[i] >= MJ_PAIR_LEN) {
             _concealed_tiles.tiles[i] -= MJ_PAIR_LEN; // remove pair from tiles
             _Triplets triplets;
             gen_triplets_candidates(&triplets, &_concealed_tiles);
-            uint32_t found;
             found = find_agari_with_triplets_candidates(&triplets, &_concealed_tiles, melded_elems, i, cb_elements, cbarg);
             agari += found;
             if (found) {

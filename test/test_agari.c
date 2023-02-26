@@ -5,16 +5,18 @@
 #include "test_agari.h"
 #include "test_util.h"
 
-static void cb_tiles(const Tiles *tiles, void *arg) {
+static bool cb_tiles(const Tiles *tiles, void *arg) {
     (void)tiles;
     (void)arg;
+    return false;
 }
 
-static void cb_elements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg) {
+static bool cb_elements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg) {
     (void)concealed;
     (void)melded;
     (void)pair;
     (void)arg;
+    return false;
 }
 
 static uint32_t test_find_agari_menzen(
