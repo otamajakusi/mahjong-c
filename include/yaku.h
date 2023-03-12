@@ -28,6 +28,10 @@
 #include "mahjong.h"
 #include "score.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif  // defined(__cplusplus)
+
 /*** 1翻 ***/
 /* 平和: 門前: 必須, 説明: 役牌以外で構成, 面子を順子のみで構成し両面待ちで上がる. ロンで30符, ツモで20符 */
 int is_pinfu(const Elements *concealed_elems, const Elements *melded_elems, MJTileId pair_tile, const ScoreConfig *cfg);
@@ -229,3 +233,6 @@ int is_chuuren_poutou(const Elements *concealed_elems, const Elements *melded_el
  *    https://m-league.jp/about/
  *    發はなくてもよい(「緑發が入っていなくてもよい」)
  */
+#if defined(__cplusplus)
+}
+#endif  // defined(__cplusplus)

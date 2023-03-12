@@ -32,8 +32,15 @@
 #include "mahjong.h"
 #include "tile.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif  // defined(__cplusplus)
+
 typedef bool AgariCallbackTiles(const Tiles *tiles, void *arg);
 typedef bool AgariCallbackElements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg);
 
 uint32_t find_agari(const Tiles *tiles, const Elements *elems, AgariCallbackTiles *cb_tiles,
                     AgariCallbackElements *cb_elements, void *cbarg);
+#if defined(__cplusplus)
+}
+#endif  // defined(__cplusplus)

@@ -30,4 +30,11 @@
 
 #include "mahjong.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif  // defined(__cplusplus)
+
 bool is_valid_hands(const MJHands *hands);
+#if defined(__cplusplus)
+}
+#endif  // defined(__cplusplus)

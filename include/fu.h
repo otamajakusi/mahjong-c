@@ -32,6 +32,9 @@
 #include "mahjong.h"
 #include "score.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif  // defined(__cplusplus)
 /*
  * 基本符: 20符
  * [ロン/ツモ]
@@ -65,3 +68,6 @@
 
 #define FU_CHIITOITSU 25
 uint32_t calc_fu(const Elements *concealed, const Elements *melded, MJTileId pair, const ScoreConfig *cfg, bool pinfu);
+#if defined(__cplusplus)
+}
+#endif  // defined(__cplusplus)

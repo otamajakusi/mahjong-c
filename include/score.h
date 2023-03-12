@@ -31,6 +31,10 @@
 #include "mahjong.h"
 #include "tile.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif  // defined(__cplusplus)
+
 typedef struct {
   MJTileId win_tile;
   bool ron;
@@ -42,3 +46,6 @@ bool calc_score(MJScore *score, const Elements *concealed, const Elements *melde
                 const ScoreConfig *cfg);
 /* for chiitoitsu and kokushi */
 bool calc_score_with_tiles(MJScore *score, const Tiles *tiles, const ScoreConfig *cfg);
+#if defined(__cplusplus)
+}
+#endif  // defined(__cplusplus)

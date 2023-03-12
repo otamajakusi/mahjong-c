@@ -30,5 +30,12 @@
 
 #include "mahjong.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif  // defined(__cplusplus)
+
 void util_dump_meld(const MJMeld *meld);
 void util_dump_melds(const MJMelds *melds);
+#if defined(__cplusplus)
+}
+#endif  // defined(__cplusplus)

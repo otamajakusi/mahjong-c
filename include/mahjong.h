@@ -48,6 +48,10 @@
 #include <stdint.h>
 #include <string.h>
 
+#if defined(__cplusplus)
+extern "C" {
+#endif  // defined(__cplusplus)
+
 #define MJ_OK 0
 #define MJ_ERR_ILLEGAL_PARAM -1
 #define MJ_ERR_NUM_TILES_SHORT -2
@@ -137,3 +141,6 @@ typedef struct {
  */
 int32_t mj_get_score(MJScore *score, const MJHands *hands, const MJMelds *melds, MJTileId win_tile, bool ron,
                      MJTileId player_wind, MJTileId round_wind);
+#if defined(__cplusplus)
+}
+#endif  // defined(__cplusplus)

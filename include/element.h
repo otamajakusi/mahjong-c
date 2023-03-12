@@ -30,6 +30,10 @@
 
 #include "mahjong.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif  // defined(__cplusplus)
+
 typedef MJMeld Element;
 typedef MJMelds Elements;
 
@@ -109,3 +113,6 @@ bool is_same_elements(const Elements *e1, const Elements *e2);
 
 bool has_elements_tile_id(const Elements *elems, MJTileId tile_id);
 void merge_elements(Elements *dst, const Elements *e1, const Elements *e2);
+#if defined(__cplusplus)
+}
+#endif  // defined(__cplusplus)

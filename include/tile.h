@@ -30,6 +30,10 @@
 
 #include "mahjong.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif  // defined(__cplusplus)
+
 #define TILE_TYPE_MAN (1u << 0)
 #define TILE_TYPE_PIN (1u << 1)
 #define TILE_TYPE_SOU (1u << 2)
@@ -71,3 +75,6 @@ uint32_t get_tile_number(MJTileId tile_id);  // for man, pin and sou
 bool gen_tiles_from_hands(Tiles *tiles, const MJHands *hands);
 
 const char *tile_id_str(MJTileId tile_id);
+#if defined(__cplusplus)
+}
+#endif  // defined(__cplusplus)
