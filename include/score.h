@@ -24,12 +24,12 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
+#include "element.h"
 #include "mahjong.h"
 #include "tile.h"
-#include "element.h"
 
 typedef struct {
   MJTileId win_tile;
@@ -38,6 +38,7 @@ typedef struct {
   MJTileId round_wind;
 } ScoreConfig;
 
-bool calc_score(MJScore *score, const Elements *concealed, const Elements *melded, MJTileId pair, const ScoreConfig *cfg);
+bool calc_score(MJScore *score, const Elements *concealed, const Elements *melded, MJTileId pair,
+                const ScoreConfig *cfg);
 /* for chiitoitsu and kokushi */
 bool calc_score_with_tiles(MJScore *score, const Tiles *tiles, const ScoreConfig *cfg);

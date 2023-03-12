@@ -22,54 +22,53 @@
  *  SOFTWARE.
  */
 
+#include "element.h"
+
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include "mahjong.h"
 #include "tile.h"
-#include "element.h"
 #include "util.h"
 
-#define ELEMS_FOR_EACH(elems, callback) \
-    for (uint32_t i = 0; i < (elems)->len; i ++) { \
-        const Element *elem = &elems->meld[i]; \
-        if (!callback(elem)) { \
-            return false; \
-        } \
-    } \
-    return true
+#define ELEMS_FOR_EACH(elems, callback)         \
+  for (uint32_t i = 0; i < (elems)->len; i++) { \
+    const Element *elem = &elems->meld[i];      \
+    if (!callback(elem)) {                      \
+      return false;                             \
+    }                                           \
+  }                                             \
+  return true
 
 static int tile_cmp(const void *p1, const void *p2) {
-    return (signed)*(const MJTileId*)p1 - (signed)*(const MJTileId*)p2;
+  return (signed)*(const MJTileId *)p1 - (signed)*(const MJTileId *)p2;
 }
 
-static void sort_tile(Element *elem) {
-    qsort(&elem->tile_id[0], elem->len, sizeof(elem->tile_id[0]), tile_cmp);
-}
+static void sort_tile(Element *elem) { qsort(&elem->tile_id[0], elem->len, sizeof(elem->tile_id[0]), tile_cmp); }
 
 static void sort_tile_elements(Elements *elems) {
-    for (uint32_t i = 0; i < elems->len; i ++) {
-        sort_tile(&elems->meld[i]);
-    }
+  for (uint32_t i = 0; i < elems->len; i++) {
+    sort_tile(&elems->meld[i]);
+  }
 }
 
 static int element_cmp(const void *p1, const void *p2) {
-    const Element *e1;
-    const Element *e2;
-    e1 = (const Element*)p1;
-    e2 = (const Element*)p2;
-    if (e1->tile_id[0] == e2->tile_id[0]) {
-        return (signed)e1->type - (signed)e2->type;
-    } else {
-        return (signed)e1->tile_id[0] - (signed)e2->tile_id[0];
-    }
+  const Element *e1;
+  const Element *e2;
+  e1 = (const Element *)p1;
+  e2 = (const Element *)p2;
+  if (e1->tile_id[0] == e2->tile_id[0]) {
+    return (signed)e1->type - (signed)e2->type;
+  } else {
+    return (signed)e1->tile_id[0] - (signed)e2->tile_id[0];
+  }
 }
 
 static void sort_elements(Elements *elems) {
-    qsort(&elems->meld[0], elems->len, sizeof(MJMeld), element_cmp);
-    util_dump_melds(elems);
+  qsort(&elems->meld[0], elems->len, sizeof(MJMeld), element_cmp);
+  util_dump_melds(elems);
 }
 
 /*
@@ -77,359 +76,330 @@ static void sort_elements(Elements *elems) {
  */
 
 static bool is_sequece(const Element *elem) {
-    if (elem->len != 3) {
-        return false;
-    }
-    uint32_t type = 0;
-    for (uint32_t i = 0; i < elem->len; i ++) {
-        type |= get_tile_type(elem->tile_id[i]);
-    }
-    /* make sure element contains only one type and the type is man, pin or sou */
-    switch (type) {
-        case TILE_TYPE_MAN:
-        case TILE_TYPE_PIN:
-        case TILE_TYPE_SOU:
-            break;
-        default:
-            return false;
-    }
-    if (elem->tile_id[0] + 1 != elem->tile_id[1] ||
-        elem->tile_id[1] + 1 != elem->tile_id[2]) {
-        return false;
-    }
-    return true;
+  if (elem->len != 3) {
+    return false;
+  }
+  uint32_t type = 0;
+  for (uint32_t i = 0; i < elem->len; i++) {
+    type |= get_tile_type(elem->tile_id[i]);
+  }
+  /* make sure element contains only one type and the type is man, pin or sou */
+  switch (type) {
+    case TILE_TYPE_MAN:
+    case TILE_TYPE_PIN:
+    case TILE_TYPE_SOU:
+      break;
+    default:
+      return false;
+  }
+  if (elem->tile_id[0] + 1 != elem->tile_id[1] || elem->tile_id[1] + 1 != elem->tile_id[2]) {
+    return false;
+  }
+  return true;
 }
 
 static bool is_triplets(const Element *elem) {
-    if (elem->len != 3) {
-        return false;
+  if (elem->len != 3) {
+    return false;
+  }
+  for (uint32_t i = 0; i < elem->len; i++) {
+    if (elem->tile_id[0] != elem->tile_id[i]) {
+      return false;
     }
-    for (uint32_t i = 0; i < elem->len; i ++) {
-        if (elem->tile_id[0] != elem->tile_id[i]) {
-            return false;
-        }
-    }
-    return true;
+  }
+  return true;
 }
 
 static bool is_fours(const Element *elem) {
-    if (elem->len != 4) {
-        return false;
+  if (elem->len != 4) {
+    return false;
+  }
+  for (uint32_t i = 0; i < elem->len; i++) {
+    if (elem->tile_id[0] != elem->tile_id[i]) {
+      return false;
     }
-    for (uint32_t i = 0; i < elem->len; i ++) {
-        if (elem->tile_id[0] != elem->tile_id[i]) {
-            return false;
-        }
-    }
-    return true;
+  }
+  return true;
 }
 
 bool gen_elements_from_melds(Elements *elems, const MJMelds *melds) {
-    memcpy(elems, melds, sizeof(Elements));
-    sort_tile_elements(elems);
-    for (uint32_t i = 0; i < elems->len; i ++) {
-        Element *elem = &elems->meld[i];
-        if (is_sequece(elem)) {
-            elem->type = ELEM_TYPE_SEQUENCE;
-        } else if (is_triplets(elem)) {
-            elem->type = ELEM_TYPE_TRIPLETS;
-        } else if (is_fours(elem)) {
-            elem->type = ELEM_TYPE_FOURS;
-        } else {
-            return false;
-        }
+  memcpy(elems, melds, sizeof(Elements));
+  sort_tile_elements(elems);
+  for (uint32_t i = 0; i < elems->len; i++) {
+    Element *elem = &elems->meld[i];
+    if (is_sequece(elem)) {
+      elem->type = ELEM_TYPE_SEQUENCE;
+    } else if (is_triplets(elem)) {
+      elem->type = ELEM_TYPE_TRIPLETS;
+    } else if (is_fours(elem)) {
+      elem->type = ELEM_TYPE_FOURS;
+    } else {
+      return false;
     }
-    return true;
+  }
+  return true;
 }
 
 /* single element */
 /* 2..8 */
 bool is_element_chunchan(const Element *elem) {
-    for (uint32_t i = 0; i < elem->len; i ++) {
-        MJTileId tile_id = elem->tile_id[i];
-        if (is_tile_id_yaochu(tile_id)) {
-            return false;
-        }
+  for (uint32_t i = 0; i < elem->len; i++) {
+    MJTileId tile_id = elem->tile_id[i];
+    if (is_tile_id_yaochu(tile_id)) {
+      return false;
     }
-    return true;
+  }
+  return true;
 }
 
 /* 1 or 9 */
 bool is_element_routou(const Element *elem) {
-    for (uint32_t i = 0; i < elem->len; i ++) {
-        MJTileId tile_id = elem->tile_id[i];
-        if (!is_tile_id_routou(tile_id)) {
-            return false;
-        }
+  for (uint32_t i = 0; i < elem->len; i++) {
+    MJTileId tile_id = elem->tile_id[i];
+    if (!is_tile_id_routou(tile_id)) {
+      return false;
     }
-    return true;
+  }
+  return true;
 }
 
 bool has_element_routou(const Element *elem) {
-    for (uint32_t i = 0; i < elem->len; i ++) {
-        MJTileId tile_id = elem->tile_id[i];
-        if (is_tile_id_honors(tile_id)) {
-            return false;
-        }
-        uint32_t number = get_tile_number(tile_id);
-        if (elem->type == ELEM_TYPE_SEQUENCE) {
-            if (number != (TILE_NUM_1 + i) && number != (TILE_NUM_7 + i)) { // 1,2,3 or 7,8,9
-                return false;
-            }
-        } else {
-            if (number != TILE_NUM_1 && number != TILE_NUM_9) { // 1 or 9
-                return false;
-            }
-        }
+  for (uint32_t i = 0; i < elem->len; i++) {
+    MJTileId tile_id = elem->tile_id[i];
+    if (is_tile_id_honors(tile_id)) {
+      return false;
     }
-    return true;
+    uint32_t number = get_tile_number(tile_id);
+    if (elem->type == ELEM_TYPE_SEQUENCE) {
+      if (number != (TILE_NUM_1 + i) && number != (TILE_NUM_7 + i)) {  // 1,2,3 or 7,8,9
+        return false;
+      }
+    } else {
+      if (number != TILE_NUM_1 && number != TILE_NUM_9) {  // 1 or 9
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 /* 1,9,字牌 */
 bool is_element_yaochu(const Element *elem) {
-    for (uint32_t i = 0; i < elem->len; i ++) {
-        MJTileId tile_id = elem->tile_id[i];
-        if (!is_tile_id_yaochu(tile_id)) {
-            return false;
-        }
+  for (uint32_t i = 0; i < elem->len; i++) {
+    MJTileId tile_id = elem->tile_id[i];
+    if (!is_tile_id_yaochu(tile_id)) {
+      return false;
     }
-    return true;
+  }
+  return true;
 }
 
 /* 123, 789, 111, 999 or 字牌 */
 bool has_element_yaochu(const Element *elem) {
-    for (uint32_t i = 0; i < elem->len; i ++) {
-        MJTileId tile_id = elem->tile_id[i];
-        if (is_tile_id_honors(tile_id)) {
-            continue;
-        }
-        uint32_t number = get_tile_number(tile_id);
-        if (elem->type == ELEM_TYPE_SEQUENCE) {
-            if (number != (TILE_NUM_1 + i) && number != (TILE_NUM_7 + i)) { // 1,2,3 or 7,8,9
-                return false;
-            }
-        } else {
-            if (number != TILE_NUM_1 && number != TILE_NUM_9) { // 1 or 9
-                return false;
-            }
-        }
+  for (uint32_t i = 0; i < elem->len; i++) {
+    MJTileId tile_id = elem->tile_id[i];
+    if (is_tile_id_honors(tile_id)) {
+      continue;
     }
-    return true;
+    uint32_t number = get_tile_number(tile_id);
+    if (elem->type == ELEM_TYPE_SEQUENCE) {
+      if (number != (TILE_NUM_1 + i) && number != (TILE_NUM_7 + i)) {  // 1,2,3 or 7,8,9
+        return false;
+      }
+    } else {
+      if (number != TILE_NUM_1 && number != TILE_NUM_9) {  // 1 or 9
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
-bool is_element_sequence(const Element *elem) {
-    return elem->type == ELEM_TYPE_SEQUENCE;
-}
+bool is_element_sequence(const Element *elem) { return elem->type == ELEM_TYPE_SEQUENCE; }
 
-bool is_element_triplets(const Element *elem) {
-    return elem->type == ELEM_TYPE_TRIPLETS;
-}
+bool is_element_triplets(const Element *elem) { return elem->type == ELEM_TYPE_TRIPLETS; }
 
-bool is_element_fours(const Element *elem) {
-    return elem->type == ELEM_TYPE_FOURS;
-}
+bool is_element_fours(const Element *elem) { return elem->type == ELEM_TYPE_FOURS; }
 
-bool is_element_concealed(const Element *elem) {
-    return elem->concealed;
-}
+bool is_element_concealed(const Element *elem) { return elem->concealed; }
 
 /* all elements */
-bool is_elements_chunchan(const Elements *elems) {
-    ELEMS_FOR_EACH(elems, is_element_chunchan);
-}
+bool is_elements_chunchan(const Elements *elems) { ELEMS_FOR_EACH(elems, is_element_chunchan); }
 
-bool is_elements_routou(const Elements *elems) {
-    ELEMS_FOR_EACH(elems, is_element_routou);
-}
+bool is_elements_routou(const Elements *elems) { ELEMS_FOR_EACH(elems, is_element_routou); }
 
-bool has_elements_routou(const Elements *elems) {
-    ELEMS_FOR_EACH(elems, has_element_routou);
-}
+bool has_elements_routou(const Elements *elems) { ELEMS_FOR_EACH(elems, has_element_routou); }
 
-bool is_elements_yaochu(const Elements *elems) {
-    ELEMS_FOR_EACH(elems, is_element_yaochu);
-}
+bool is_elements_yaochu(const Elements *elems) { ELEMS_FOR_EACH(elems, is_element_yaochu); }
 
-bool has_elements_yaochu(const Elements *elems) {
-    ELEMS_FOR_EACH(elems, has_element_yaochu);
-}
+bool has_elements_yaochu(const Elements *elems) { ELEMS_FOR_EACH(elems, has_element_yaochu); }
 
-bool is_elements_sequence(const Elements *elems) {
-    ELEMS_FOR_EACH(elems, is_element_sequence);
-}
+bool is_elements_sequence(const Elements *elems) { ELEMS_FOR_EACH(elems, is_element_sequence); }
 
-bool is_elements_triplets(const Elements *elems) {
-    ELEMS_FOR_EACH(elems, is_element_triplets);
-}
+bool is_elements_triplets(const Elements *elems) { ELEMS_FOR_EACH(elems, is_element_triplets); }
 
-bool is_elements_fours(const Elements *elems) {
-    ELEMS_FOR_EACH(elems, is_element_fours);
-}
+bool is_elements_fours(const Elements *elems) { ELEMS_FOR_EACH(elems, is_element_fours); }
 
-bool is_elements_concealed(const Elements *elems) {
-    ELEMS_FOR_EACH(elems, is_element_concealed);
-}
+bool is_elements_concealed(const Elements *elems) { ELEMS_FOR_EACH(elems, is_element_concealed); }
 
 uint32_t count_elements_sequence(const Elements *elems) {
-    uint32_t count = 0;
-    for (uint32_t i = 0; i < elems->len; i ++) {
-       if (is_element_sequence(&elems->meld[i])) {
-           count ++;
-       }
+  uint32_t count = 0;
+  for (uint32_t i = 0; i < elems->len; i++) {
+    if (is_element_sequence(&elems->meld[i])) {
+      count++;
     }
-    return count;
+  }
+  return count;
 }
 
 uint32_t count_elements_triplets(const Elements *elems) {
-    uint32_t count = 0;
-    for (uint32_t i = 0; i < elems->len; i ++) {
-       if (is_element_triplets(&elems->meld[i])) {
-           count ++;
-       }
+  uint32_t count = 0;
+  for (uint32_t i = 0; i < elems->len; i++) {
+    if (is_element_triplets(&elems->meld[i])) {
+      count++;
     }
-    return count;
+  }
+  return count;
 }
 
 uint32_t count_elements_fours(const Elements *elems) {
-    uint32_t count = 0;
-    for (uint32_t i = 0; i < elems->len; i ++) {
-       if (is_element_fours(&elems->meld[i])) {
-           count ++;
-       }
+  uint32_t count = 0;
+  for (uint32_t i = 0; i < elems->len; i++) {
+    if (is_element_fours(&elems->meld[i])) {
+      count++;
     }
-    return count;
+  }
+  return count;
 }
 
 uint32_t count_elements_concealed_fours(const Elements *elems) {
-    uint32_t count = 0;
-    for (uint32_t i = 0; i < elems->len; i ++) {
-       if (is_element_fours(&elems->meld[i]) && is_element_concealed(&elems->meld[i])) {
-           count ++;
-       }
+  uint32_t count = 0;
+  for (uint32_t i = 0; i < elems->len; i++) {
+    if (is_element_fours(&elems->meld[i]) && is_element_concealed(&elems->meld[i])) {
+      count++;
     }
-    return count;
+  }
+  return count;
 }
 
 bool has_elements_melded(const Elements *elems) { /* 暗槓はconcealed扱い */
-    for (uint32_t i = 0; i < elems->len; i ++) {
-       if (!is_element_concealed(&elems->meld[i])) {
-           return true;
-       }
+  for (uint32_t i = 0; i < elems->len; i++) {
+    if (!is_element_concealed(&elems->meld[i])) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
 bool is_ryanmen_machi(const Elements *elems, MJTileId win_tile) {
-    for (uint32_t i = 0; i < elems->len; i ++) {
-        const Element *elem = &elems->meld[i];
-        if (!is_element_sequence(elem)) {
-            continue;
-        }
-        MJTileId tile_id;
-        uint32_t number;
-
-        tile_id = elem->tile_id[0];
-        number = get_tile_number(tile_id);
-        assert(number <= TILE_NUM_7);
-        if (tile_id == win_tile && number != TILE_NUM_7) { // n,n+1,n+2の順子でアガリ牌nが7でなければ両面待ち
-            return true;
-        }
-        tile_id = elem->tile_id[2];
-        number = get_tile_number(tile_id);
-        assert(number >= TILE_NUM_3);
-        if (tile_id == win_tile && number != TILE_NUM_3) { // n,n+1,n+2の順子でアガリ牌n+2が3でなければ両面待ち
-            return true;
-        }
+  for (uint32_t i = 0; i < elems->len; i++) {
+    const Element *elem = &elems->meld[i];
+    if (!is_element_sequence(elem)) {
+      continue;
     }
-    return false;
+    MJTileId tile_id;
+    uint32_t number;
+
+    tile_id = elem->tile_id[0];
+    number = get_tile_number(tile_id);
+    assert(number <= TILE_NUM_7);
+    if (tile_id == win_tile && number != TILE_NUM_7) {  // n,n+1,n+2の順子でアガリ牌nが7でなければ両面待ち
+      return true;
+    }
+    tile_id = elem->tile_id[2];
+    number = get_tile_number(tile_id);
+    assert(number >= TILE_NUM_3);
+    if (tile_id == win_tile && number != TILE_NUM_3) {  // n,n+1,n+2の順子でアガリ牌n+2が3でなければ両面待ち
+      return true;
+    }
+  }
+  return false;
 }
 
 bool is_kanchan_machi(const Elements *elems, MJTileId win_tile) {
-    for (uint32_t i = 0; i < elems->len; i ++) {
-        const Element *elem = &elems->meld[i];
-        if (!is_element_sequence(elem)) {
-            continue;
-        }
-        MJTileId tile_id;
-
-        tile_id = elem->tile_id[1];
-        if (tile_id == win_tile) {
-            return true;
-        }
+  for (uint32_t i = 0; i < elems->len; i++) {
+    const Element *elem = &elems->meld[i];
+    if (!is_element_sequence(elem)) {
+      continue;
     }
-    return false;
+    MJTileId tile_id;
+
+    tile_id = elem->tile_id[1];
+    if (tile_id == win_tile) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool is_penchan_machi(const Elements *elems, MJTileId win_tile) {
-    for (uint32_t i = 0; i < elems->len; i ++) {
-        const Element *elem = &elems->meld[i];
-        if (!is_element_sequence(elem)) {
-            continue;
-        }
-        MJTileId tile_id;
-        uint32_t number;
-
-        tile_id = elem->tile_id[0];
-        number = get_tile_number(tile_id);
-        if (tile_id == win_tile && number == TILE_NUM_7) { // 789で7がアガリ牌
-            return true;
-        }
-        tile_id = elem->tile_id[2];
-        number = get_tile_number(tile_id);
-        if (tile_id == win_tile && number == TILE_NUM_3) { // 123で3がアガリ牌
-            return true;
-        }
+  for (uint32_t i = 0; i < elems->len; i++) {
+    const Element *elem = &elems->meld[i];
+    if (!is_element_sequence(elem)) {
+      continue;
     }
-    return false;
+    MJTileId tile_id;
+    uint32_t number;
+
+    tile_id = elem->tile_id[0];
+    number = get_tile_number(tile_id);
+    if (tile_id == win_tile && number == TILE_NUM_7) {  // 789で7がアガリ牌
+      return true;
+    }
+    tile_id = elem->tile_id[2];
+    number = get_tile_number(tile_id);
+    if (tile_id == win_tile && number == TILE_NUM_3) {  // 123で3がアガリ牌
+      return true;
+    }
+  }
+  return false;
 }
 
 /* 三暗刻, 四暗刻のアガリの刻子を調べる */
 bool is_shanpon_machi(const Elements *elems, MJTileId win_tile) {
-    for (uint32_t i = 0; i < elems->len; i ++) {
-        const Element *elem = &elems->meld[i];
-        if (!is_element_triplets(elem)) {
-            continue;
-        }
-        MJTileId tile_id = elem->tile_id[0];
-        if (tile_id == win_tile) {
-            return true;
-        }
+  for (uint32_t i = 0; i < elems->len; i++) {
+    const Element *elem = &elems->meld[i];
+    if (!is_element_triplets(elem)) {
+      continue;
     }
-    return false;
+    MJTileId tile_id = elem->tile_id[0];
+    if (tile_id == win_tile) {
+      return true;
+    }
+  }
+  return false;
 }
 
-bool is_tanki_machi(MJTileId pair_tile, MJTileId win_tile) {
-    return pair_tile == win_tile;
-}
+bool is_tanki_machi(MJTileId pair_tile, MJTileId win_tile) { return pair_tile == win_tile; }
 
 static bool is_element_same_sequence(const Element *e1, const Element *e2) {
-    if (e1->len != e2->len) {
-        return false;
+  if (e1->len != e2->len) {
+    return false;
+  }
+  if (e1->type != e2->type || e1->type != ELEM_TYPE_SEQUENCE) {
+    return false;
+  }
+  if (e1->concealed != e2->concealed) {
+    return false;
+  }
+  for (uint32_t i = 0; i < e1->len; i++) {
+    if (e1->tile_id[i] != e2->tile_id[i]) {
+      return false;
     }
-    if (e1->type != e2->type || e1->type != ELEM_TYPE_SEQUENCE) {
-        return false;
-    }
-    if (e1->concealed != e2->concealed) {
-        return false;
-    }
-    for (uint32_t i = 0; i < e1->len; i ++) {
-        if (e1->tile_id[i] != e2->tile_id[i]) {
-            return false;
-        }
-    }
-    return true;
+  }
+  return true;
 }
 
 static uint32_t count_elements_same_sequence_from(uint32_t start, const Elements *elems) {
-    uint32_t count = 0;
-    assert(start < elems->len);
-    const Element *elem = &elems->meld[start];
-    for (uint32_t i = start + 1; i < elems->len; i ++) {
-        if (is_element_same_sequence(elem, &elems->meld[i])) {
-            count ++;
-        }
+  uint32_t count = 0;
+  assert(start < elems->len);
+  const Element *elem = &elems->meld[start];
+  for (uint32_t i = start + 1; i < elems->len; i++) {
+    if (is_element_same_sequence(elem, &elems->meld[i])) {
+      count++;
     }
-    return count;
+  }
+  return count;
 }
 /*
  * counts same sequence element in elements
@@ -441,81 +411,81 @@ static uint32_t count_elements_same_sequence_from(uint32_t start, const Elements
  */
 
 uint32_t count_elements_same_sequence(const Elements *elems) {
-    if (elems->len <= 1) {
-        return 0;
-    }
-    uint32_t count = 0;
-    for (uint32_t i = 0; i < elems->len - 1; i ++) {
-        count += count_elements_same_sequence_from(i, elems);
-    }
-    return count;
+  if (elems->len <= 1) {
+    return 0;
+  }
+  uint32_t count = 0;
+  for (uint32_t i = 0; i < elems->len - 1; i++) {
+    count += count_elements_same_sequence_from(i, elems);
+  }
+  return count;
 }
 
 static int has_element_tile_id(const Element *elem, MJTileId tile_id) {
-    for (uint32_t i = 0; i < elem->len; i ++) {
-        if (elem->tile_id[i] == tile_id) {
-            return true;
-        }
+  for (uint32_t i = 0; i < elem->len; i++) {
+    if (elem->tile_id[i] == tile_id) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
 bool is_same_element(const Element *e1, const Element *e2) {
-    if (e1->len != e2->len) {
-        return false;
+  if (e1->len != e2->len) {
+    return false;
+  }
+  if (e1->type != e2->type) {
+    return false;
+  }
+  for (uint32_t i = 0; i < e1->len; i++) {
+    if (e1->tile_id[i] != e2->tile_id[i]) {
+      return false;
     }
-    if (e1->type != e2->type) {
-        return false;
-    }
-    for (uint32_t i = 0; i < e1->len; i ++) {
-        if (e1->tile_id[i] != e2->tile_id[i]) {
-            return false;
-        }
-    }
-    return true;
+  }
+  return true;
 }
 
 bool is_same_elements(const Elements *e1, const Elements *e2) {
-    if (e1->len != e2->len) {
-        return false;
+  if (e1->len != e2->len) {
+    return false;
+  }
+  Elements _e1;
+  Elements _e2;
+  memcpy(&_e1, e1, sizeof(Elements));
+  memcpy(&_e2, e2, sizeof(Elements));
+  sort_elements(&_e1);
+  sort_elements(&_e2);
+  for (uint32_t i = 0; i < _e1.len; i++) {
+    if (!is_same_element(&_e1.meld[i], &_e2.meld[i])) {
+      return false;
     }
-    Elements _e1;
-    Elements _e2;
-    memcpy(&_e1, e1, sizeof(Elements));
-    memcpy(&_e2, e2, sizeof(Elements));
-    sort_elements(&_e1);
-    sort_elements(&_e2);
-    for (uint32_t i = 0; i < _e1.len; i ++) {
-        if (!is_same_element(&_e1.meld[i], &_e2.meld[i])) {
-            return false;
-        }
-    }
-    return true;
+  }
+  return true;
 }
 
 bool has_elements_tile_id(const Elements *elems, MJTileId tile_id) {
-    for (uint32_t i = 0; i < elems->len; i ++) {
-        if (has_element_tile_id(&elems->meld[i], tile_id)) {
-            return true;
-        }
+  for (uint32_t i = 0; i < elems->len; i++) {
+    if (has_element_tile_id(&elems->meld[i], tile_id)) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
 /* merge s1 and s3 melds to dst */
 void merge_elements(Elements *dst, const Elements *e1, const Elements *e2) {
-    dst->len = 0;
-    Element *e = &dst->meld[0];
-    for (uint32_t i = 0; i < e1->len; i ++) {
-        memcpy(e, &e1->meld[i], sizeof(Element));
-        e ++;
-        assert(dst->len < MJ_ELEMENTS_LEN);
-        dst->len ++;
-    }
-    for (uint32_t i = 0; i < e2->len; i ++) {
-        memcpy(e, &e2->meld[i], sizeof(Element));
-        e ++;
-        assert(dst->len < MJ_ELEMENTS_LEN);
-        dst->len ++;
-    }
+  dst->len = 0;
+  Element *e = &dst->meld[0];
+  for (uint32_t i = 0; i < e1->len; i++) {
+    memcpy(e, &e1->meld[i], sizeof(Element));
+    e++;
+    assert(dst->len < MJ_ELEMENTS_LEN);
+    dst->len++;
+  }
+  for (uint32_t i = 0; i < e2->len; i++) {
+    memcpy(e, &e2->meld[i], sizeof(Element));
+    e++;
+    assert(dst->len < MJ_ELEMENTS_LEN);
+    dst->len++;
+  }
 }

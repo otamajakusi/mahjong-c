@@ -44,24 +44,24 @@
  * prefix: mj, MJ
  */
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
-#define MJ_OK                       0
-#define MJ_ERR_ILLEGAL_PARAM        -1
-#define MJ_ERR_NUM_TILES_SHORT      -2
-#define MJ_ERR_NUM_TILES_LARGE      -3
-#define MJ_ERR_AGARI_NOT_FOUND      -4
+#define MJ_OK 0
+#define MJ_ERR_ILLEGAL_PARAM -1
+#define MJ_ERR_NUM_TILES_SHORT -2
+#define MJ_ERR_NUM_TILES_LARGE -3
+#define MJ_ERR_AGARI_NOT_FOUND -4
 
-#define MJ_ELEMENTS_LEN             4 // length of elements
-#define MJ_PAIR_LEN                 2 // length of pairs
-#define MJ_MAX_TILES_LEN_IN_ELEMENT 4 // max number of tiles in element
-#define MJ_MIN_TILES_LEN_IN_ELEMENT 3 // min number of tiles in element
-#define MJ_MAX_HAND_LEN             (MJ_MAX_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN)
-#define MJ_MIN_HAND_LEN             (MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN)
+#define MJ_ELEMENTS_LEN 4              // length of elements
+#define MJ_PAIR_LEN 2                  // length of pairs
+#define MJ_MAX_TILES_LEN_IN_ELEMENT 4  // max number of tiles in element
+#define MJ_MIN_TILES_LEN_IN_ELEMENT 3  // min number of tiles in element
+#define MJ_MAX_HAND_LEN (MJ_MAX_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN)
+#define MJ_MIN_HAND_LEN (MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN)
 
-#define MJ_MAX_YAKU_NAME_LEN        2048
+#define MJ_MAX_YAKU_NAME_LEN 2048
 
 typedef enum {
   MJ_M1 = 0,
@@ -103,19 +103,19 @@ typedef enum {
 // NOTE: 暗槓も含む
 typedef struct {
   MJTileId tile_id[MJ_MAX_TILES_LEN_IN_ELEMENT];
-  uint32_t len; // valid tile_id length, for sequence or triplets; 3, for fours; 4, should be set.
-  bool concealed; // set true if concealed-fours
-  uint32_t type; // internal use
+  uint32_t len;    // valid tile_id length, for sequence or triplets; 3, for fours; 4, should be set.
+  bool concealed;  // set true if concealed-fours
+  uint32_t type;   // internal use
 } MJMeld;
 
 typedef struct {
   MJMeld meld[MJ_ELEMENTS_LEN];
-  uint32_t len; // valid meld length
+  uint32_t len;  // valid meld length
 } MJMelds;
 
 typedef struct {
   MJTileId tile_id[MJ_MAX_HAND_LEN];
-  uint32_t len; // valid tile_id length
+  uint32_t len;  // valid tile_id length
 } MJHands;
 
 typedef struct {
@@ -135,11 +135,5 @@ typedef struct {
  *     melds: list of meld
  *     win_tile: win_tile
  */
-int32_t mj_get_score(
-      MJScore *score,
-      const MJHands *hands,
-      const MJMelds *melds,
-      MJTileId win_tile,
-      bool ron,
-      MJTileId player_wind,
-      MJTileId round_wind);
+int32_t mj_get_score(MJScore *score, const MJHands *hands, const MJMelds *melds, MJTileId win_tile, bool ron,
+                     MJTileId player_wind, MJTileId round_wind);

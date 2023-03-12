@@ -24,32 +24,32 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "mahjong.h"
 
-#define TILE_TYPE_MAN     (1u << 0)
-#define TILE_TYPE_PIN     (1u << 1)
-#define TILE_TYPE_SOU     (1u << 2)
-#define TILE_TYPE_WIND    (1u << 3)
-#define TILE_TYPE_DRAGON  (1u << 4)
+#define TILE_TYPE_MAN (1u << 0)
+#define TILE_TYPE_PIN (1u << 1)
+#define TILE_TYPE_SOU (1u << 2)
+#define TILE_TYPE_WIND (1u << 3)
+#define TILE_TYPE_DRAGON (1u << 4)
 #define TILE_TYPE_INVALID (1u << 7)
 
-#define TILE_NUM_1        (1u - 1)
-#define TILE_NUM_2        (2u - 1)
-#define TILE_NUM_3        (3u - 1)
-#define TILE_NUM_4        (4u - 1)
-#define TILE_NUM_5        (5u - 1)
-#define TILE_NUM_6        (6u - 1)
-#define TILE_NUM_7        (7u - 1)
-#define TILE_NUM_8        (8u - 1)
-#define TILE_NUM_9        (9u - 1)
-#define TILE_NUM_INVALID  (-1u)
+#define TILE_NUM_1 (1u - 1)
+#define TILE_NUM_2 (2u - 1)
+#define TILE_NUM_3 (3u - 1)
+#define TILE_NUM_4 (4u - 1)
+#define TILE_NUM_5 (5u - 1)
+#define TILE_NUM_6 (6u - 1)
+#define TILE_NUM_7 (7u - 1)
+#define TILE_NUM_8 (8u - 1)
+#define TILE_NUM_9 (9u - 1)
+#define TILE_NUM_INVALID (-1u)
 
 typedef struct {
-    MJTileId tiles[MJ_DR + 1];
+  MJTileId tiles[MJ_DR + 1];
 } Tiles;
 
 bool is_tile_id_valid(MJTileId tile_id);
@@ -66,8 +66,8 @@ bool is_tile_id_yaochu(MJTileId tile_id);
 bool is_tile_id_routou(MJTileId tile_id);
 
 uint32_t get_tile_type(MJTileId tile_id);
-uint32_t get_tile_number(MJTileId tile_id); // for man, pin and sou
+uint32_t get_tile_number(MJTileId tile_id);  // for man, pin and sou
 
 bool gen_tiles_from_hands(Tiles *tiles, const MJHands *hands);
 
-const char* tile_id_str(MJTileId tile_id);
+const char *tile_id_str(MJTileId tile_id);

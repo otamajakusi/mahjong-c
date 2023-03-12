@@ -24,12 +24,12 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
-#include "mahjong.h"
 #include "element.h"
+#include "mahjong.h"
 #include "score.h"
 
 /*
@@ -65,4 +65,3 @@
 
 #define FU_CHIITOITSU 25
 uint32_t calc_fu(const Elements *concealed, const Elements *melded, MJTileId pair, const ScoreConfig *cfg, bool pinfu);
-

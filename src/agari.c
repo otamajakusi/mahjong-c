@@ -22,15 +22,16 @@
  *  SOFTWARE.
  */
 
+#include "agari.h"
+
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
+#include "element.h"
 #include "mahjong.h"
 #include "tile.h"
-#include "element.h"
-#include "agari.h"
 
 /*
  * [アガリ判定について]
@@ -99,20 +100,20 @@
 
 /* save triplets tile id to tile_id[n]. e.g. if there is two triplets, 2 should be set for len */
 typedef struct {
-    MJTileId tile_id[MJ_ELEMENTS_LEN];
-    uint32_t len;
+  MJTileId tile_id[MJ_ELEMENTS_LEN];
+  uint32_t len;
 } _Triplets;
 
 static void gen_triplets_candidates(_Triplets *triplets, const Tiles *tiles) {
-    memset(triplets, 0, sizeof(_Triplets));
-    for (uint32_t i = 0; i <= MJ_DR; i ++) {
-        uint8_t tile_num = tiles->tiles[i];
-        if (tile_num >= 3) { // pickup triplets candidate from tiles
-            assert(triplets->len < MJ_ELEMENTS_LEN);
-            triplets->tile_id[triplets->len] = i;
-            triplets->len ++;
-        }
+  memset(triplets, 0, sizeof(_Triplets));
+  for (uint32_t i = 0; i <= MJ_DR; i++) {
+    uint8_t tile_num = tiles->tiles[i];
+    if (tile_num >= 3) {  // pickup triplets candidate from tiles
+      assert(triplets->len < MJ_ELEMENTS_LEN);
+      triplets->tile_id[triplets->len] = i;
+      triplets->len++;
     }
+  }
 }
 
 /*
@@ -120,197 +121,178 @@ static void gen_triplets_candidates(_Triplets *triplets, const Tiles *tiles) {
  * 成立した面子はelemsに追加される.
  */
 static uint32_t find_elements_as_sequence(const Tiles *tiles, Elements *elems) {
-    Tiles _tiles;
-    memcpy(&_tiles, tiles, sizeof(Tiles));
-    for (int i = 0; i <= MJ_DR; i ++) {
-        uint8_t tile_num = _tiles.tiles[i];
-        if (tile_num) {
-            if (is_tile_id_honors(i)) {
-                return false;
-            }
-            uint32_t number = get_tile_number(i);
-            if (number == 7 || number == 8) { /* in case of M8, M9, P8, P9, S8, S9 */
-                return false;
-            }
+  Tiles _tiles;
+  memcpy(&_tiles, tiles, sizeof(Tiles));
+  for (int i = 0; i <= MJ_DR; i++) {
+    uint8_t tile_num = _tiles.tiles[i];
+    if (tile_num) {
+      if (is_tile_id_honors(i)) {
+        return false;
+      }
+      uint32_t number = get_tile_number(i);
+      if (number == 7 || number == 8) { /* in case of M8, M9, P8, P9, S8, S9 */
+        return false;
+      }
 
-            /* next and next of next do not exist */
-            if (_tiles.tiles[i + 1] == 0 || _tiles.tiles[i + 2] == 0) {
-                return false;
-            }
-            _tiles.tiles[i] --;
-            _tiles.tiles[i + 1] --;
-            _tiles.tiles[i + 2] --;
-            assert(elems->len < MJ_ELEMENTS_LEN);
-            elems->meld[elems->len].tile_id[0] = i;
-            elems->meld[elems->len].tile_id[1] = i + 1;
-            elems->meld[elems->len].tile_id[2] = i + 2;
-            elems->meld[elems->len].len = 3;
-            elems->meld[elems->len].concealed = true;
-            elems->meld[elems->len].type = ELEM_TYPE_SEQUENCE;
-            elems->len ++;
+      /* next and next of next do not exist */
+      if (_tiles.tiles[i + 1] == 0 || _tiles.tiles[i + 2] == 0) {
+        return false;
+      }
+      _tiles.tiles[i]--;
+      _tiles.tiles[i + 1]--;
+      _tiles.tiles[i + 2]--;
+      assert(elems->len < MJ_ELEMENTS_LEN);
+      elems->meld[elems->len].tile_id[0] = i;
+      elems->meld[elems->len].tile_id[1] = i + 1;
+      elems->meld[elems->len].tile_id[2] = i + 2;
+      elems->meld[elems->len].len = 3;
+      elems->meld[elems->len].concealed = true;
+      elems->meld[elems->len].type = ELEM_TYPE_SEQUENCE;
+      elems->len++;
 
-            uint32_t found = find_elements_as_sequence(&_tiles, elems);
-            if (found) {
-                return true;
-            }
-            elems->len --;
-            _tiles.tiles[i] ++;
-            _tiles.tiles[i + 1] ++;
-            _tiles.tiles[i + 2] ++;
-        }
+      uint32_t found = find_elements_as_sequence(&_tiles, elems);
+      if (found) {
+        return true;
+      }
+      elems->len--;
+      _tiles.tiles[i]++;
+      _tiles.tiles[i + 1]++;
+      _tiles.tiles[i + 2]++;
     }
-    return true;
+  }
+  return true;
 }
 
 /* すべてが順子で構成されるか */
-static uint32_t find_agari_sequence(
-        const Tiles *tiles,
-        const Elements *melded_elems,
-        MJTileId pair_tile,
-        AgariCallbackElements *cb_elements,
-        void *cbarg) {
-    Elements elems;
-    memset(&elems, 0, sizeof(Elements));
+static uint32_t find_agari_sequence(const Tiles *tiles, const Elements *melded_elems, MJTileId pair_tile,
+                                    AgariCallbackElements *cb_elements, void *cbarg) {
+  Elements elems;
+  memset(&elems, 0, sizeof(Elements));
 
-    uint32_t agari = 0;
-    if (find_elements_as_sequence(tiles, &elems)) {
-        cb_elements(&elems, melded_elems, pair_tile, cbarg);
-        agari ++;
-    }
-    return agari;
+  uint32_t agari = 0;
+  if (find_elements_as_sequence(tiles, &elems)) {
+    cb_elements(&elems, melded_elems, pair_tile, cbarg);
+    agari++;
+  }
+  return agari;
 }
 
 /* 刻子候補を1つ取り出して残りが順子で構成されるか */
-static uint32_t find_agari_sequence_after_remove_one_triplets(
-        const Tiles *tiles,
-        const _Triplets *triplets,
-        const Elements *melded_elems,
-        MJTileId pair_tile,
-        AgariCallbackElements *cb_elements,
-        void *cbarg) {
-    Elements elems;
-    Tiles _tiles;
-    uint32_t agari = 0;
+static uint32_t find_agari_sequence_after_remove_one_triplets(const Tiles *tiles, const _Triplets *triplets,
+                                                              const Elements *melded_elems, MJTileId pair_tile,
+                                                              AgariCallbackElements *cb_elements, void *cbarg) {
+  Elements elems;
+  Tiles _tiles;
+  uint32_t agari = 0;
 
-    memset(&elems, 0, sizeof(Elements));
-    memcpy(&_tiles, tiles, sizeof(Tiles));
-    // remove each kotsu set
-    for (uint32_t i = 0; i < triplets->len; i ++) {
-        MJTileId tile_id = triplets->tile_id[i];
-        _tiles.tiles[tile_id] -= 3; // remove triplets
-        elems.len = 1;
-        elems.meld[0].tile_id[0] = tile_id;
-        elems.meld[0].tile_id[1] = tile_id;
-        elems.meld[0].tile_id[2] = tile_id;
-        elems.meld[0].len = 3;
-        elems.meld[0].concealed = true;
-        elems.meld[0].type = ELEM_TYPE_TRIPLETS;
-        if (find_elements_as_sequence(&_tiles, &elems)) {
-            cb_elements(&elems, melded_elems, pair_tile, cbarg);
-            agari ++;
-        }
-        _tiles.tiles[tile_id] += 3; // revert: remove triplets
+  memset(&elems, 0, sizeof(Elements));
+  memcpy(&_tiles, tiles, sizeof(Tiles));
+  // remove each kotsu set
+  for (uint32_t i = 0; i < triplets->len; i++) {
+    MJTileId tile_id = triplets->tile_id[i];
+    _tiles.tiles[tile_id] -= 3;  // remove triplets
+    elems.len = 1;
+    elems.meld[0].tile_id[0] = tile_id;
+    elems.meld[0].tile_id[1] = tile_id;
+    elems.meld[0].tile_id[2] = tile_id;
+    elems.meld[0].len = 3;
+    elems.meld[0].concealed = true;
+    elems.meld[0].type = ELEM_TYPE_TRIPLETS;
+    if (find_elements_as_sequence(&_tiles, &elems)) {
+      cb_elements(&elems, melded_elems, pair_tile, cbarg);
+      agari++;
     }
-    return agari;
+    _tiles.tiles[tile_id] += 3;  // revert: remove triplets
+  }
+  return agari;
 }
 
 /* 刻子候補をすべて取り出して残りが順子で構成されるか */
-static uint32_t find_agari_sequence_after_remove_all_triplets(
-        const Tiles *tiles,
-        const _Triplets *triplets,
-        const Elements *melded_elems,
-        MJTileId pair_tile,
-        AgariCallbackElements *cb_elements,
-        void *cbarg) {
-    Elements elems;
-    Tiles _tiles;
-    uint32_t agari = 0;
+static uint32_t find_agari_sequence_after_remove_all_triplets(const Tiles *tiles, const _Triplets *triplets,
+                                                              const Elements *melded_elems, MJTileId pair_tile,
+                                                              AgariCallbackElements *cb_elements, void *cbarg) {
+  Elements elems;
+  Tiles _tiles;
+  uint32_t agari = 0;
 
-    memset(&elems, 0, sizeof(Elements));
-    memcpy(&_tiles, tiles, sizeof(Tiles));
+  memset(&elems, 0, sizeof(Elements));
+  memcpy(&_tiles, tiles, sizeof(Tiles));
 
-    /* remove all triplets from tiles */
-    for (uint32_t i = 0; i < triplets->len; i ++) {
-        MJTileId tile_id = triplets->tile_id[i];
-        _tiles.tiles[tile_id] -= 3; // remove triplets
-        assert(elems.len < MJ_ELEMENTS_LEN);
-        elems.meld[elems.len].tile_id[0] = tile_id;
-        elems.meld[elems.len].tile_id[1] = tile_id;
-        elems.meld[elems.len].tile_id[2] = tile_id;
-        elems.meld[elems.len].len = 3;
-        elems.meld[elems.len].concealed = true;
-        elems.meld[elems.len].type = ELEM_TYPE_TRIPLETS;
-        elems.len ++;
-    }
-    if (find_elements_as_sequence(&_tiles, &elems)) {
-        cb_elements(&elems, melded_elems, pair_tile, cbarg);
-        agari ++;
-    }
-    return agari;
+  /* remove all triplets from tiles */
+  for (uint32_t i = 0; i < triplets->len; i++) {
+    MJTileId tile_id = triplets->tile_id[i];
+    _tiles.tiles[tile_id] -= 3;  // remove triplets
+    assert(elems.len < MJ_ELEMENTS_LEN);
+    elems.meld[elems.len].tile_id[0] = tile_id;
+    elems.meld[elems.len].tile_id[1] = tile_id;
+    elems.meld[elems.len].tile_id[2] = tile_id;
+    elems.meld[elems.len].len = 3;
+    elems.meld[elems.len].concealed = true;
+    elems.meld[elems.len].type = ELEM_TYPE_TRIPLETS;
+    elems.len++;
+  }
+  if (find_elements_as_sequence(&_tiles, &elems)) {
+    cb_elements(&elems, melded_elems, pair_tile, cbarg);
+    agari++;
+  }
+  return agari;
 }
 
 /* NOTE: melded_elems includes concealed-fours */
-static uint32_t find_agari_with_triplets_candidates(
-        const _Triplets *triplets,
-        const Tiles *concealed_tiles,
-        const Elements *melded_elems,
-        MJTileId pair_tile,
-        AgariCallbackElements *cb_elements,
-        void *cbarg) {
-    uint32_t agari = 0;
+static uint32_t find_agari_with_triplets_candidates(const _Triplets *triplets, const Tiles *concealed_tiles,
+                                                    const Elements *melded_elems, MJTileId pair_tile,
+                                                    AgariCallbackElements *cb_elements, void *cbarg) {
+  uint32_t agari = 0;
 
-    agari += find_agari_sequence(concealed_tiles, melded_elems, pair_tile, cb_elements, cbarg);
+  agari += find_agari_sequence(concealed_tiles, melded_elems, pair_tile, cb_elements, cbarg);
 
-    if (triplets->len == 0) {
-        return agari;
-    }
-
-    agari += find_agari_sequence_after_remove_one_triplets(concealed_tiles, triplets, melded_elems, pair_tile, cb_elements, cbarg);
-
-    if (triplets->len == 1) {
-        return agari;
-    }
-
-    agari += find_agari_sequence_after_remove_all_triplets(concealed_tiles, triplets, melded_elems, pair_tile, cb_elements, cbarg);
-
+  if (triplets->len == 0) {
     return agari;
+  }
+
+  agari += find_agari_sequence_after_remove_one_triplets(concealed_tiles, triplets, melded_elems, pair_tile,
+                                                         cb_elements, cbarg);
+
+  if (triplets->len == 1) {
+    return agari;
+  }
+
+  agari += find_agari_sequence_after_remove_all_triplets(concealed_tiles, triplets, melded_elems, pair_tile,
+                                                         cb_elements, cbarg);
+
+  return agari;
 }
 
 /*
  * tiles: concealed
  * melds: melded (includes an-kan)
  */
-uint32_t find_agari(
-    const Tiles *concealed_tiles,
-    const Elements *melded_elems,
-    AgariCallbackTiles *cb_tiles,
-    AgariCallbackElements *cb_elements,
-    void *cbarg) {
-
-    uint32_t found;
-    uint32_t agari = 0;
-    if (melded_elems->len == 0) {
-        found = (uint32_t)cb_tiles(concealed_tiles, cbarg);
-        if (found) {
-            agari ++;
-        }
+uint32_t find_agari(const Tiles *concealed_tiles, const Elements *melded_elems, AgariCallbackTiles *cb_tiles,
+                    AgariCallbackElements *cb_elements, void *cbarg) {
+  uint32_t found;
+  uint32_t agari = 0;
+  if (melded_elems->len == 0) {
+    found = (uint32_t)cb_tiles(concealed_tiles, cbarg);
+    if (found) {
+      agari++;
     }
+  }
 
-    Tiles _concealed_tiles;
-    memcpy(&_concealed_tiles, concealed_tiles, sizeof(Tiles));
+  Tiles _concealed_tiles;
+  memcpy(&_concealed_tiles, concealed_tiles, sizeof(Tiles));
 
-    for (uint32_t i = 0; i <= MJ_DR; i ++) {
-        if (concealed_tiles->tiles[i] >= MJ_PAIR_LEN) {
-            _concealed_tiles.tiles[i] -= MJ_PAIR_LEN; // remove pair from tiles
-            _Triplets triplets;
-            gen_triplets_candidates(&triplets, &_concealed_tiles);
-            found = find_agari_with_triplets_candidates(&triplets, &_concealed_tiles, melded_elems, i, cb_elements, cbarg);
-            agari += found;
-            if (found) {
-                fprintf(stderr, "agari %d: pair: %s\n", agari, tile_id_str(i));
-            }
-            _concealed_tiles.tiles[i] += 2; // revert: remove pair from tiles
-        }
+  for (uint32_t i = 0; i <= MJ_DR; i++) {
+    if (concealed_tiles->tiles[i] >= MJ_PAIR_LEN) {
+      _concealed_tiles.tiles[i] -= MJ_PAIR_LEN;  // remove pair from tiles
+      _Triplets triplets;
+      gen_triplets_candidates(&triplets, &_concealed_tiles);
+      found = find_agari_with_triplets_candidates(&triplets, &_concealed_tiles, melded_elems, i, cb_elements, cbarg);
+      agari += found;
+      if (found) {
+        fprintf(stderr, "agari %d: pair: %s\n", agari, tile_id_str(i));
+      }
+      _concealed_tiles.tiles[i] += 2;  // revert: remove pair from tiles
     }
-    return agari;
+  }
+  return agari;
 }

@@ -22,19 +22,19 @@
  *  SOFTWARE.
  */
 
-#include <stdio.h>
-
 #include "util.h"
 
+#include <stdio.h>
+
 void util_dump_meld(const MJMeld *meld) {
-    for (uint32_t i = 0; i < meld->len; i ++) {
-        fprintf(stderr, "%02d,", meld->tile_id[i]);
-    }
-    fprintf(stderr, "c:%1d\n", meld->concealed);
+  for (uint32_t i = 0; i < meld->len; i++) {
+    fprintf(stderr, "%02d,", meld->tile_id[i]);
+  }
+  fprintf(stderr, "c:%1d\n", meld->concealed);
 }
 
 void util_dump_melds(const MJMelds *melds) {
-    for (uint32_t i = 0; i < melds->len; i ++) {
-        util_dump_meld(&melds->meld[i]);
-    }
+  for (uint32_t i = 0; i < melds->len; i++) {
+    util_dump_meld(&melds->meld[i]);
+  }
 }

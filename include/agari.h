@@ -24,20 +24,16 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
+#include "element.h"
 #include "mahjong.h"
 #include "tile.h"
-#include "element.h"
 
 typedef bool AgariCallbackTiles(const Tiles *tiles, void *arg);
 typedef bool AgariCallbackElements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg);
 
-uint32_t find_agari(
-    const Tiles *tiles,
-    const Elements *elems,
-    AgariCallbackTiles *cb_tiles,
-    AgariCallbackElements *cb_elements,
-    void *cbarg);
+uint32_t find_agari(const Tiles *tiles, const Elements *elems, AgariCallbackTiles *cb_tiles,
+                    AgariCallbackElements *cb_elements, void *cbarg);

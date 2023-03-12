@@ -22,25 +22,24 @@
  *  SOFTWARE.
  */
 
+#include "hand.h"
+
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include "mahjong.h"
 #include "tile.h"
-#include "hand.h"
 
 bool is_valid_hands(const MJHands *hands) {
-    if (hands->len > MJ_MAX_HAND_LEN || hands->len < MJ_MIN_HAND_LEN) {
-        return false;
+  if (hands->len > MJ_MAX_HAND_LEN || hands->len < MJ_MIN_HAND_LEN) {
+    return false;
+  }
+  for (uint32_t i = 0; i < hands->len; i++) {
+    if (!is_tile_id_valid(hands->tile_id[i])) {
+      return false;
     }
-    for (uint32_t i = 0; i < hands->len; i ++) {
-        if (!is_tile_id_valid(hands->tile_id[i])) {
-            return false;
-        }
-    }
-    return true;
+  }
+  return true;
 }
-
-

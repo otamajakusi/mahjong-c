@@ -22,37 +22,38 @@
  *  SOFTWARE.
  */
 
+#include "meld.h"
+
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include "mahjong.h"
 #include "tile.h"
-#include "meld.h"
 
 static bool is_valid_meld(const MJMeld *meld) {
-    if (meld->len != 3 && meld->len != 4) {
-        fprintf(stderr, "invalid meld len %d\n", meld->len);
-        return false;
+  if (meld->len != 3 && meld->len != 4) {
+    fprintf(stderr, "invalid meld len %d\n", meld->len);
+    return false;
+  }
+  for (uint32_t i = 0; i < meld->len; i++) {
+    if (!is_tile_id_valid(meld->tile_id[i])) {
+      fprintf(stderr, "invalid meld tile %d\n", meld->tile_id[i]);
+      return false;
     }
-    for (uint32_t i = 0; i < meld->len; i ++) {
-        if (!is_tile_id_valid(meld->tile_id[i])) {
-            fprintf(stderr, "invalid meld tile %d\n", meld->tile_id[i]);
-            return false;
-        }
-    }
-    return true;
+  }
+  return true;
 }
 
 bool is_valid_melds(const MJMelds *melds) {
-    if (melds->len > MJ_ELEMENTS_LEN) {
-        return false;
+  if (melds->len > MJ_ELEMENTS_LEN) {
+    return false;
+  }
+  for (uint32_t i = 0; i < melds->len; i++) {
+    if (!is_valid_meld(&melds->meld[i])) {
+      return false;
     }
-    for (uint32_t i = 0; i < melds->len; i ++) {
-        if (!is_valid_meld(&melds->meld[i])) {
-            return false;
-        }
-    }
-    return true;
+  }
+  return true;
 }

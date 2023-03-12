@@ -22,32 +22,33 @@
  *  SOFTWARE.
  */
 
+#include "mahjong.h"
+
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
-#include "mahjong.h"
-#include "tile.h"
+#include "agari.h"
+#include "element.h"
 #include "hand.h"
 #include "meld.h"
-#include "element.h"
 #include "score.h"
-#include "agari.h"
+#include "tile.h"
 
 static bool remove_melds_from_tiles(Tiles *tiles, const MJMelds *melds) {
-    for (uint32_t i = 0; i < melds->len; i ++) {
-        const MJMeld *meld = &melds->meld[i];
-        for (uint32_t j = 0; j < meld->len; j ++) {
-            MJTileId tile_id = meld->tile_id[j];
-            if (tiles->tiles[tile_id] == 0) {
-                fprintf(stderr, "tile in meld %d doesn't exists in hands\n", meld->tile_id[j]);
-                return false;
-            }
-            tiles->tiles[tile_id] --;
-        }
+  for (uint32_t i = 0; i < melds->len; i++) {
+    const MJMeld *meld = &melds->meld[i];
+    for (uint32_t j = 0; j < meld->len; j++) {
+      MJTileId tile_id = meld->tile_id[j];
+      if (tiles->tiles[tile_id] == 0) {
+        fprintf(stderr, "tile in meld %d doesn't exists in hands\n", meld->tile_id[j]);
+        return false;
+      }
+      tiles->tiles[tile_id]--;
     }
-    return true;
+  }
+  return true;
 }
 
 /*
@@ -72,96 +73,88 @@ static bool remove_melds_from_tiles(Tiles *tiles, const MJMelds *melds) {
  */
 
 typedef struct {
-    MJScore score;
-    ScoreConfig score_config;
+  MJScore score;
+  ScoreConfig score_config;
 } _Score;
 
 /* for 国士無双, 七対子 */
 static bool score_tiles(const Tiles *tiles, void *arg) {
-    _Score *_score = (_Score*)arg;
-    MJScore score;
-    bool agari = calc_score_with_tiles(&score, tiles, &_score->score_config);
-    // save greater score
-    if (score.han) {
-        fprintf(stderr, "%s\n", score.yaku_name);
-    }
-    if ((score.han > _score->score.han) || (score.han == _score->score.han && score.fu > _score->score.fu)) {
-        fprintf(stderr, "changed %d:%d:%s --> %d:%d:%s\n", 
-                _score->score.han, _score->score.fu, _score->score.yaku_name, 
-                score.han, score.fu, score.yaku_name);
-        memcpy(&_score->score, &score, sizeof(MJScore));
-    }
-    return agari;
+  _Score *_score = (_Score *)arg;
+  MJScore score;
+  bool agari = calc_score_with_tiles(&score, tiles, &_score->score_config);
+  // save greater score
+  if (score.han) {
+    fprintf(stderr, "%s\n", score.yaku_name);
+  }
+  if ((score.han > _score->score.han) || (score.han == _score->score.han && score.fu > _score->score.fu)) {
+    fprintf(stderr, "changed %d:%d:%s --> %d:%d:%s\n", _score->score.han, _score->score.fu, _score->score.yaku_name,
+            score.han, score.fu, score.yaku_name);
+    memcpy(&_score->score, &score, sizeof(MJScore));
+  }
+  return agari;
 }
 
 static bool score_elements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg) {
-    _Score *_score = (_Score*)arg;
-    MJScore score;
-    bool agari = calc_score(&score, concealed, melded, pair, &_score->score_config);
-    if (score.han) {
-        fprintf(stderr, "%s\n", score.yaku_name);
-    }
-    // save greater score
-    if ((score.han > _score->score.han) || (score.han == _score->score.han && score.fu > _score->score.fu)) {
-        fprintf(stderr, "changed %d:%d:%s --> %d:%d:%s\n", 
-                _score->score.han, _score->score.fu, _score->score.yaku_name, 
-                score.han, score.fu, score.yaku_name);
-        memcpy(&_score->score, &score, sizeof(MJScore));
-    }
-    return agari;
+  _Score *_score = (_Score *)arg;
+  MJScore score;
+  bool agari = calc_score(&score, concealed, melded, pair, &_score->score_config);
+  if (score.han) {
+    fprintf(stderr, "%s\n", score.yaku_name);
+  }
+  // save greater score
+  if ((score.han > _score->score.han) || (score.han == _score->score.han && score.fu > _score->score.fu)) {
+    fprintf(stderr, "changed %d:%d:%s --> %d:%d:%s\n", _score->score.han, _score->score.fu, _score->score.yaku_name,
+            score.han, score.fu, score.yaku_name);
+    memcpy(&_score->score, &score, sizeof(MJScore));
+  }
+  return agari;
 }
 
-int32_t mj_get_score(
-      MJScore *score,
-      const MJHands *hands,
-      const MJMelds *melds,
-      MJTileId win_tile,
-      bool ron,
-      MJTileId player_wind,
-      MJTileId round_wind) {
-    (void)score;
-    (void)ron;
-    (void)player_wind;
-    (void)round_wind;
-    if (hands->len > MJ_MAX_HAND_LEN) {
-        return MJ_ERR_NUM_TILES_LARGE;
-    }
-    if (hands->len < MJ_MIN_HAND_LEN) {
-        return MJ_ERR_NUM_TILES_SHORT;
-    }
-    if (!is_valid_hands(hands)) {
-        return MJ_ERR_ILLEGAL_PARAM;
-    }
-    if (!is_valid_melds(melds)) {
-        return MJ_ERR_ILLEGAL_PARAM;
-    }
+int32_t mj_get_score(MJScore *score, const MJHands *hands, const MJMelds *melds, MJTileId win_tile, bool ron,
+                     MJTileId player_wind, MJTileId round_wind) {
+  (void)score;
+  (void)ron;
+  (void)player_wind;
+  (void)round_wind;
+  if (hands->len > MJ_MAX_HAND_LEN) {
+    return MJ_ERR_NUM_TILES_LARGE;
+  }
+  if (hands->len < MJ_MIN_HAND_LEN) {
+    return MJ_ERR_NUM_TILES_SHORT;
+  }
+  if (!is_valid_hands(hands)) {
+    return MJ_ERR_ILLEGAL_PARAM;
+  }
+  if (!is_valid_melds(melds)) {
+    return MJ_ERR_ILLEGAL_PARAM;
+  }
 
-    Tiles tiles;
-    if (!gen_tiles_from_hands(&tiles, hands)) {
-        return MJ_ERR_ILLEGAL_PARAM;
-    }
-    // make tiles = hands - melds
-    if (!remove_melds_from_tiles(&tiles, melds)) {
-        return MJ_ERR_ILLEGAL_PARAM;
-    }
-    if (tiles.tiles[win_tile] == 0) { // check if win_tile is in tiles
-        return MJ_ERR_ILLEGAL_PARAM;
-    }
+  Tiles tiles;
+  if (!gen_tiles_from_hands(&tiles, hands)) {
+    return MJ_ERR_ILLEGAL_PARAM;
+  }
+  // make tiles = hands - melds
+  if (!remove_melds_from_tiles(&tiles, melds)) {
+    return MJ_ERR_ILLEGAL_PARAM;
+  }
+  if (tiles.tiles[win_tile] == 0) {  // check if win_tile is in tiles
+    return MJ_ERR_ILLEGAL_PARAM;
+  }
 
-    Elements melded_elems;
-    if (!gen_elements_from_melds(&melded_elems, melds)) {
-        return MJ_ERR_ILLEGAL_PARAM;
-    }
+  Elements melded_elems;
+  if (!gen_elements_from_melds(&melded_elems, melds)) {
+    return MJ_ERR_ILLEGAL_PARAM;
+  }
 
-    _Score _score = {
-        {0, 0, ""},
-        {win_tile, ron, player_wind, round_wind},
-    };
+  _Score _score = {
+      {0, 0, ""},
+      {win_tile, ron, player_wind, round_wind},
+  };
 
-    uint32_t agari = find_agari(&tiles, &melded_elems, score_tiles, score_elements, &_score);
-    if (agari == 0) {
-        return MJ_ERR_AGARI_NOT_FOUND;
-    }
-    memcpy(score, &_score.score, sizeof(MJScore));
-    return MJ_OK;
+  uint32_t agari = find_agari(&tiles, &melded_elems, score_tiles, score_elements, &_score);
+  if (agari == 0) {
+    return MJ_ERR_AGARI_NOT_FOUND;
+  }
+  memcpy(score, &_score.score, sizeof(MJScore));
+  return MJ_OK;
 }
