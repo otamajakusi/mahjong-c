@@ -12,7 +12,7 @@ static void _test_mj_get_score(
     MJTileId player_wind, MJTileId round_wind,
     // expected
     int32_t ret, uint32_t han, uint32_t fu, const char *yaku_name) {
-  MJScore score;
+  MJBaseScore score;
   MJHands hands = {{h01, h02, h03, h04, h05, h06, h07, h08, h09, h10, h11, h12, h13, h14}, 14};
   MJMelds melds = {{}, 0};
   assert(mj_get_score(&score, &hands, &melds, win_tile, ron, player_wind, round_wind) == ret);

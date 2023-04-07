@@ -42,10 +42,10 @@ typedef struct {
   MJTileId round_wind;
 } ScoreConfig;
 
-bool calc_score(MJScore *score, const Elements *concealed, const Elements *melded, MJTileId pair,
+bool calc_score(MJBaseScore *score, const Elements *concealed, const Elements *melded, MJTileId pair,
                 const ScoreConfig *cfg);
 /* for chiitoitsu and kokushi */
-bool calc_score_with_tiles(MJScore *score, const Tiles *tiles, const ScoreConfig *cfg);
+bool calc_score_with_tiles(MJBaseScore *score, const Tiles *tiles, const ScoreConfig *cfg);
 #if defined(__cplusplus)
 }
 #endif  // defined(__cplusplus)

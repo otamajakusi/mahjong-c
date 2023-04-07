@@ -12,8 +12,8 @@ static void _test_calc_score_with_tiles(
     MJTileId round_wind,
     /* expected */
     bool retval, uint32_t han, uint32_t fu, const char *yaku_name) {
-  MJScore score;
-  memset(&score, -1, sizeof(MJScore));
+  MJBaseScore score;
+  memset(&score, -1, sizeof(MJBaseScore));
   Tiles tiles;
   MJHands hands = {
       {t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, pair, pair},
@@ -61,8 +61,8 @@ static void _test_calc_score0(/* 門前 */
                               MJTileId pair, MJTileId win_tile, bool ron, MJTileId player_wind, MJTileId round_wind,
                               /* expected */
                               uint32_t han, uint32_t fu, const char *yaku_name) {
-  MJScore score;
-  memset(&score, -1, sizeof(MJScore));
+  MJBaseScore score;
+  memset(&score, -1, sizeof(MJBaseScore));
   Elements concealed;
   Elements melded;
   MJMelds melds = {
@@ -99,8 +99,8 @@ static void _test_calc_score1(/* 全副露(暗槓含む) */
                               MJTileId round_wind,
                               /* expected */
                               uint32_t han, uint32_t fu, const char *yaku_name) {
-  MJScore score;
-  memset(&score, -1, sizeof(MJScore));
+  MJBaseScore score;
+  memset(&score, -1, sizeof(MJBaseScore));
   Elements concealed;
   Elements melded;
   MJMelds melds = {

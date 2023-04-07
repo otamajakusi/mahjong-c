@@ -15,7 +15,7 @@ int main() {
   bool ron = true;               // ロン=true
   MJTileId player_wind = MJ_WT;  // 自風=東
   MJTileId round_wind = MJ_WT;   // 場風=東
-  MJScore score;
+  MJBaseScore score;
   mj_get_score(&score, &hands, &melds, win_tile, ron, player_wind, round_wind);
   printf("han: %d, fu: %d, yaku: %s\n", score.han, score.fu, score.yaku_name);
   return 0;

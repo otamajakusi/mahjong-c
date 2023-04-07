@@ -54,7 +54,7 @@
  * つまり翻を比較して同じなら符を比較して大小を比較できる.
  */
 
-static void append_score(MJScore *score, uint32_t han, const char *yaku_name) {
+static void append_score(MJBaseScore *score, uint32_t han, const char *yaku_name) {
   uint32_t name_len = (uint32_t)strlen(score->yaku_name);
   uint32_t n = MJ_MAX_YAKU_NAME_LEN - name_len - 1;
   assert(n >= strlen(yaku_name));
@@ -62,17 +62,17 @@ static void append_score(MJScore *score, uint32_t han, const char *yaku_name) {
   score->han += han;
 }
 
-static void append_score_kuisagari(MJScore *score, uint32_t han, const char *yaku_name, const Elements *melded) {
+static void append_score_kuisagari(MJBaseScore *score, uint32_t han, const char *yaku_name, const Elements *melded) {
   if (!is_elements_concealed(melded)) {
     han--;
   }
   return append_score(score, han, yaku_name);
 }
 
-static void finalize_score(MJScore *score, uint32_t fu) { score->fu = fu; }
+static void finalize_score(MJBaseScore *score, uint32_t fu) { score->fu = fu; }
 
-bool calc_score_with_tiles(MJScore *score, const Tiles *tiles, const ScoreConfig *cfg) {
-  memset(score, 0, sizeof(MJScore));
+bool calc_score_with_tiles(MJBaseScore *score, const Tiles *tiles, const ScoreConfig *cfg) {
+  memset(score, 0, sizeof(MJBaseScore));
 
   // 国士無双
   bool kokushi = is_kokushi(tiles);  // 13han
@@ -132,9 +132,9 @@ bool calc_score_with_tiles(MJScore *score, const Tiles *tiles, const ScoreConfig
   return true;
 }
 
-bool calc_score(MJScore *score, const Elements *concealed, const Elements *melded, MJTileId pair,
+bool calc_score(MJBaseScore *score, const Elements *concealed, const Elements *melded, MJTileId pair,
                 const ScoreConfig *cfg) {
-  memset(score, 0, sizeof(MJScore));
+  memset(score, 0, sizeof(MJBaseScore));
 
   /*** 役満 ***/
   /* 四暗刻: 門前: 必要, 説明: 面子を暗刻(暗槓含む)で構成. 注意: ロンアガリで面子が揃う場合は明刻扱い. */

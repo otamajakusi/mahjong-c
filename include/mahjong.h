@@ -126,7 +126,7 @@ typedef struct {
   uint32_t han;
   uint32_t fu;
   char yaku_name[MJ_MAX_YAKU_NAME_LEN];
-} MJScore;
+} MJBaseScore;
 
 /*
  * return
@@ -139,7 +139,7 @@ typedef struct {
  *     melds: list of meld
  *     win_tile: win_tile
  */
-int32_t mj_get_score(MJScore *score, const MJHands *hands, const MJMelds *melds, MJTileId win_tile, bool ron,
+int32_t mj_get_score(MJBaseScore *score, const MJHands *hands, const MJMelds *melds, MJTileId win_tile, bool ron,
                      MJTileId player_wind, MJTileId round_wind);
 #if defined(__cplusplus)
 }

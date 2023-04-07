@@ -73,14 +73,14 @@ static bool remove_melds_from_tiles(Tiles *tiles, const MJMelds *melds) {
  */
 
 typedef struct {
-  MJScore score;
+  MJBaseScore score;
   ScoreConfig score_config;
 } _Score;
 
 /* for 国士無双, 七対子 */
 static bool score_tiles(const Tiles *tiles, void *arg) {
   _Score *_score = (_Score *)arg;
-  MJScore score;
+  MJBaseScore score;
   bool agari = calc_score_with_tiles(&score, tiles, &_score->score_config);
   // save greater score
   if (score.han) {
@@ -89,14 +89,14 @@ static bool score_tiles(const Tiles *tiles, void *arg) {
   if ((score.han > _score->score.han) || (score.han == _score->score.han && score.fu > _score->score.fu)) {
     fprintf(stderr, "changed %d:%d:%s --> %d:%d:%s\n", _score->score.han, _score->score.fu, _score->score.yaku_name,
             score.han, score.fu, score.yaku_name);
-    memcpy(&_score->score, &score, sizeof(MJScore));
+    memcpy(&_score->score, &score, sizeof(MJBaseScore));
   }
   return agari;
 }
 
 static bool score_elements(const Elements *concealed, const Elements *melded, MJTileId pair, void *arg) {
   _Score *_score = (_Score *)arg;
-  MJScore score;
+  MJBaseScore score;
   bool agari = calc_score(&score, concealed, melded, pair, &_score->score_config);
   if (score.han) {
     fprintf(stderr, "%s\n", score.yaku_name);
@@ -105,12 +105,12 @@ static bool score_elements(const Elements *concealed, const Elements *melded, MJ
   if ((score.han > _score->score.han) || (score.han == _score->score.han && score.fu > _score->score.fu)) {
     fprintf(stderr, "changed %d:%d:%s --> %d:%d:%s\n", _score->score.han, _score->score.fu, _score->score.yaku_name,
             score.han, score.fu, score.yaku_name);
-    memcpy(&_score->score, &score, sizeof(MJScore));
+    memcpy(&_score->score, &score, sizeof(MJBaseScore));
   }
   return agari;
 }
 
-int32_t mj_get_score(MJScore *score, const MJHands *hands, const MJMelds *melds, MJTileId win_tile, bool ron,
+int32_t mj_get_score(MJBaseScore *score, const MJHands *hands, const MJMelds *melds, MJTileId win_tile, bool ron,
                      MJTileId player_wind, MJTileId round_wind) {
   (void)score;
   (void)ron;
@@ -155,6 +155,6 @@ int32_t mj_get_score(MJScore *score, const MJHands *hands, const MJMelds *melds,
   if (agari == 0) {
     return MJ_ERR_AGARI_NOT_FOUND;
   }
-  memcpy(score, &_score.score, sizeof(MJScore));
+  memcpy(score, &_score.score, sizeof(MJBaseScore));
   return MJ_OK;
 }
