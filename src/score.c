@@ -358,3 +358,98 @@ bool calc_score(MJBaseScore *score, const Elements *concealed, const Elements *m
   finalize_score(score, calc_fu(concealed, melded, pair, cfg, pinfu));
   return true;
 }
+
+static uint32_t _round_up(uint32_t v, uint32_t u) { return (v + (u - 1)) / u * u; }
+
+static uint32_t _calc_base_score(uint32_t fu, uint32_t han) { return (fu * (1u << han) * 4); }
+
+static void _get_score(uint32_t fu, uint32_t han, uint32_t *score) {
+  if (han <= 2 || (han == 3 && fu < 60) ||  // 3翻60符はみなし満貫(M-lean compliant)
+      (han == 4 && fu < 30)                 // 4翻30符はみなし満貫(M-lean compliant)
+  ) {
+    *score = _round_up(_calc_base_score(fu, han) * 4, 100);
+  } else if (han <= 5) {
+    *score = 8000;
+  } else if (han <= 7) {
+    *score = 12000;
+  } else if (han <= 10) {
+    *score = 16000;
+  } else if (han <= 12) {
+    *score = 24000;
+  } else {
+    *score = (han / 13) * 32000;
+  }
+}
+
+static void _get_score_tsumo(uint32_t fu, uint32_t han, uint32_t *score, uint32_t *scoreDealer) {
+  uint32_t base = _calc_base_score(fu, han);
+  if (han <= 2 || (han == 3 && fu < 60) ||  // 3翻60符はみなし満貫(M-lean compliant)
+      (han == 4 && fu < 30)                 // 4翻30符はみなし満貫(M-lean compliant)
+  ) {
+    *score = _round_up(base, 100);
+    *scoreDealer = _round_up(base * 2, 100);
+  } else if (han <= 5) {
+    *score = 2000;
+    *scoreDealer = 4000;
+  } else if (han <= 7) {
+    *score = 3000;
+    *scoreDealer = 6000;
+  } else if (han <= 10) {
+    *score = 4000;
+    *scoreDealer = 8000;
+  } else if (han <= 12) {
+    *score = 6000;
+    *scoreDealer = 12000;
+  } else {
+    *score = ((han / 13) * 8000);
+    *scoreDealer = ((han / 13) * 16000);
+  }
+}
+
+static void _get_score_dealer(uint32_t fu, uint32_t han, uint32_t *score) {
+  if (han <= 2 || (han == 3 && fu < 60) ||  // 3翻60符はみなし満貫(M-lean compliant)
+      (han == 4 && fu < 30)                 // 4翻30符はみなし満貫(M-lean compliant)
+  ) {
+    *score = _round_up(_calc_base_score(fu, han) * 2 * 3, 100);
+  } else if (han <= 5) {
+    *score = 12000;
+  } else if (han <= 7) {
+    *score = 18000;
+  } else if (han <= 10) {
+    *score = 24000;
+  } else if (han <= 12) {
+    *score = 36000;
+  } else {
+    *score = (han / 13) * 48000;
+  }
+}
+
+static void _get_score_tsumo_dealer(uint32_t fu, uint32_t han, uint32_t *score) {  // "オール"
+  if (han <= 2 || (han == 3 && fu < 60) ||  // 3翻60符はみなし満貫(M-lean compliant)
+      (han == 4 && fu < 30)                 // 4翻30符はみなし満貫(M-lean compliant)
+  ) {
+    *score = _round_up(_calc_base_score(fu, han) * 2, 100);
+  } else if (han <= 5) {
+    *score = 4000;
+  } else if (han <= 7) {
+    *score = 6000;
+  } else if (han <= 10) {
+    *score = 8000;
+  } else if (han <= 12) {
+    *score = 12000;
+  } else {
+    *score = (han / 13) * 16000;
+  }
+}
+
+void get_score(uint32_t fu, uint32_t han, bool tsumo, bool dealer, uint32_t *score, uint32_t *scoreDealer) {
+  if (!tsumo && !dealer) {
+    _get_score(fu, han, score);
+  } else if (tsumo && !dealer) {
+    _get_score_tsumo(fu, han, score, scoreDealer);
+  } else if (!tsumo && dealer) {
+    _get_score_dealer(fu, han, score);
+  } else if (tsumo && dealer) {
+    _get_score_tsumo_dealer(fu, han, score);
+  }
+}

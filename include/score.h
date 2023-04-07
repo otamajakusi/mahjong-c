@@ -46,6 +46,15 @@ bool calc_score(MJBaseScore *score, const Elements *concealed, const Elements *m
                 const ScoreConfig *cfg);
 /* for chiitoitsu and kokushi */
 bool calc_score_with_tiles(MJBaseScore *score, const Tiles *tiles, const ScoreConfig *cfg);
+
+/*
+ * dealer false, tsumo false: score に振り込んだ人の支払いを設定する
+ * dealer false, tsumo true: score に子の支払いを, scoreDealer に親の支払いを設定する
+ * dealer true, tsumo false: score に振り込んだ人の支払いを設定する
+ * dealer true, tsumo true: score に子の支払いを設定する
+ */
+void get_score(uint32_t fu, uint32_t han, bool tsumo, bool dealer, uint32_t *score, uint32_t *scoreDealer);
+
 #if defined(__cplusplus)
 }
 #endif  // defined(__cplusplus)

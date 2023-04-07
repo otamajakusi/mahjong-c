@@ -388,8 +388,166 @@ void test_calc_score() {
   /*                 1, 2, 3, 4, c,  1, 2, 3, 4, c,  1, 2, 3, 4, c,  1, 2, 3, 4, c,pair,win,ron, pw, rw,han, fu, yaku_name */
 }
 
+static void _test_get_score(uint32_t han, uint32_t fu, bool tsumo, bool dealer, uint32_t scoreExp,
+                            uint32_t scoreDealerExp) {
+  uint32_t score = (uint32_t)-1;
+  uint32_t scoreDealer = (uint32_t)-1;
+  get_score(fu, han, tsumo, dealer, &score, &scoreDealer);
+  fprintf(stderr, "han %d, fu %d, tsumo %d, dealer %d, score %d, scoreDealer %d\n", han, fu, tsumo, dealer, score,
+          scoreDealer);
+  assert(score == scoreExp);
+  if (scoreDealerExp != (uint32_t)-1) {
+    assert(scoreDealer == scoreDealerExp);
+  }
+}
+
+void test_get_score() {
+  // ロン, 子
+  _test_get_score(1, 30, false, false, 1000, (uint32_t)-1);
+  _test_get_score(1, 40, false, false, 1300, (uint32_t)-1);
+  _test_get_score(1, 50, false, false, 1600, (uint32_t)-1);
+  _test_get_score(1, 60, false, false, 2000, (uint32_t)-1);
+  _test_get_score(1, 70, false, false, 2300, (uint32_t)-1);
+  _test_get_score(1, 80, false, false, 2600, (uint32_t)-1);
+  _test_get_score(1, 90, false, false, 2900, (uint32_t)-1);
+  _test_get_score(1, 100, false, false, 3200, (uint32_t)-1);
+  _test_get_score(1, 110, false, false, 3600, (uint32_t)-1);
+  _test_get_score(2, 25, false, false, 1600, (uint32_t)-1);
+  _test_get_score(2, 30, false, false, 2000, (uint32_t)-1);
+  _test_get_score(2, 40, false, false, 2600, (uint32_t)-1);
+  _test_get_score(3, 25, false, false, 3200, (uint32_t)-1);
+  _test_get_score(3, 30, false, false, 3900, (uint32_t)-1);
+  _test_get_score(3, 40, false, false, 5200, (uint32_t)-1);
+  _test_get_score(3, 60, false, false, 8000, (uint32_t)-1);  // みなし満貫
+  _test_get_score(3, 110, false, false, 8000, (uint32_t)-1);
+  _test_get_score(4, 25, false, false, 6400, (uint32_t)-1);
+  _test_get_score(4, 30, false, false, 8000, (uint32_t)-1);  // みなし満貫
+  _test_get_score(4, 110, false, false, 8000, (uint32_t)-1);
+  _test_get_score(5, 0, false, false, 8000, (uint32_t)-1);
+  _test_get_score(6, 0, false, false, 12000, (uint32_t)-1);
+  _test_get_score(7, 0, false, false, 12000, (uint32_t)-1);
+  _test_get_score(8, 0, false, false, 16000, (uint32_t)-1);
+  _test_get_score(9, 0, false, false, 16000, (uint32_t)-1);
+  _test_get_score(10, 0, false, false, 16000, (uint32_t)-1);
+  _test_get_score(11, 0, false, false, 24000, (uint32_t)-1);
+  _test_get_score(12, 0, false, false, 24000, (uint32_t)-1);
+  _test_get_score(13, 0, false, false, 32000, (uint32_t)-1);
+  // ツモ, 子
+  _test_get_score(1, 30, true, false, 300, 500);
+  _test_get_score(1, 40, true, false, 400, 700);
+  _test_get_score(1, 50, true, false, 400, 800);
+  _test_get_score(1, 60, true, false, 500, 1000);
+  _test_get_score(1, 70, true, false, 600, 1200);
+  _test_get_score(1, 80, true, false, 700, 1300);
+  _test_get_score(1, 90, true, false, 800, 1500);
+  _test_get_score(1, 100, true, false, 800, 1600);
+  _test_get_score(1, 110, true, false, 900, 1800);
+  _test_get_score(2, 20, true, false, 400, 700);
+  _test_get_score(2, 30, true, false, 500, 1000);
+  _test_get_score(2, 40, true, false, 700, 1300);
+  _test_get_score(2, 50, true, false, 800, 1600);
+  _test_get_score(2, 60, true, false, 1000, 2000);
+  _test_get_score(2, 70, true, false, 1200, 2300);
+  _test_get_score(2, 80, true, false, 1300, 2600);
+  _test_get_score(3, 20, true, false, 700, 1300);
+  _test_get_score(3, 25, true, false, 800, 1600);
+  _test_get_score(3, 30, true, false, 1000, 2000);
+  _test_get_score(3, 40, true, false, 1300, 2600);
+  _test_get_score(3, 60, true, false, 2000, 4000);  // みなし満貫
+  _test_get_score(3, 100, true, false, 2000, 4000);
+  _test_get_score(4, 20, true, false, 1300, 2600);
+  _test_get_score(4, 25, true, false, 1600, 3200);
+  _test_get_score(4, 30, true, false, 2000, 4000);  // みなし満貫
+  _test_get_score(4, 110, true, false, 2000, 4000);
+  _test_get_score(5, 0, true, false, 2000, 4000);
+  _test_get_score(6, 0, true, false, 3000, 6000);
+  _test_get_score(7, 0, true, false, 3000, 6000);
+  _test_get_score(8, 0, true, false, 4000, 8000);
+  _test_get_score(9, 0, true, false, 4000, 8000);
+  _test_get_score(10, 0, true, false, 4000, 8000);
+  _test_get_score(11, 0, true, false, 6000, 12000);
+  _test_get_score(12, 0, true, false, 6000, 12000);
+  _test_get_score(13, 0, true, false, 8000, 16000);
+  // ロン, 親
+  _test_get_score(1, 30, false, true, 1500, (uint32_t)-1);
+  _test_get_score(1, 40, false, true, 2000, (uint32_t)-1);
+  _test_get_score(1, 50, false, true, 2400, (uint32_t)-1);
+  _test_get_score(1, 60, false, true, 2900, (uint32_t)-1);
+  _test_get_score(1, 70, false, true, 3400, (uint32_t)-1);
+  _test_get_score(1, 80, false, true, 3900, (uint32_t)-1);
+  _test_get_score(1, 90, false, true, 4400, (uint32_t)-1);
+  _test_get_score(1, 100, false, true, 4800, (uint32_t)-1);
+  _test_get_score(1, 110, false, true, 5300, (uint32_t)-1);
+  _test_get_score(2, 25, false, true, 2400, (uint32_t)-1);
+  _test_get_score(2, 30, false, true, 2900, (uint32_t)-1);
+  _test_get_score(2, 40, false, true, 3900, (uint32_t)-1);
+  _test_get_score(2, 50, false, true, 4800, (uint32_t)-1);
+  _test_get_score(2, 60, false, true, 5800, (uint32_t)-1);
+  _test_get_score(2, 70, false, true, 6800, (uint32_t)-1);
+  _test_get_score(2, 80, false, true, 7700, (uint32_t)-1);
+  _test_get_score(2, 110, false, true, 10600, (uint32_t)-1);
+  _test_get_score(3, 25, false, true, 4800, (uint32_t)-1);
+  _test_get_score(3, 30, false, true, 5800, (uint32_t)-1);
+  _test_get_score(3, 40, false, true, 7700, (uint32_t)-1);
+  _test_get_score(3, 50, false, true, 9600, (uint32_t)-1);
+  _test_get_score(3, 60, false, true, 12000, (uint32_t)-1);  // みなし満貫
+  _test_get_score(3, 100, false, true, 12000, (uint32_t)-1);
+  _test_get_score(4, 25, false, true, 9600, (uint32_t)-1);
+  _test_get_score(4, 30, false, true, 12000, (uint32_t)-1);  // みなし満貫
+  _test_get_score(4, 100, false, true, 12000, (uint32_t)-1);
+  _test_get_score(5, 0, false, true, 12000, (uint32_t)-1);
+  _test_get_score(6, 0, false, true, 18000, (uint32_t)-1);
+  _test_get_score(7, 0, false, true, 18000, (uint32_t)-1);
+  _test_get_score(8, 0, false, true, 24000, (uint32_t)-1);
+  _test_get_score(9, 0, false, true, 24000, (uint32_t)-1);
+  _test_get_score(10, 0, false, true, 24000, (uint32_t)-1);
+  _test_get_score(11, 0, false, true, 36000, (uint32_t)-1);
+  _test_get_score(12, 0, false, true, 36000, (uint32_t)-1);
+  _test_get_score(13, 0, false, true, 48000, (uint32_t)-1);
+  // ツモ, 親
+  _test_get_score(1, 30, true, true, 500, (uint32_t)-1);
+  _test_get_score(1, 40, true, true, 700, (uint32_t)-1);
+  _test_get_score(1, 50, true, true, 800, (uint32_t)-1);
+  _test_get_score(1, 60, true, true, 1000, (uint32_t)-1);
+  _test_get_score(1, 70, true, true, 1200, (uint32_t)-1);
+  _test_get_score(1, 80, true, true, 1300, (uint32_t)-1);
+  _test_get_score(1, 90, true, true, 1500, (uint32_t)-1);
+  _test_get_score(1, 100, true, true, 1600, (uint32_t)-1);
+  _test_get_score(1, 110, true, true, 1800, (uint32_t)-1);
+  _test_get_score(2, 20, true, true, 700, (uint32_t)-1);
+  _test_get_score(2, 30, true, true, 1000, (uint32_t)-1);
+  _test_get_score(2, 40, true, true, 1300, (uint32_t)-1);
+  _test_get_score(2, 50, true, true, 1600, (uint32_t)-1);
+  _test_get_score(2, 60, true, true, 2000, (uint32_t)-1);
+  _test_get_score(2, 70, true, true, 2300, (uint32_t)-1);
+  _test_get_score(2, 80, true, true, 2600, (uint32_t)-1);
+  _test_get_score(2, 90, true, true, 2900, (uint32_t)-1);
+  _test_get_score(2, 110, true, true, 3600, (uint32_t)-1);
+  _test_get_score(3, 20, true, true, 1300, (uint32_t)-1);
+  _test_get_score(3, 25, true, true, 1600, (uint32_t)-1);
+  _test_get_score(3, 30, true, true, 2000, (uint32_t)-1);
+  _test_get_score(3, 40, true, true, 2600, (uint32_t)-1);
+  _test_get_score(3, 50, true, true, 3200, (uint32_t)-1);
+  _test_get_score(3, 60, true, true, 4000, (uint32_t)-1);  // みなし満貫
+  _test_get_score(3, 100, true, true, 4000, (uint32_t)-1);
+  _test_get_score(4, 20, true, true, 2600, (uint32_t)-1);
+  _test_get_score(4, 25, true, true, 3200, (uint32_t)-1);
+  _test_get_score(4, 30, true, true, 4000, (uint32_t)-1);  // みなし満貫
+  _test_get_score(4, 110, true, true, 4000, (uint32_t)-1);
+  _test_get_score(5, 0, true, true, 4000, (uint32_t)-1);
+  _test_get_score(6, 0, true, true, 6000, (uint32_t)-1);
+  _test_get_score(7, 0, true, true, 6000, (uint32_t)-1);
+  _test_get_score(8, 0, true, true, 8000, (uint32_t)-1);
+  _test_get_score(9, 0, true, true, 8000, (uint32_t)-1);
+  _test_get_score(10, 0, true, true, 8000, (uint32_t)-1);
+  _test_get_score(11, 0, true, true, 12000, (uint32_t)-1);
+  _test_get_score(12, 0, true, true, 12000, (uint32_t)-1);
+  _test_get_score(13, 0, true, true, 16000, (uint32_t)-1);
+}
+
 bool test_score() {
   test_calc_score_with_tiles();
   test_calc_score();
+  test_get_score();
   return true;
 }
