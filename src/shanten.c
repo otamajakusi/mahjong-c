@@ -95,6 +95,17 @@ static uint32_t gen_partial_sequence(const Tiles *tiles, Elements *elems) {
   return elems->len;
 }
 
+static void save_max(MJTileId tri0, MJTileId tri1, MJTileId tri2, uint32_t tri_len, const Elements *elements,
+                     _Triplets *max_triplets, Elements *max_elements) {
+  _Triplets triplets = {{tri0, tri1, tri2}, tri_len};
+  fprintf(stderr, "max_triplets %d, max_elements %d, tri_len %d, elements %d\n", max_triplets->len, max_elements->len,
+          tri_len, elements->len);
+  if ((tri_len + elements->len) > (max_triplets->len + max_elements->len)) {
+    memcpy(max_triplets, &triplets, sizeof(_Triplets));
+    memcpy(max_elements, elements, sizeof(Elements));
+  }
+}
+
 /*
  * handsからシャン点数を計算する
  * handsは手配のみとし、副露牌は含まない
@@ -118,7 +129,7 @@ int32_t mj_calc_shanten(const MJHands *hands) {
     return 0;                                                                    // 0シャンテン
   }
 
-  const uint32_t base = 8 - num_elements * 2;  // 面子は2点
+  const uint32_t base = num_elements * 2;  // 面子は2点
 
   Tiles tiles;
   if (!gen_tiles_from_hands(&tiles, hands)) {
@@ -161,7 +172,9 @@ int32_t mj_calc_shanten(const MJHands *hands) {
   //                      e.g. 1刻子,3順子 333344455566x (=333 345 445566)
   //
   // -> 上記が満たされたらテンパイ
-  // -> 上記が満たされなければ, 刻子を抜いて残りを順子, 対子, ターツの順に取り出し計算する
+
+  _Triplets max_triplets = {0};
+  Elements max_elements = {0};
 
   Elements elements;
   fprintf(stderr, "triplets: %d, num_elements: %d\n", triplets.len, num_elements);
@@ -170,6 +183,7 @@ int32_t mj_calc_shanten(const MJHands *hands) {
       if (generate_elements_as_sequence(&tiles, &elements) == num_elements) {
         return 0;  // テンパイ
       }
+      save_max(0, 0, 0, 0, &elements, &max_triplets, &max_elements);
       break;
     case 2:
       switch (triplets.len) {
@@ -177,6 +191,7 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (generate_elements_as_sequence(&tiles, &elements) == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(0, 0, 0, 0, &elements, &max_triplets, &max_elements);
           break;
         case 1:
           tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
@@ -185,6 +200,7 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (elements.len + 1 /*num removed*/ == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(triplets.tile_id[0], 0, 0, 0, &elements, &max_triplets, &max_elements);
           break;
       }
       break;
@@ -194,17 +210,21 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (generate_elements_as_sequence(&tiles, &elements) == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(0, 0, 0, 0, &elements, &max_triplets, &max_elements);
           break;
         case 1:
           if (generate_elements_as_sequence(&tiles, &elements) == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(0, 0, 0, 0, &elements, &max_triplets, &max_elements);
+
           tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
           generate_elements_as_sequence(&tiles, &elements);
           tiles.tiles[triplets.tile_id[0]] += MJ_MIN_TILES_LEN_IN_ELEMENT;  // revert
           if (elements.len + 1 /*num removed*/ == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(triplets.tile_id[0], 0, 0, 1, &elements, &max_triplets, &max_elements);
           break;
         case 2:
           if (generate_elements_as_sequence(&tiles, &elements) == num_elements) {
@@ -218,6 +238,7 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (elements.len + 2 /*num removed*/ == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(triplets.tile_id[0], triplets.tile_id[1], 0, 2, &elements, &max_triplets, &max_elements);
           break;
       }
       break;
@@ -227,6 +248,7 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (generate_elements_as_sequence(&tiles, &elements) == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(0, 0, 0, 0, &elements, &max_triplets, &max_elements);
           break;
         case 1:
           if (generate_elements_as_sequence(&tiles, &elements) == num_elements) {
@@ -238,11 +260,14 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (elements.len + 1 /*num removed*/ == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(triplets.tile_id[0], 0, 0, 1, &elements, &max_triplets, &max_elements);
           break;
         case 2:
           if (generate_elements_as_sequence(&tiles, &elements) == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(0, 0, 0, 0, &elements, &max_triplets, &max_elements);
+
           // 刻子候補Aを1枚を抜く
           tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
           generate_elements_as_sequence(&tiles, &elements);
@@ -250,6 +275,8 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (elements.len + 1 /*num removed*/ == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(triplets.tile_id[0], 0, 0, 1, &elements, &max_triplets, &max_elements);
+
           // 刻子候補Bを1枚を抜く
           tiles.tiles[triplets.tile_id[1]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
           generate_elements_as_sequence(&tiles, &elements);
@@ -257,6 +284,8 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (elements.len + 1 /*num removed*/ == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(triplets.tile_id[1], 0, 0, 1, &elements, &max_triplets, &max_elements);
+
           // 刻子候補A,Bを抜く
           tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
           tiles.tiles[triplets.tile_id[1]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
@@ -267,11 +296,13 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (elements.len + 2 /*num removed*/ == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(triplets.tile_id[0], triplets.tile_id[1], 0, 2, &elements, &max_triplets, &max_elements);
           break;
         case 3:
           if (generate_elements_as_sequence(&tiles, &elements) == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(0, 0, 0, 0, &elements, &max_triplets, &max_elements);
           // 刻子候補Aを1枚を抜く
           tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
           generate_elements_as_sequence(&tiles, &elements);
@@ -279,6 +310,8 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (elements.len + 1 /*num removed*/ == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(triplets.tile_id[0], 0, 0, 1, &elements, &max_triplets, &max_elements);
+
           // 刻子候補Bを1枚を抜く
           tiles.tiles[triplets.tile_id[1]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
           generate_elements_as_sequence(&tiles, &elements);
@@ -286,6 +319,8 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (elements.len + 1 /*num removed*/ == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(triplets.tile_id[1], 0, 0, 1, &elements, &max_triplets, &max_elements);
+
           // 刻子候補Cを1枚を抜く
           tiles.tiles[triplets.tile_id[2]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
           generate_elements_as_sequence(&tiles, &elements);
@@ -293,6 +328,8 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (elements.len + 1 /*num removed*/ == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(triplets.tile_id[2], 0, 0, 1, &elements, &max_triplets, &max_elements);
+
           // 刻子候補A,B,Cを抜く
           tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
           tiles.tiles[triplets.tile_id[1]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
@@ -304,23 +341,25 @@ int32_t mj_calc_shanten(const MJHands *hands) {
           if (elements.len + 3 /*num removed*/ == num_elements) {
             return 0;  // テンパイ
           }
+          save_max(triplets.tile_id[0], triplets.tile_id[1], triplets.tile_id[2], 3, &elements, &max_triplets,
+                   &max_elements);
           break;
       }
       break;
   }
 
+  fprintf(stderr, "max_triplets: %d, max_elements: %d\n", max_triplets.len, max_elements.len);
+
   // 刻子を抜く
-  for (uint32_t i = 0; i < triplets.len; i++) {
-    tiles.tiles[triplets.tile_id[i]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+  for (uint32_t i = 0; i < max_triplets.len; i++) {
+    tiles.tiles[max_triplets.tile_id[i]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
   }
 
   // 順子を抜く
-  Elements sequences;
-  generate_elements_as_sequence(&tiles, &sequences);
-  for (uint32_t i = 0; i < sequences.len; i++) {
-    tiles.tiles[sequences.meld[i].tile_id[0]]--;
-    tiles.tiles[sequences.meld[i].tile_id[1]]--;
-    tiles.tiles[sequences.meld[i].tile_id[2]]--;
+  for (uint32_t i = 0; i < max_elements.len; i++) {
+    tiles.tiles[max_elements.meld[i].tile_id[0]]--;
+    tiles.tiles[max_elements.meld[i].tile_id[1]]--;
+    tiles.tiles[max_elements.meld[i].tile_id[2]]--;
   }
 
   // 対子を抜く
@@ -338,8 +377,10 @@ int32_t mj_calc_shanten(const MJHands *hands) {
     tiles.tiles[partial_sequences.meld[i].tile_id[1]]--;
   }
 
-  fprintf(stderr, "triplets: %d, sequences: %d, pairs: %d, partial_sequences: %d\n", triplets.len, sequences.len,
+  fprintf(stderr, "triplets: %d, sequences: %d, pairs: %d, partial_sequences: %d\n", max_triplets.len, max_elements.len,
           pairs.len, partial_sequences.len);
-  int32_t shanten = (int32_t)base - (int32_t)(triplets.len * 2 + sequences.len * 2 + pairs.len + partial_sequences.len);
+  int32_t shanten =
+      (int32_t)base - (int32_t)(max_triplets.len * 2 + max_elements.len * 2 + pairs.len + partial_sequences.len);
+  fprintf(stderr, "shanten: %d, base: %d\n", shanten, base);
   return shanten;
 }
