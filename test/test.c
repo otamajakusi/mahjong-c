@@ -12,6 +12,7 @@ bool test() {
   test_score();
   test_agari();
   test_mahjong();
+  test_shanten();
   return true;
 }
 

@@ -69,32 +69,32 @@ extern "C" {
 
 typedef enum {
   MJ_M1 = 0,
-  MJ_M2,
-  MJ_M3,
-  MJ_M4,
-  MJ_M5,
-  MJ_M6,
-  MJ_M7,
-  MJ_M8,
-  MJ_M9,
-  MJ_P1,
-  MJ_P2,
-  MJ_P3,
-  MJ_P4,
-  MJ_P5,
-  MJ_P6,
-  MJ_P7,
-  MJ_P8,
-  MJ_P9,
-  MJ_S1,
-  MJ_S2,
-  MJ_S3,
-  MJ_S4,
-  MJ_S5,
-  MJ_S6,
-  MJ_S7,
-  MJ_S8,
-  MJ_S9,
+  MJ_M2, // 1
+  MJ_M3, // 2
+  MJ_M4, // 3
+  MJ_M5, // 4
+  MJ_M6, // 5
+  MJ_M7, // 6
+  MJ_M8, // 7
+  MJ_M9, // 8
+  MJ_P1, // 9
+  MJ_P2, // 10
+  MJ_P3, // 11
+  MJ_P4, // 12
+  MJ_P5, // 13
+  MJ_P6, // 14
+  MJ_P7, // 15
+  MJ_P8, // 16
+  MJ_P9, // 17
+  MJ_S1, // 18
+  MJ_S2, // 19
+  MJ_S3, // 20
+  MJ_S4, // 21
+  MJ_S5, // 22
+  MJ_S6, // 23
+  MJ_S7, // 24
+  MJ_S8, // 25
+  MJ_S9, // 26
   MJ_WT,  // wind ton
   MJ_WN,  // wind nan
   MJ_WS,  // wind sha
