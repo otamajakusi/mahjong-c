@@ -144,10 +144,10 @@ int32_t mj_get_score(MJBaseScore *score, const MJHands *hands, const MJMelds *me
 
 /*
  * return
- *   MJ_OK: success
+ *   shanten number
  * params
  *   [in]
- *     tiles: tiles
+ *     tiles: all tiles
  */
 int32_t mj_calc_shanten(const MJHands *hands);
 #if defined(__cplusplus)

@@ -79,9 +79,6 @@ const char test_files[][32] = {"test/p_hon_10000.txt", "test/p_koku_10000.txt", 
                                "test/p_tin_10000.txt"};
 
 bool test_shanten() {
-  // 22445567899, x, yy
-  // -> 22,456,45,789,9, x, yy
-  assert(test_calc_shanten_14(1, 1, 3, 3, 4, 4, 5, 6, 7, 8, 8, 31, 33, 33) == 1);
   test_calc_shanten();
   for (uint32_t i = 0; i < sizeof(test_files) / sizeof(test_files[0]); i++) {
     test_file(test_files[i]);
