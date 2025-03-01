@@ -98,13 +98,7 @@
  * 参考: https://www.engineer-log.com/entry/2018/06/14/mahjong-algorithm
  */
 
-/* save triplets tile id to tile_id[n]. e.g. if there is two triplets, 2 should be set for len */
-typedef struct {
-  MJTileId tile_id[MJ_ELEMENTS_LEN];
-  uint32_t len;
-} _Triplets;
-
-static void gen_triplets_candidates(_Triplets *triplets, const Tiles *tiles) {
+void gen_triplets_candidates(_Triplets *triplets, const Tiles *tiles) {
   memset(triplets, 0, sizeof(_Triplets));
   for (uint32_t i = 0; i <= MJ_DR; i++) {
     uint8_t tile_num = tiles->tiles[i];

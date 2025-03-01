@@ -1,18 +1,18 @@
 /*
  *  MIT License
- *  
+ *
  *  Copyright (c) 2023 otamajakusi
- *  
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is
  *  furnished to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -112,10 +112,6 @@ static bool score_elements(const Elements *concealed, const Elements *melded, MJ
 
 int32_t mj_get_score(MJBaseScore *score, const MJHands *hands, const MJMelds *melds, MJTileId win_tile, bool ron,
                      MJTileId player_wind, MJTileId round_wind) {
-  (void)score;
-  (void)ron;
-  (void)player_wind;
-  (void)round_wind;
   if (hands->len > MJ_MAX_HAND_LEN) {
     return MJ_ERR_NUM_TILES_LARGE;
   }
@@ -126,6 +122,9 @@ int32_t mj_get_score(MJBaseScore *score, const MJHands *hands, const MJMelds *me
     return MJ_ERR_ILLEGAL_PARAM;
   }
   if (!is_valid_melds(melds)) {
+    return MJ_ERR_ILLEGAL_PARAM;
+  }
+  if (win_tile < MJ_M1 || win_tile > MJ_DR) {
     return MJ_ERR_ILLEGAL_PARAM;
   }
 

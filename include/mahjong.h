@@ -1,18 +1,18 @@
 /*
  *  MIT License
- *  
+ *
  *  Copyright (c) 2023 otamajakusi
- *  
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is
  *  furnished to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -69,32 +69,32 @@ extern "C" {
 
 typedef enum {
   MJ_M1 = 0,
-  MJ_M2,
-  MJ_M3,
-  MJ_M4,
-  MJ_M5,
-  MJ_M6,
-  MJ_M7,
-  MJ_M8,
-  MJ_M9,
-  MJ_P1,
-  MJ_P2,
-  MJ_P3,
-  MJ_P4,
-  MJ_P5,
-  MJ_P6,
-  MJ_P7,
-  MJ_P8,
-  MJ_P9,
-  MJ_S1,
-  MJ_S2,
-  MJ_S3,
-  MJ_S4,
-  MJ_S5,
-  MJ_S6,
-  MJ_S7,
-  MJ_S8,
-  MJ_S9,
+  MJ_M2, // 1
+  MJ_M3, // 2
+  MJ_M4, // 3
+  MJ_M5, // 4
+  MJ_M6, // 5
+  MJ_M7, // 6
+  MJ_M8, // 7
+  MJ_M9, // 8
+  MJ_P1, // 9
+  MJ_P2, // 10
+  MJ_P3, // 11
+  MJ_P4, // 12
+  MJ_P5, // 13
+  MJ_P6, // 14
+  MJ_P7, // 15
+  MJ_P8, // 16
+  MJ_P9, // 17
+  MJ_S1, // 18
+  MJ_S2, // 19
+  MJ_S3, // 20
+  MJ_S4, // 21
+  MJ_S5, // 22
+  MJ_S6, // 23
+  MJ_S7, // 24
+  MJ_S8, // 25
+  MJ_S9, // 26
   MJ_WT,  // wind ton
   MJ_WN,  // wind nan
   MJ_WS,  // wind sha
@@ -141,6 +141,15 @@ typedef struct {
  */
 int32_t mj_get_score(MJBaseScore *score, const MJHands *hands, const MJMelds *melds, MJTileId win_tile, bool ron,
                      MJTileId player_wind, MJTileId round_wind);
+
+/*
+ * return
+ *   shanten number
+ * params
+ *   [in]
+ *     tiles: all tiles
+ */
+int32_t mj_calc_shanten(const MJHands *hands);
 #if defined(__cplusplus)
 }
 #endif  // defined(__cplusplus)

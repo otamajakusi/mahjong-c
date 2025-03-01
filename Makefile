@@ -1,5 +1,5 @@
-SRCS = src/tile.c src/hand.c src/meld.c src/element.c src/agari.c src/score.c src/yaku.c src/fu.c src/mahjong.c src/util.c
-TEST_SRCS = test/test.c test/test_tile.c test/test_meld.c test/test_hand.c test/test_element.c test/test_agari.c test/test_score.c test/test_mahjong.c
+SRCS = src/tile.c src/hand.c src/meld.c src/element.c src/agari.c src/score.c src/yaku.c src/fu.c src/mahjong.c src/util.c src/shanten.c
+TEST_SRCS = test/test.c test/test_tile.c test/test_meld.c test/test_hand.c test/test_element.c test/test_agari.c test/test_score.c test/test_mahjong.c test/test_shanten.c
 EXAMPLE_SRCS = example/example.c
 TARGET = libmahjong.so
 TEST_TARGET = test.elf
