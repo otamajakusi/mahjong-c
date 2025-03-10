@@ -33,6 +33,14 @@
 
 #define ENABLE_DEBUG (0)
 
+#define DEBUG_DEPTH(depth)                                \
+  do {                                                    \
+    fprintf(stderr, "%d", depth);                         \
+    for (int __depth = 0; __depth < (depth); __depth++) { \
+      fprintf(stderr, " ");                               \
+    }                                                     \
+  } while (0)
+
 typedef struct {
   int32_t shanten;
   int32_t shanten_limit;
@@ -54,9 +62,7 @@ static bool dig_partial(ShantenCtx *ctx, int depth) {
     }
     if (ctx->tiles.tiles[i] >= MJ_PAIR_LEN) {
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
-      for (int s = 0; s < depth; s++) {
-        fprintf(stderr, " ");
-      }
+      DEBUG_DEPTH(depth);
       fprintf(stderr, "%s(%d):%s(%d)\n", __func__, __LINE__, tile_id_str(i), ctx->tiles.tiles[i]);
 #endif
       ctx->tiles.tiles[i] -= MJ_PAIR_LEN;
@@ -72,9 +78,7 @@ static bool dig_partial(ShantenCtx *ctx, int depth) {
     if (tile_number != TILE_NUM_INVALID) {  // 数牌
       if (tile_number <= TILE_NUM_8 && ctx->tiles.tiles[i] && ctx->tiles.tiles[i + 1]) {
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
-        for (int s = 0; s < depth; s++) {
-          fprintf(stderr, " ");
-        }
+        DEBUG_DEPTH(depth);
         fprintf(stderr, "%s(%d):%s(%d), %s(%d)\n", __func__, __LINE__, tile_id_str(i), ctx->tiles.tiles[i],
                 tile_id_str(i + 1), ctx->tiles.tiles[i + 1]);
 #endif
@@ -91,9 +95,7 @@ static bool dig_partial(ShantenCtx *ctx, int depth) {
       }
       if (tile_number <= TILE_NUM_7 && ctx->tiles.tiles[i] && ctx->tiles.tiles[i + 2]) {
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
-        for (int s = 0; s < depth; s++) {
-          fprintf(stderr, " ");
-        }
+        DEBUG_DEPTH(depth);
         fprintf(stderr, "%s(%d):%s(%d), %s(%d)\n", __func__, __LINE__, tile_id_str(i), ctx->tiles.tiles[i],
                 tile_id_str(i + 2), ctx->tiles.tiles[i + 2]);
 #endif
@@ -127,23 +129,17 @@ static bool dig_partial(ShantenCtx *ctx, int depth) {
 static bool dig_element(ShantenCtx *ctx, int depth) {
   ctx->stat_dig_element++;
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 2)
-  for (int s = 0; s < depth; s++) {
-    fprintf(stderr, " ");
-  }
+  DEBUG_DEPTH(depth);
   fprintf(stderr, "%s(%d):depth %d\n", __func__, __LINE__, depth);
 #endif
   for (int32_t i = MJ_M1; i <= MJ_DR; i++) {
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 2)
-    for (int s = 0; s < depth; s++) {
-      fprintf(stderr, " ");
-    }
+    DEBUG_DEPTH(depth);
     fprintf(stderr, "%s(%d):i %s\n", __func__, __LINE__, tile_id_str(i));
 #endif
     if (ctx->tiles.tiles[i] >= MJ_MIN_TILES_LEN_IN_ELEMENT) {
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
-      for (int s = 0; s < depth; s++) {
-        fprintf(stderr, " ");
-      }
+      DEBUG_DEPTH(depth);
       fprintf(stderr, "%s(%d):%s(%d)\n", __func__, __LINE__, tile_id_str(i), ctx->tiles.tiles[i]);
 #endif
       ctx->tiles.tiles[i] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
@@ -159,9 +155,7 @@ static bool dig_element(ShantenCtx *ctx, int depth) {
     if (tile_number != TILE_NUM_INVALID &&  // 数牌
         tile_number <= TILE_NUM_7 && ctx->tiles.tiles[i] && ctx->tiles.tiles[i + 1] && ctx->tiles.tiles[i + 2]) {
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
-      for (int s = 0; s < depth; s++) {
-        fprintf(stderr, " ");
-      }
+      DEBUG_DEPTH(depth);
       fprintf(stderr, "%s(%d):%s(%d), %s(%d), %s(%d)\n", __func__, __LINE__, tile_id_str(i), ctx->tiles.tiles[i],
               tile_id_str(i + 1), ctx->tiles.tiles[i + 1], tile_id_str(i + 2), ctx->tiles.tiles[i + 2]);
 #endif
@@ -180,6 +174,202 @@ static bool dig_element(ShantenCtx *ctx, int depth) {
     }
   }
   return dig_partial(ctx, depth + 1);
+}
+
+static bool dig_sequence(ShantenCtx *ctx, int depth) {
+  ctx->stat_dig_element++;
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 2)
+  DEBUG_DEPTH(depth);
+  fprintf(stderr, "%s(%d):depth %d\n", __func__, __LINE__, depth);
+#endif
+  for (int32_t i = MJ_M1; i <= MJ_DR; i++) {
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 2)
+    DEBUG_DEPTH(depth);
+    fprintf(stderr, "%s(%d):i %s\n", __func__, __LINE__, tile_id_str(i));
+#endif
+    uint32_t tile_number = get_tile_number(i);
+    if (tile_number != TILE_NUM_INVALID &&  // 数牌
+        tile_number <= TILE_NUM_7 && ctx->tiles.tiles[i] && ctx->tiles.tiles[i + 1] && ctx->tiles.tiles[i + 2]) {
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+      DEBUG_DEPTH(depth);
+      fprintf(stderr, "%s(%d):%s(%d), %s(%d), %s(%d)\n", __func__, __LINE__, tile_id_str(i), ctx->tiles.tiles[i],
+              tile_id_str(i + 1), ctx->tiles.tiles[i + 1], tile_id_str(i + 2), ctx->tiles.tiles[i + 2]);
+#endif
+      ctx->tiles.tiles[i]--;
+      ctx->tiles.tiles[i + 1]--;
+      ctx->tiles.tiles[i + 2]--;
+      ctx->elem_len++;
+      bool limit = dig_sequence(ctx, depth + 1);
+      ctx->elem_len--;
+      ctx->tiles.tiles[i + 2]++;
+      ctx->tiles.tiles[i + 1]++;
+      ctx->tiles.tiles[i]++;
+      if (limit) {
+        return true;
+      }
+    }
+  }
+  return dig_partial(ctx, depth + 1);
+}
+
+static bool dig_triplet(ShantenCtx *ctx, int depth) {
+  _Triplets triplets;
+  gen_triplets_candidates(&triplets, &ctx->tiles);
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+  DEBUG_DEPTH(depth);
+  fprintf(stderr, "%s(%d):triplets.len %d\n", __func__, __LINE__, triplets.len);
+#endif
+  bool limit = false;
+  limit = dig_sequence(ctx, depth + 1);
+  if (limit) {
+    return true;
+  }
+  switch (triplets.len) {
+    case 1:
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+      DEBUG_DEPTH(depth);
+      fprintf(stderr, "%s(%d):%s(%d)\n", __func__, __LINE__, tile_id_str(triplets.tile_id[0]),
+              ctx->tiles.tiles[triplets.tile_id[0]]);
+#endif
+      ctx->tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->elem_len++;
+      limit = dig_sequence(ctx, depth + 1);
+      ctx->elem_len--;
+      ctx->tiles.tiles[triplets.tile_id[0]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      if (limit) {
+        return true;
+      }
+      break;
+    case 2:
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+      DEBUG_DEPTH(depth);
+      fprintf(stderr, "%s(%d):%s(%d)\n", __func__, __LINE__, tile_id_str(triplets.tile_id[0]),
+              ctx->tiles.tiles[triplets.tile_id[0]]);
+#endif
+      ctx->tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->elem_len++;
+      limit = dig_sequence(ctx, depth + 1);
+      ctx->elem_len--;
+      ctx->tiles.tiles[triplets.tile_id[0]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      if (limit) {
+        return true;
+      }
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+      DEBUG_DEPTH(depth);
+      fprintf(stderr, "%s(%d):%s(%d)\n", __func__, __LINE__, tile_id_str(triplets.tile_id[1]),
+              ctx->tiles.tiles[triplets.tile_id[1]]);
+#endif
+      ctx->tiles.tiles[triplets.tile_id[1]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->elem_len++;
+      limit = dig_sequence(ctx, depth + 1);
+      ctx->elem_len--;
+      ctx->tiles.tiles[triplets.tile_id[1]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      if (limit) {
+        return true;
+      }
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+      DEBUG_DEPTH(depth);
+      fprintf(stderr, "%s(%d):%s(%d),%s(%d)\n", __func__, __LINE__, tile_id_str(triplets.tile_id[0]),
+              ctx->tiles.tiles[triplets.tile_id[0]], tile_id_str(triplets.tile_id[1]),
+              ctx->tiles.tiles[triplets.tile_id[1]]);
+#endif
+      ctx->tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[1]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->elem_len += 2;
+      limit = dig_sequence(ctx, depth + 1);
+      ctx->elem_len -= 2;
+      ctx->tiles.tiles[triplets.tile_id[1]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[0]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      if (limit) {
+        return true;
+      }
+      break;
+    case 3:
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+      DEBUG_DEPTH(depth);
+      fprintf(stderr, "%s(%d):%s(%d)\n", __func__, __LINE__, tile_id_str(triplets.tile_id[0]),
+              ctx->tiles.tiles[triplets.tile_id[0]]);
+#endif
+      ctx->tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->elem_len++;
+      limit = dig_sequence(ctx, depth + 1);
+      ctx->elem_len--;
+      ctx->tiles.tiles[triplets.tile_id[0]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      if (limit) {
+        return true;
+      }
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+      DEBUG_DEPTH(depth);
+      fprintf(stderr, "%s(%d):%s(%d)\n", __func__, __LINE__, tile_id_str(triplets.tile_id[1]),
+              ctx->tiles.tiles[triplets.tile_id[1]]);
+#endif
+      ctx->tiles.tiles[triplets.tile_id[1]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->elem_len++;
+      limit = dig_sequence(ctx, depth + 1);
+      ctx->elem_len--;
+      ctx->tiles.tiles[triplets.tile_id[1]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      if (limit) {
+        return true;
+      }
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+      DEBUG_DEPTH(depth);
+      fprintf(stderr, "%s(%d):%s(%d)\n", __func__, __LINE__, tile_id_str(triplets.tile_id[2]),
+              ctx->tiles.tiles[triplets.tile_id[2]]);
+#endif
+      ctx->tiles.tiles[triplets.tile_id[2]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->elem_len++;
+      limit = dig_sequence(ctx, depth + 1);
+      ctx->elem_len--;
+      ctx->tiles.tiles[triplets.tile_id[2]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      if (limit) {
+        return true;
+      }
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+      DEBUG_DEPTH(depth);
+      fprintf(stderr, "%s(%d):%s(%d),%s(%d),%s(%d)\n", __func__, __LINE__, tile_id_str(triplets.tile_id[0]),
+              ctx->tiles.tiles[triplets.tile_id[0]], tile_id_str(triplets.tile_id[1]),
+              ctx->tiles.tiles[triplets.tile_id[1]], tile_id_str(triplets.tile_id[2]),
+              ctx->tiles.tiles[triplets.tile_id[2]]);
+#endif
+      ctx->tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[1]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[2]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->elem_len += 3;
+      limit = dig_sequence(ctx, depth + 1);
+      ctx->elem_len -= 3;
+      ctx->tiles.tiles[triplets.tile_id[2]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[1]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[0]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      if (limit) {
+        return true;
+      }
+      break;
+    case 4:
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+      DEBUG_DEPTH(depth);
+      fprintf(stderr, "%s(%d):%s(%d),%s(%d),%s(%d),%s(%d)\n", __func__, __LINE__, tile_id_str(triplets.tile_id[0]),
+              ctx->tiles.tiles[triplets.tile_id[0]], tile_id_str(triplets.tile_id[1]),
+              ctx->tiles.tiles[triplets.tile_id[1]], tile_id_str(triplets.tile_id[2]),
+              ctx->tiles.tiles[triplets.tile_id[2]], tile_id_str(triplets.tile_id[3]),
+              ctx->tiles.tiles[triplets.tile_id[3]]);
+#endif
+      ctx->tiles.tiles[triplets.tile_id[0]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[1]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[2]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[3]] -= MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->elem_len += 4;
+      limit = dig_sequence(ctx, depth + 1);
+      ctx->elem_len -= 4;
+      ctx->tiles.tiles[triplets.tile_id[3]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[2]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[1]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      ctx->tiles.tiles[triplets.tile_id[0]] += MJ_MIN_TILES_LEN_IN_ELEMENT;
+      if (limit) {
+        return true;
+      }
+      break;
+  }
+  return false;
 }
 
 static void dig(ShantenCtx *ctx) {
@@ -210,7 +400,11 @@ static void dig(ShantenCtx *ctx) {
   dig_element(ctx, 0);
 }
 
-int32_t mj_calc_shanten(const MJHands *hands) {
+/*
+ */
+int32_t mj_calc_shanten(const MJHands *hands, MJShanten *shanten) {
+  (void)dig_triplet;
+  (void)dig_sequence;
   ShantenCtx ctx;
   memset(&ctx, 0, sizeof(ctx));
   if (!gen_tiles_from_hands(&ctx.tiles, hands)) {
@@ -233,5 +427,6 @@ int32_t mj_calc_shanten(const MJHands *hands) {
   fprintf(stderr, "stat dig %d, stat dig element %d, stat dig partial %d\n", ctx.stat_dig, ctx.stat_dig_element,
           ctx.stat_dig_partial);
 #endif
-  return (int32_t)((ctx.total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2) - ctx.shanten);
+  shanten->normal = (int32_t)(ctx.total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2 - ctx.shanten);
+  return MJ_OK;
 }
