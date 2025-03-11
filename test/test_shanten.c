@@ -69,11 +69,14 @@ void test_file(const char *file) {
     MJShanten shanten;
     int ret = mj_calc_shanten(&hands, &shanten);
     assert(ret == MJ_OK);
-    if (shanten.normal != shanten_normal) {
+    if (shanten.normal != shanten_normal || shanten.kokushi != shanten_kokushi ||
+        shanten.chiitoitsu != shanten_chitoi) {
       fprintf(stderr, "%s", line);
-      fprintf(stderr, "shanten %d %d %d %d\n", shanten.normal, shanten_normal, shanten_kokushi, shanten_chitoi);
+      fprintf(stderr, "shanten %d %d %d %d %d %d\n", shanten.normal, shanten.kokushi, shanten.chiitoitsu,
+              shanten_normal, shanten_kokushi, shanten_chitoi);
     }
-    assert(shanten.normal == shanten_normal);
+    assert(shanten.normal == shanten_normal && shanten.kokushi == shanten_kokushi &&
+           shanten.chiitoitsu == shanten_chitoi);
 #if SHOW_PROGRESS
     fprintf(stderr, "%d\r", c);
 #endif

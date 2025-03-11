@@ -43,6 +43,8 @@
 
 typedef struct {
   int32_t shanten;
+  int32_t shanten_chiitoitsu;
+  int32_t shanten_kokushi;
   int32_t shanten_limit;
   Tiles tiles;
   int32_t total_len;
@@ -400,6 +402,49 @@ static void dig(ShantenCtx *ctx) {
   dig_element(ctx, 0);
 }
 
+static void calc_shanten_kokushi(ShantenCtx *ctx) {
+  int shanten = 0;
+  int pair = 0;
+  // 6
+  for (uint32_t i = MJ_M1; i <= MJ_S9; i++) {
+    uint32_t tile_number = get_tile_number(i);
+    if (ctx->tiles.tiles[i] && (tile_number == TILE_NUM_1 || tile_number == TILE_NUM_9)) {
+      shanten++;
+      if (ctx->tiles.tiles[i] >= MJ_PAIR_LEN && pair == 0) {
+        pair = 1;
+      }
+    }
+  }
+  // 7
+  for (uint32_t i = MJ_WT; i <= MJ_DR; i++) {
+    if (ctx->tiles.tiles[i]) {
+      shanten++;
+      if (ctx->tiles.tiles[i] >= MJ_PAIR_LEN && pair == 0) {
+        pair = 1;
+      }
+    }
+  }
+  ctx->shanten_kokushi = 13 - (shanten + pair);
+}
+
+static void calc_shanten_chiitoitsu(ShantenCtx *ctx) {
+  int shanten = 0;
+  int kind = 0;
+  for (uint32_t i = MJ_M1; i <= MJ_DR; i++) {
+    if (ctx->tiles.tiles[i]) {
+      kind++;
+      if (ctx->tiles.tiles[i] >= MJ_PAIR_LEN) {
+        shanten++;
+      }
+    }
+  }
+  // 11 22 33 44 55 55 7 => 1 -> 4枚組は7が入って5を捨てても1シャンテンにならない
+  ctx->shanten_chiitoitsu = 6 - shanten;
+  if (kind < 7) {
+    ctx->shanten_chiitoitsu += 7 - kind;
+  }
+}
+
 /*
  */
 int32_t mj_calc_shanten(const MJHands *hands, MJShanten *shanten) {
@@ -416,6 +461,13 @@ int32_t mj_calc_shanten(const MJHands *hands, MJShanten *shanten) {
     ctx.shanten_limit = 9;  // 和了
   } else {
     ctx.shanten_limit = ctx.total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2;
+  }
+
+  if (ctx.total_len >= MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + 1) {
+    calc_shanten_kokushi(&ctx);
+    shanten->kokushi = ctx.shanten_kokushi;
+    calc_shanten_chiitoitsu(&ctx);
+    shanten->chiitoitsu = ctx.shanten_chiitoitsu;
   }
 
   dig(&ctx);
