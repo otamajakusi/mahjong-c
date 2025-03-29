@@ -128,6 +128,15 @@ typedef struct {
   char yaku_name[MJ_MAX_YAKU_NAME_LEN];
 } MJBaseScore;
 
+typedef struct {
+  // -1: 和了, 0: テンパイ, 1: 1向聴
+  int32_t normal;
+  int32_t chiitoitsu;
+  int32_t kokushi;
+  // 受け入れ牌
+  MJHands acceptance;
+} MJShanten;
+
 /*
  * return
  *   MJ_OK: success
@@ -144,12 +153,15 @@ int32_t mj_get_score(MJBaseScore *score, const MJHands *hands, const MJMelds *me
 
 /*
  * return
- *   shanten number
+ *   MJ_OK: success
+ *   others: error
  * params
  *   [in]
- *     tiles: all tiles
+ *     hands 手牌
+ *   [out]
+ *     shanten: calculated shanten
  */
-int32_t mj_calc_shanten(const MJHands *hands);
+int32_t mj_calc_shanten(const MJHands *hands, MJShanten *shanten);
 #if defined(__cplusplus)
 }
 #endif  // defined(__cplusplus)

@@ -13,7 +13,10 @@ int32_t test_calc_shanten_13(MJTileId t1, MJTileId t2, MJTileId t3, MJTileId t4,
       {t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13},
       3 * 4 + 1,
   };
-  return mj_calc_shanten(&hands1);
+  MJShanten shanten;
+  int ret = mj_calc_shanten(&hands1, &shanten);
+  assert(ret == MJ_OK);
+  return shanten.normal;
 }
 
 int32_t test_calc_shanten_14(MJTileId t1, MJTileId t2, MJTileId t3, MJTileId t4, MJTileId t5, MJTileId t6, MJTileId t7,
@@ -23,7 +26,10 @@ int32_t test_calc_shanten_14(MJTileId t1, MJTileId t2, MJTileId t3, MJTileId t4,
       {t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14},
       3 * 4 + 2,
   };
-  return mj_calc_shanten(&hands1);
+  MJShanten shanten;
+  int ret = mj_calc_shanten(&hands1, &shanten);
+  assert(ret == MJ_OK);
+  return shanten.normal;
 }
 
 void test_calc_shanten() {
@@ -60,12 +66,17 @@ void test_file(const char *file) {
            &hands.tile_id[12], &hands.tile_id[13], &shanten_normal, &shanten_kokushi, &shanten_chitoi);
     hands.len = 14;
 
-    int32_t shanten = mj_calc_shanten(&hands);
-    if (shanten != shanten_normal) {
+    MJShanten shanten;
+    int ret = mj_calc_shanten(&hands, &shanten);
+    assert(ret == MJ_OK);
+    if (shanten.normal != shanten_normal || shanten.kokushi != shanten_kokushi ||
+        shanten.chiitoitsu != shanten_chitoi) {
       fprintf(stderr, "%s", line);
-      fprintf(stderr, "shanten %d %d %d %d\n", shanten, shanten_normal, shanten_kokushi, shanten_chitoi);
+      fprintf(stderr, "shanten %d %d %d %d %d %d\n", shanten.normal, shanten.kokushi, shanten.chiitoitsu,
+              shanten_normal, shanten_kokushi, shanten_chitoi);
     }
-    assert(shanten == shanten_normal);
+    assert(shanten.normal == shanten_normal && shanten.kokushi == shanten_kokushi &&
+           shanten.chiitoitsu == shanten_chitoi);
 #if SHOW_PROGRESS
     fprintf(stderr, "%d\r", c);
 #endif
