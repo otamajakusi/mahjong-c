@@ -24,6 +24,8 @@
 // https://web.archive.org/web/20190402234201/http://cmj3.web.fc2.com/index.htm#syanten
 // https://mahjong.ara.black/etc/shanten/index.htm
 
+#include "shanten.h"
+
 #include <assert.h>
 #include <stdio.h>
 
@@ -40,21 +42,6 @@
       fprintf(stderr, " ");                               \
     }                                                     \
   } while (0)
-
-typedef struct {
-  int32_t shanten;
-  int32_t shanten_chiitoitsu;
-  int32_t shanten_kokushi;
-  int32_t shanten_limit;
-  Tiles tiles;
-  int32_t total_len;
-  int32_t elem_len;
-  int32_t pair_len;
-  int32_t partial_len;
-  int32_t stat_dig;
-  int32_t stat_dig_element;
-  int32_t stat_dig_partial;
-} ShantenCtx;
 
 static bool dig_partial(ShantenCtx *ctx, int depth) {
   ctx->stat_dig_partial++;
@@ -115,12 +102,12 @@ static bool dig_partial(ShantenCtx *ctx, int depth) {
     }
   }
   int32_t shanten = ctx->elem_len * 2 + ctx->pair_len + ctx->partial_len;
-  if (shanten > ctx->shanten) {
+  if (shanten > ctx->shanten_normal) {
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
     fprintf(stderr, "shanten %d (elem_len %d, partial_len %d)\n", shanten, ctx->elem_len, ctx->partial_len);
 #endif
-    ctx->shanten = shanten;
-    if (ctx->shanten >= ctx->shanten_limit) {
+    ctx->shanten_normal = shanten;
+    if (ctx->shanten_normal >= ctx->shanten_limit) {
       //fprintf(stderr, "shanten %d (elem_len %d, partial_len %d)\n", shanten, ctx->elem_len, ctx->partial_len);
       return true;
     }
@@ -402,24 +389,14 @@ static void dig(ShantenCtx *ctx) {
   dig_element(ctx, 0);
 }
 
-static void calc_shanten_kokushi(ShantenCtx *ctx) {
+void calc_shanten_kokushi(ShantenCtx *ctx) {
   int shanten = 0;
   int pair = 0;
-  // 6
-  for (uint32_t i = MJ_M1; i <= MJ_S9; i++) {
-    uint32_t tile_number = get_tile_number(i);
-    if (ctx->tiles.tiles[i] && (tile_number == TILE_NUM_1 || tile_number == TILE_NUM_9)) {
+  const uint32_t yaochu[] = {MJ_M1, MJ_M9, MJ_P1, MJ_P9, MJ_S1, MJ_S9, MJ_WT, MJ_WN, MJ_WS, MJ_WP, MJ_DW, MJ_DG, MJ_DR};
+  for (uint32_t i = 0; i < sizeof(yaochu) / sizeof(yaochu[0]); i++) {
+    if (ctx->tiles.tiles[yaochu[i]]) {
       shanten++;
-      if (ctx->tiles.tiles[i] >= MJ_PAIR_LEN && pair == 0) {
-        pair = 1;
-      }
-    }
-  }
-  // 7
-  for (uint32_t i = MJ_WT; i <= MJ_DR; i++) {
-    if (ctx->tiles.tiles[i]) {
-      shanten++;
-      if (ctx->tiles.tiles[i] >= MJ_PAIR_LEN && pair == 0) {
+      if (ctx->tiles.tiles[yaochu[i]] >= MJ_PAIR_LEN && pair == 0) {
         pair = 1;
       }
     }
@@ -427,7 +404,7 @@ static void calc_shanten_kokushi(ShantenCtx *ctx) {
   ctx->shanten_kokushi = 13 - (shanten + pair);
 }
 
-static void calc_shanten_chiitoitsu(ShantenCtx *ctx) {
+void calc_shanten_chiitoitsu(ShantenCtx *ctx) {
   int shanten = 0;
   int kind = 0;
   for (uint32_t i = MJ_M1; i <= MJ_DR; i++) {
@@ -443,6 +420,19 @@ static void calc_shanten_chiitoitsu(ShantenCtx *ctx) {
   if (kind < 7) {
     ctx->shanten_chiitoitsu += 7 - kind;
   }
+}
+
+void calc_shanten_normal(ShantenCtx *ctx) {
+  dig(ctx);
+
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+  fprintf(stderr, "shanten %d\n", (ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2) - ctx->shanten);
+#endif
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 2)
+  fprintf(stderr, "stat dig %d, stat dig element %d, stat dig partial %d\n", ctx->stat_dig, ctx->stat_dig_element,
+          ctx->stat_dig_partial);
+#endif
+  ctx->shanten_normal = (int32_t)(ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2 - ctx->shanten_normal);
 }
 
 /*
@@ -470,15 +460,8 @@ int32_t mj_calc_shanten(const MJHands *hands, MJShanten *shanten) {
     shanten->chiitoitsu = ctx.shanten_chiitoitsu;
   }
 
-  dig(&ctx);
+  calc_shanten_normal(&ctx);
+  shanten->normal = ctx.shanten_normal;
 
-#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
-  fprintf(stderr, "shanten %d\n", (ctx.total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2) - ctx.shanten);
-#endif
-#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 2)
-  fprintf(stderr, "stat dig %d, stat dig element %d, stat dig partial %d\n", ctx.stat_dig, ctx.stat_dig_element,
-          ctx.stat_dig_partial);
-#endif
-  shanten->normal = (int32_t)(ctx.total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2 - ctx.shanten);
   return MJ_OK;
 }

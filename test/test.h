@@ -7,3 +7,4 @@
 #include "test_score.h"
 #include "test_tile.h"
 #include "test_shanten.h"
+#include "test_ukeire.h"
