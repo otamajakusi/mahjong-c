@@ -34,6 +34,7 @@
 extern "C" {
 #endif  // defined(__cplusplus)
 
+int32_t init_ctx(ShantenCtx *ctx, const MJHands *hands);
 void gen_acceptable_kokushi(ShantenCtx *ctx, Tiles *acceptables);
 void gen_acceptable_chiitoitsu(ShantenCtx *ctx, Tiles *acceptables);
 void gen_acceptable_normal(ShantenCtx *ctx, Tiles *acceptables);

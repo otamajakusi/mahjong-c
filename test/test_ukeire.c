@@ -27,11 +27,7 @@ static void init(ShantenCtx *ctx, MJTileId t1, MJTileId t2, MJTileId t3, MJTileI
       {t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13},
       3 * 4 + 1,
   };
-  memset(ctx, 0, sizeof(ShantenCtx));
-  assert(gen_tiles_from_hands(&ctx->tiles, &hands) == true);
-
-  ctx->total_len = (int32_t)hands.len;
-  ctx->shanten_limit = ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2;
+  init_ctx(ctx, &hands);
 }
 
 static int run_test(void (*gen_acceptable)(ShantenCtx *, Tiles *), MJTileId t1, MJTileId t2, MJTileId t3, MJTileId t4,
@@ -101,7 +97,12 @@ static void test_chiitoitsu() {
   assert(chiitoitsu(m1, m1, m2, m2, m3, m3, m4, m4, m4, m4, dw, dw, dr, 1, dr) == 0);
 }
 
-static void test_normal() { assert(normal(m1, m1, m2, m2, m3, m3, p1, p1, p2, p2, p3, p3, dr, 1, dr) == 0); }
+static void test_normal() {
+  assert(normal(m1, m1, m2, m2, m3, m3, p1, p1, p2, p2, p3, p3, dr, 1, dr) == 0);
+  assert(normal(m1, m1, m2, m2, m3, m4, p1, p1, p2, p2, p3, p3, dr, 6, m1, m2, m3, m4, m5, dr) == 0);
+  assert(normal(m2, m2, m4, m4, m5, m5, m6, m7, m7, m8, m8, m8, m9, 8, m2, m3, m4, m5, m6, m7, m8, m9) == 0);
+  assert(normal(m1, m2, m3, m3, m3, m3, m4, wt, wt, wt, wn, wn, wn, 4, m1, m2, m4, m5) == 0);
+}
 
 bool test_ukeire() {
   test_kokushi();

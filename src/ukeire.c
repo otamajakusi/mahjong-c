@@ -1,5 +1,4 @@
-/*
- *  MIT License
+/* MIT License
  *
  *  Copyright (c) 2025 otamajakusi
  *
@@ -27,6 +26,9 @@
 #include <stdio.h>
 
 #include "mahjong.h"
+#include "tile.h"
+
+#define ENABLE_DEBUG (0)
 
 // 1. 七対子、国士無双、通常手のシャンテン数を計算
 // 2. 3つの中から最も少ないシャンテン数を選択
@@ -36,6 +38,42 @@
 // 七対子ならすでに1枚存在している牌を追加してシャン点数が減るかを確認
 // 国士無双なら19字牌を追加してシャン点数が減るかを確認
 // 通常手なら非孤立牌を追加してシャン点数が減るかを確認
+
+static void incr_tile(ShantenCtx *ctx, MJTileId tile) {
+  ctx->tiles.tiles[tile]++;
+  ctx->total_len++;
+  if (ctx->total_len >= MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN) {
+    ctx->shanten_limit = 9;  // 和了
+  } else {
+    ctx->shanten_limit = ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2;
+  }
+}
+
+static void decr_tile(ShantenCtx *ctx, MJTileId tile) {
+  ctx->tiles.tiles[tile]--;
+  ctx->total_len--;
+  if (ctx->total_len >= MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN) {
+    ctx->shanten_limit = 9;  // 和了
+  } else {
+    ctx->shanten_limit = ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2;
+  }
+}
+
+int32_t init_ctx(ShantenCtx *ctx, const MJHands *hands) {
+  memset(ctx, 0, sizeof(ShantenCtx));
+  if (!gen_tiles_from_hands(&ctx->tiles, hands)) {
+    return MJ_ERR_ILLEGAL_PARAM;
+  }
+
+  ctx->total_len = (int32_t)hands->len;
+  if (ctx->total_len >= MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN) {
+    ctx->shanten_limit = 9;  // 和了
+  } else {
+    ctx->shanten_limit = ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2;
+  }
+  return MJ_OK;
+}
+
 void gen_acceptable_kokushi(ShantenCtx *ctx, Tiles *acceptables) {
   // 現在のシャンテン数を取得
   calc_shanten_kokushi(ctx);
@@ -47,9 +85,9 @@ void gen_acceptable_kokushi(ShantenCtx *ctx, Tiles *acceptables) {
     if (ctx->tiles.tiles[yaochu[i]] >= MJ_MAX_TILES_LEN_IN_ELEMENT) {
       continue;
     }
-    ctx->tiles.tiles[yaochu[i]]++;
+    incr_tile(ctx, yaochu[i]);
     calc_shanten_kokushi(ctx);
-    ctx->tiles.tiles[yaochu[i]]--;
+    decr_tile(ctx, yaochu[i]);
     if (ctx->shanten_kokushi < current_shanten) {
       acceptables->tiles[yaochu[i]] = 1;
     }
@@ -64,9 +102,9 @@ void gen_acceptable_chiitoitsu(ShantenCtx *ctx, Tiles *acceptables) {
   memset(acceptables, 0, sizeof(Tiles));
   for (uint32_t i = MJ_M1; i <= MJ_DR; i++) {
     if (ctx->tiles.tiles[i] == 1) {  // 2枚にしないとシャン点数は減らない
-      ctx->tiles.tiles[i]++;
+      incr_tile(ctx, i);
       calc_shanten_chiitoitsu(ctx);
-      ctx->tiles.tiles[i]--;
+      decr_tile(ctx, i);
       if (ctx->shanten_chiitoitsu < current_shanten) {
         acceptables->tiles[i] = 1;
       }
@@ -77,6 +115,9 @@ void gen_acceptable_chiitoitsu(ShantenCtx *ctx, Tiles *acceptables) {
 void gen_acceptable_normal(ShantenCtx *ctx, Tiles *acceptables) {
   // 現在のシャンテン数を取得
   calc_shanten_normal(ctx);
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+  fprintf(stderr, "-----------\nshanten: %d\n-----------\n", ctx->shanten_normal);
+#endif
   int32_t current_shanten = ctx->shanten_normal;
 
   memset(acceptables, 0, sizeof(Tiles));
@@ -86,7 +127,7 @@ void gen_acceptable_normal(ShantenCtx *ctx, Tiles *acceptables) {
   memset(&candidate, 0, sizeof(Tiles));
   // 数牌
   for (uint32_t i = MJ_M1; i <= MJ_S9; i++) {
-    if (ctx->tiles.tiles[i]) {
+    if (ctx->tiles.tiles[i] && ctx->tiles.tiles[i] < MJ_MAX_TILES_LEN_IN_ELEMENT) {
       uint32_t number = get_tile_number(i);
       switch (number) {
         case TILE_NUM_1:
@@ -123,19 +164,22 @@ void gen_acceptable_normal(ShantenCtx *ctx, Tiles *acceptables) {
   }
   // 字牌
   for (uint32_t i = MJ_WT; i <= MJ_DR; i++) {
-    if (ctx->tiles.tiles[i]) {
+    if (ctx->tiles.tiles[i] && ctx->tiles.tiles[i] < MJ_MAX_TILES_LEN_IN_ELEMENT) {
       candidate.tiles[i] = 1;
     }
   }
 
   for (uint32_t i = MJ_M1; i <= MJ_DR; i++) {
-    if (candidate.tiles[i] == 0) {
+    if (candidate.tiles[i] == 0 || ctx->tiles.tiles[i] >= MJ_MAX_TILES_LEN_IN_ELEMENT) {
       continue;
     }
-    ctx->tiles.tiles[i]++;
+    incr_tile(ctx, i);
     calc_shanten_normal(ctx);
-    ctx->tiles.tiles[i]--;
-    fprintf(stderr, "i: %d, shanten: %d, current_shanten: %d\n", i, ctx->shanten_normal, current_shanten);
+    decr_tile(ctx, i);
+#if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
+    fprintf(stderr, "-----------\ni: %s, shanten: %d, current_shanten: %d\n-----------\n", tile_id_str(i),
+            ctx->shanten_normal, current_shanten);
+#endif
     if (ctx->shanten_normal < current_shanten) {
       acceptables->tiles[i] = 1;
     }
