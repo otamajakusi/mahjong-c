@@ -38,7 +38,8 @@ typedef struct {
   int32_t shanten_normal;
   int32_t shanten_chiitoitsu;
   int32_t shanten_kokushi;
-  int32_t shanten_limit;
+  int32_t shanten_normal_min;
+  int32_t shanten_normal_max;
   Tiles tiles;
   int32_t total_len;
   int32_t elem_len;

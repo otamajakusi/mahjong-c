@@ -101,15 +101,15 @@ static bool dig_partial(ShantenCtx *ctx, int depth) {
       }
     }
   }
-  int32_t shanten = ctx->elem_len * 2 + ctx->pair_len + ctx->partial_len;
-  if (shanten > ctx->shanten_normal) {
+  int32_t shanten = ctx->shanten_normal_max - (ctx->elem_len * 2 + ctx->pair_len + ctx->partial_len);
+  if (ctx->shanten_normal > shanten) {
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
     fprintf(stderr, "shanten %d (elem_len %d, partial_len %d)\n", shanten, ctx->elem_len, ctx->partial_len);
 #endif
     ctx->shanten_normal = shanten;
-    if (ctx->shanten_normal >= ctx->shanten_limit) {
+    if (ctx->shanten_normal_min >= ctx->shanten_normal) {
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
-      fprintf(stderr, "exceed limit: shanten %d, limit %d\n", ctx->shanten_normal, ctx->shanten_limit);
+      fprintf(stderr, "found min: shanten %d, limit %d\n", ctx->shanten_normal, ctx->shanten_normal_min);
 #endif
       return true;
     }
@@ -238,7 +238,6 @@ void calc_shanten_normal(ShantenCtx *ctx) {
   fprintf(stderr, "stat dig %d, stat dig element %d, stat dig partial %d\n", ctx->stat_dig, ctx->stat_dig_element,
           ctx->stat_dig_partial);
 #endif
-  ctx->shanten_normal = (int32_t)(ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2 - ctx->shanten_normal);
 }
 
 /*
@@ -251,11 +250,13 @@ int32_t mj_calc_shanten(const MJHands *hands, MJShanten *shanten) {
   }
 
   ctx.total_len = (int32_t)hands->len;
-  if (ctx.total_len >= MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN) {
-    ctx.shanten_limit = 9;  // 和了
+  if (ctx.total_len % MJ_MIN_TILES_LEN_IN_ELEMENT == 2) {
+    ctx.shanten_normal_min = -1;  // 和了
   } else {
-    ctx.shanten_limit = ctx.total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2;
+    ctx.shanten_normal_min = 0;  // テンパイ
   }
+  ctx.shanten_normal_max = ctx.total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2 /*=2点*/;
+  ctx.shanten_normal = ctx.shanten_normal_max;
 
   if (ctx.total_len >= MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + 1) {
     calc_shanten_kokushi(&ctx);
