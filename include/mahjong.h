@@ -134,7 +134,7 @@ typedef struct {
   int32_t chiitoitsu;
   int32_t kokushi;
   // 受け入れ牌
-  MJHands acceptance;
+  MJHands acceptables;
 } MJShanten;
 
 /*
