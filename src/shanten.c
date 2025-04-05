@@ -232,7 +232,7 @@ void calc_shanten_normal(ShantenCtx *ctx) {
   dig(ctx);
 
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
-  fprintf(stderr, "shanten %d\n", (ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2) - ctx->shanten_normal);
+  fprintf(stderr, "shanten %d\n", ctx->shanten_normal);
 #endif
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 2)
   fprintf(stderr, "stat dig %d, stat dig element %d, stat dig partial %d\n", ctx->stat_dig, ctx->stat_dig_element,
