@@ -39,24 +39,24 @@
 // 国士無双なら19字牌を追加してシャン点数が減るかを確認
 // 通常手なら非孤立牌を追加してシャン点数が減るかを確認
 
+static void reset_shanten_normal(ShantenCtx *ctx) {
+  if (ctx->total_len % MJ_MIN_TILES_LEN_IN_ELEMENT == 2) {
+    ctx->shanten_normal_min = -1;  // 和了
+  } else {
+    ctx->shanten_normal_min = 0;  // テンパイ
+  }
+  ctx->shanten_normal_max = ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2 /*=2点*/;
+  ctx->shanten_normal = ctx->shanten_normal_max;
+}
+
 static void incr_tile(ShantenCtx *ctx, MJTileId tile) {
   ctx->tiles.tiles[tile]++;
   ctx->total_len++;
-  if (ctx->total_len >= MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN) {
-    ctx->shanten_limit = 9;  // 和了
-  } else {
-    ctx->shanten_limit = ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2;
-  }
 }
 
 static void decr_tile(ShantenCtx *ctx, MJTileId tile) {
   ctx->tiles.tiles[tile]--;
   ctx->total_len--;
-  if (ctx->total_len >= MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN) {
-    ctx->shanten_limit = 9;  // 和了
-  } else {
-    ctx->shanten_limit = ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2;
-  }
 }
 
 int32_t init_ctx(ShantenCtx *ctx, const MJHands *hands) {
@@ -66,11 +66,7 @@ int32_t init_ctx(ShantenCtx *ctx, const MJHands *hands) {
   }
 
   ctx->total_len = (int32_t)hands->len;
-  if (ctx->total_len >= MJ_MIN_TILES_LEN_IN_ELEMENT * MJ_ELEMENTS_LEN + MJ_PAIR_LEN) {
-    ctx->shanten_limit = 9;  // 和了
-  } else {
-    ctx->shanten_limit = ctx->total_len / MJ_MIN_TILES_LEN_IN_ELEMENT * 2;
-  }
+  reset_shanten_normal(ctx);
   return MJ_OK;
 }
 
@@ -174,6 +170,7 @@ void gen_acceptable_normal(ShantenCtx *ctx, Tiles *acceptables) {
       continue;
     }
     incr_tile(ctx, i);
+    reset_shanten_normal(ctx);
     calc_shanten_normal(ctx);
     decr_tile(ctx, i);
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
