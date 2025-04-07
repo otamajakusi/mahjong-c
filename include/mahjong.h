@@ -129,13 +129,16 @@ typedef struct {
 } MJBaseScore;
 
 typedef struct {
-  // -1: 和了, 0: テンパイ, 1: 1向聴
+  // -1: 和了, 0: テンパイ, 1: 1向聴, 2: 2向聴...
   int32_t normal;
   int32_t chiitoitsu;
   int32_t kokushi;
-  // 受け入れ牌
-  MJHands acceptables;
 } MJShanten;
+
+typedef struct {
+  MJTileId tiles[MJ_DR + 1];
+} MJTiles;
+
 
 /*
  * return
@@ -162,6 +165,22 @@ int32_t mj_get_score(MJBaseScore *score, const MJHands *hands, const MJMelds *me
  *     shanten: calculated shanten
  */
 int32_t mj_calc_shanten(const MJHands *hands, MJShanten *shanten);
+
+
+/*
+ * return
+ *   MJ_OK: success
+ *   others: error
+ * params
+ *   [in]
+ *     hands 手牌
+ *   [out]
+ *     acceptables: 受け入れ牌
+ */
+int32_t mj_ukeire_kokushi(const MJHands *hands, MJTiles *acceptables);
+int32_t mj_ukeire_chiitoitsu(const MJHands *hands, MJTiles *acceptables);
+int32_t mj_ukeire_normal(const MJHands *hands, MJTiles *acceptables);
+
 #if defined(__cplusplus)
 }
 #endif  // defined(__cplusplus)

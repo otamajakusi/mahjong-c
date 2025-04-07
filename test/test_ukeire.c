@@ -6,7 +6,6 @@
 
 #include "test_util.h"
 #include "tile.h"
-#include "ukeire.h"
 
 static void dump_tiles(const Tiles *tiles) {
   bool found = false;
@@ -21,19 +20,9 @@ static void dump_tiles(const Tiles *tiles) {
   }
 }
 
-static void init(ShantenCtx *ctx, MJTileId t1, MJTileId t2, MJTileId t3, MJTileId t4, MJTileId t5, MJTileId t6,
-                 MJTileId t7, MJTileId t8, MJTileId t9, MJTileId t10, MJTileId t11, MJTileId t12, MJTileId t13) {
-  const MJHands hands = {
-      {t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13},
-      3 * 4 + 1,
-  };
-  init_ctx(ctx, &hands);
-}
-
-static int run_test(void (*gen_acceptable)(ShantenCtx *, Tiles *), MJTileId t1, MJTileId t2, MJTileId t3, MJTileId t4,
-                    MJTileId t5, MJTileId t6, MJTileId t7, MJTileId t8, MJTileId t9, MJTileId t10, MJTileId t11,
-                    MJTileId t12, MJTileId t13, int len, va_list args) {
-  (void)dump_tiles;
+static int run_test(int32_t (*fn_ukeire)(const MJHands *, MJTiles *), MJTileId t1, MJTileId t2, MJTileId t3,
+                    MJTileId t4, MJTileId t5, MJTileId t6, MJTileId t7, MJTileId t8, MJTileId t9, MJTileId t10,
+                    MJTileId t11, MJTileId t12, MJTileId t13, int len, va_list args) {
   Tiles expect;
   memset(&expect, 0, sizeof(Tiles));
   for (int i = 0; i < len; i++) {
@@ -41,10 +30,14 @@ static int run_test(void (*gen_acceptable)(ShantenCtx *, Tiles *), MJTileId t1, 
     expect.tiles[value] = 1;
   }
 
-  ShantenCtx ctx;
-  Tiles acceptables;
-  init(&ctx, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13);
-  gen_acceptable(&ctx, &acceptables);
+  const MJHands hands = {
+      {t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13},
+      3 * 4 + 1,
+  };
+  MJTiles acceptables;
+  int32_t ret = fn_ukeire(&hands, &acceptables);
+  assert(ret == MJ_OK);
+
   int n = memcmp(&acceptables, &expect, sizeof(Tiles));
   if (n != 0) {
     fprintf(stderr, "act\n");
@@ -59,7 +52,7 @@ static int kokushi(MJTileId t1, MJTileId t2, MJTileId t3, MJTileId t4, MJTileId 
                    MJTileId t8, MJTileId t9, MJTileId t10, MJTileId t11, MJTileId t12, MJTileId t13, int len, ...) {
   va_list args;
   va_start(args, len);
-  int n = run_test(gen_acceptable_kokushi, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, len, args);
+  int n = run_test(mj_ukeire_kokushi, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, len, args);
   va_end(args);
   return n;
 }
@@ -68,7 +61,7 @@ static int chiitoitsu(MJTileId t1, MJTileId t2, MJTileId t3, MJTileId t4, MJTile
                       MJTileId t8, MJTileId t9, MJTileId t10, MJTileId t11, MJTileId t12, MJTileId t13, int len, ...) {
   va_list args;
   va_start(args, len);
-  int n = run_test(gen_acceptable_chiitoitsu, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, len, args);
+  int n = run_test(mj_ukeire_chiitoitsu, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, len, args);
   va_end(args);
   return n;
 }
@@ -77,7 +70,7 @@ static int normal(MJTileId t1, MJTileId t2, MJTileId t3, MJTileId t4, MJTileId t
                   MJTileId t8, MJTileId t9, MJTileId t10, MJTileId t11, MJTileId t12, MJTileId t13, int len, ...) {
   va_list args;
   va_start(args, len);
-  int n = run_test(gen_acceptable_normal, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, len, args);
+  int n = run_test(mj_ukeire_normal, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, len, args);
   va_end(args);
   return n;
 }
