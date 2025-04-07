@@ -34,11 +34,6 @@
 // 2. 3つの中から最も少ないシャンテン数を選択
 // 3. 選択したシャンテン数を減らす牌を列挙
 
-// 現在のシャン点数を減らす牌を列挙
-// 七対子ならすでに1枚存在している牌を追加してシャン点数が減るかを確認
-// 国士無双なら19字牌を追加してシャン点数が減るかを確認
-// 通常手なら非孤立牌を追加してシャン点数が減るかを確認
-
 static void reset_shanten_normal(ShantenCtx *ctx) {
   if (ctx->total_len % MJ_MIN_TILES_LEN_IN_ELEMENT == 2) {
     ctx->shanten_normal_min = -1;  // 和了
@@ -181,4 +176,35 @@ void gen_acceptable_normal(ShantenCtx *ctx, Tiles *acceptables) {
       acceptables->tiles[i] = 1;
     }
   }
+}
+
+int32_t mj_ukeire_kokushi(const MJHands *hands, MJTiles *acceptables) {
+  ShantenCtx ctx;
+  int32_t ret = init_ctx(&ctx, hands);
+  if (ret != MJ_OK) {
+    return ret;
+  }
+  gen_acceptable_kokushi(&ctx, acceptables);
+  return MJ_OK;
+}
+
+int32_t mj_ukeire_chiitoitsu(const MJHands *hands, MJTiles *acceptables) {
+  ShantenCtx ctx;
+  int32_t ret = init_ctx(&ctx, hands);
+  if (ret != MJ_OK) {
+    return ret;
+  }
+  gen_acceptable_chiitoitsu(&ctx, acceptables);
+  return MJ_OK;
+}
+
+int32_t mj_ukeire_normal(const MJHands *hands, MJTiles *acceptables) {
+  int32_t ret;
+  ShantenCtx ctx;
+  ret = init_ctx(&ctx, hands);
+  if (ret != MJ_OK) {
+    return ret;
+  }
+  gen_acceptable_normal(&ctx, acceptables);
+  return MJ_OK;
 }

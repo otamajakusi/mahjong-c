@@ -52,9 +52,7 @@ extern "C" {
 #define TILE_NUM_9 (9u - 1)
 #define TILE_NUM_INVALID (-1u)
 
-typedef struct {
-  MJTileId tiles[MJ_DR + 1];
-} Tiles;
+typedef MJTiles Tiles;
 
 bool is_tile_id_valid(MJTileId tile_id);
 
