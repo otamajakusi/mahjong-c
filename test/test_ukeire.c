@@ -20,7 +20,7 @@ static void dump_tiles(const Tiles *tiles) {
   }
 }
 
-static int run_test(int32_t (*fn_ukeire)(const MJHands *, MJTiles *), MJTileId t1, MJTileId t2, MJTileId t3,
+static int run_test(int32_t (*fn_ukeire)(const MJHands *, MJTiles *, int32_t *), MJTileId t1, MJTileId t2, MJTileId t3,
                     MJTileId t4, MJTileId t5, MJTileId t6, MJTileId t7, MJTileId t8, MJTileId t9, MJTileId t10,
                     MJTileId t11, MJTileId t12, MJTileId t13, int len, va_list args) {
   Tiles expect;
@@ -35,7 +35,8 @@ static int run_test(int32_t (*fn_ukeire)(const MJHands *, MJTiles *), MJTileId t
       3 * 4 + 1,
   };
   MJTiles acceptables;
-  int32_t ret = fn_ukeire(&hands, &acceptables);
+  int32_t shanten = 0;
+  int32_t ret = fn_ukeire(&hands, &acceptables, &shanten);
   assert(ret == MJ_OK);
 
   int n = memcmp(&acceptables, &expect, sizeof(Tiles));
