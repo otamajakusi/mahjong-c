@@ -65,7 +65,7 @@ int32_t init_ctx(ShantenCtx *ctx, const MJHands *hands) {
   return MJ_OK;
 }
 
-void gen_acceptable_kokushi(ShantenCtx *ctx, Tiles *acceptables) {
+void gen_acceptable_kokushi(ShantenCtx *ctx, Tiles *acceptables, int32_t *shanten) {
   // 現在のシャンテン数を取得
   calc_shanten_kokushi(ctx);
   int32_t current_shanten = ctx->shanten_kokushi;
@@ -83,9 +83,10 @@ void gen_acceptable_kokushi(ShantenCtx *ctx, Tiles *acceptables) {
       acceptables->tiles[yaochu[i]] = 1;
     }
   }
+  *shanten = current_shanten;
 }
 
-void gen_acceptable_chiitoitsu(ShantenCtx *ctx, Tiles *acceptables) {
+void gen_acceptable_chiitoitsu(ShantenCtx *ctx, Tiles *acceptables, int32_t *shanten) {
   // 現在のシャンテン数を取得
   calc_shanten_chiitoitsu(ctx);
   int32_t current_shanten = ctx->shanten_chiitoitsu;
@@ -101,9 +102,10 @@ void gen_acceptable_chiitoitsu(ShantenCtx *ctx, Tiles *acceptables) {
       }
     }
   }
+  *shanten = current_shanten;
 }
 
-void gen_acceptable_normal(ShantenCtx *ctx, Tiles *acceptables) {
+void gen_acceptable_normal(ShantenCtx *ctx, Tiles *acceptables, int32_t *shanten) {
   // 現在のシャンテン数を取得
   calc_shanten_normal(ctx);
 #if defined(ENABLE_DEBUG) && (ENABLE_DEBUG >= 1)
@@ -176,35 +178,36 @@ void gen_acceptable_normal(ShantenCtx *ctx, Tiles *acceptables) {
       acceptables->tiles[i] = 1;
     }
   }
+  *shanten = current_shanten;
 }
 
-int32_t mj_ukeire_kokushi(const MJHands *hands, MJTiles *acceptables) {
+int32_t mj_ukeire_kokushi(const MJHands *hands, MJTiles *acceptables, int32_t *shanten) {
   ShantenCtx ctx;
   int32_t ret = init_ctx(&ctx, hands);
   if (ret != MJ_OK) {
     return ret;
   }
-  gen_acceptable_kokushi(&ctx, acceptables);
+  gen_acceptable_kokushi(&ctx, acceptables, shanten);
   return MJ_OK;
 }
 
-int32_t mj_ukeire_chiitoitsu(const MJHands *hands, MJTiles *acceptables) {
+int32_t mj_ukeire_chiitoitsu(const MJHands *hands, MJTiles *acceptables, int32_t *shanten) {
   ShantenCtx ctx;
   int32_t ret = init_ctx(&ctx, hands);
   if (ret != MJ_OK) {
     return ret;
   }
-  gen_acceptable_chiitoitsu(&ctx, acceptables);
+  gen_acceptable_chiitoitsu(&ctx, acceptables, shanten);
   return MJ_OK;
 }
 
-int32_t mj_ukeire_normal(const MJHands *hands, MJTiles *acceptables) {
+int32_t mj_ukeire_normal(const MJHands *hands, MJTiles *acceptables, int32_t *shanten) {
   int32_t ret;
   ShantenCtx ctx;
   ret = init_ctx(&ctx, hands);
   if (ret != MJ_OK) {
     return ret;
   }
-  gen_acceptable_normal(&ctx, acceptables);
+  gen_acceptable_normal(&ctx, acceptables, shanten);
   return MJ_OK;
 }

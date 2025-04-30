@@ -177,9 +177,9 @@ int32_t mj_calc_shanten(const MJHands *hands, MJShanten *shanten);
  *   [out]
  *     acceptables: 受け入れ牌
  */
-int32_t mj_ukeire_kokushi(const MJHands *hands, MJTiles *acceptables);
-int32_t mj_ukeire_chiitoitsu(const MJHands *hands, MJTiles *acceptables);
-int32_t mj_ukeire_normal(const MJHands *hands, MJTiles *acceptables);
+int32_t mj_ukeire_kokushi(const MJHands *hands, MJTiles *acceptables, int32_t *shanten);
+int32_t mj_ukeire_chiitoitsu(const MJHands *hands, MJTiles *acceptables, int32_t *shanten);
+int32_t mj_ukeire_normal(const MJHands *hands, MJTiles *acceptables, int32_t *shanten);
 
 #if defined(__cplusplus)
 }
