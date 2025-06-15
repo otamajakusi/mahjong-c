@@ -211,3 +211,48 @@ int32_t mj_ukeire_normal(const MJHands *hands, MJTiles *acceptables, int32_t *sh
   gen_acceptable_normal(&ctx, acceptables, shanten);
   return MJ_OK;
 }
+
+#define MIN_SHANTEN(x, y, z) (x) < (y) ? ((x) < (z) ? (x) : (z)) : ((y) < (z) ? (y) : (z))
+
+int32_t mj_ukeire(const MJHands *hands, MJTiles *acceptables, int32_t *shanten, MJUkeireType *type) {
+  MJTiles normal_acceptables;
+  int32_t normal_shanten;
+  int32_t ret;
+  ret = mj_ukeire_normal(hands, &normal_acceptables, &normal_shanten);
+  if (ret != MJ_OK) {
+    return ret;
+  }
+  if (hands->len == 14 || hands->len == 13) {
+    MJTiles chiitoitsu_acceptables;
+    int32_t chiitoitsu_shanten;
+    MJTiles kokushi_acceptables;
+    int32_t kokushi_shanten;
+    ret = mj_ukeire_chiitoitsu(hands, &chiitoitsu_acceptables, &chiitoitsu_shanten);
+    if (ret != MJ_OK) {
+      return ret;
+    }
+    ret = mj_ukeire_kokushi(hands, &kokushi_acceptables, &kokushi_shanten);
+    if (ret != MJ_OK) {
+      return ret;
+    }
+    // minimum shanten
+    int32_t min_shanten = MIN_SHANTEN(normal_shanten, chiitoitsu_shanten, kokushi_shanten);
+    for (uint32_t i = MJ_M1; i <= MJ_DR; i++) {
+      if (((normal_shanten == min_shanten) && normal_acceptables.tiles[i]) ||
+          ((chiitoitsu_shanten == min_shanten) && chiitoitsu_acceptables.tiles[i]) ||
+          ((kokushi_shanten == min_shanten) && kokushi_acceptables.tiles[i])) {
+        acceptables->tiles[i] = 1;
+      }
+      *shanten = min_shanten;
+      *type = (min_shanten == normal_shanten ? MJ_UKEIRE_TYPE_NORMAL : MJ_UKEIRE_TYPE_NONE) |
+              (min_shanten == chiitoitsu_shanten ? MJ_UKEIRE_TYPE_CHIITOITSU : MJ_UKEIRE_TYPE_NONE) |
+              (min_shanten == kokushi_shanten ? MJ_UKEIRE_TYPE_KOKUSHI : MJ_UKEIRE_TYPE_NONE);
+      return MJ_OK;
+    }
+  } else {
+    memcpy(acceptables, &normal_acceptables, sizeof(MJTiles));
+    *shanten = normal_shanten;
+    *type = MJ_UKEIRE_TYPE_NORMAL;
+  }
+  return MJ_OK;
+}

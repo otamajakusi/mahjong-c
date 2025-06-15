@@ -167,6 +167,13 @@ int32_t mj_get_score(MJBaseScore *score, const MJHands *hands, const MJMelds *me
 int32_t mj_calc_shanten(const MJHands *hands, MJShanten *shanten);
 
 
+typedef enum {
+  MJ_UKEIRE_TYPE_NONE = 0x00,       // 受け入れ牌なし
+  MJ_UKEIRE_TYPE_NORMAL = 0x01,     // 通常の手牌
+  MJ_UKEIRE_TYPE_CHIITOITSU = 0x02, // 七対子
+  MJ_UKEIRE_TYPE_KOKUSHI = 0x04,    // 国士無双
+} MJUkeireType;
+
 /*
  * return
  *   MJ_OK: success
@@ -176,10 +183,13 @@ int32_t mj_calc_shanten(const MJHands *hands, MJShanten *shanten);
  *     hands 手牌
  *   [out]
  *     acceptables: 受け入れ牌
+ *     shanten: シャンテン数
+ *     type: 受け入れ牌の種類
  */
 int32_t mj_ukeire_kokushi(const MJHands *hands, MJTiles *acceptables, int32_t *shanten);
 int32_t mj_ukeire_chiitoitsu(const MJHands *hands, MJTiles *acceptables, int32_t *shanten);
 int32_t mj_ukeire_normal(const MJHands *hands, MJTiles *acceptables, int32_t *shanten);
+int32_t mj_ukeire(const MJHands *hands, MJTiles *acceptables, int32_t *shanten, MJUkeireType *type);
 
 #if defined(__cplusplus)
 }
