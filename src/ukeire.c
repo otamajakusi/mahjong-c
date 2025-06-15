@@ -242,13 +242,15 @@ int32_t mj_ukeire(const MJHands *hands, MJTiles *acceptables, int32_t *shanten, 
           ((chiitoitsu_shanten == min_shanten) && chiitoitsu_acceptables.tiles[i]) ||
           ((kokushi_shanten == min_shanten) && kokushi_acceptables.tiles[i])) {
         acceptables->tiles[i] = 1;
+      } else {
+        acceptables->tiles[i] = 0;
       }
-      *shanten = min_shanten;
-      *type = (min_shanten == normal_shanten ? MJ_UKEIRE_TYPE_NORMAL : MJ_UKEIRE_TYPE_NONE) |
-              (min_shanten == chiitoitsu_shanten ? MJ_UKEIRE_TYPE_CHIITOITSU : MJ_UKEIRE_TYPE_NONE) |
-              (min_shanten == kokushi_shanten ? MJ_UKEIRE_TYPE_KOKUSHI : MJ_UKEIRE_TYPE_NONE);
-      return MJ_OK;
     }
+    *shanten = min_shanten;
+    *type = (min_shanten == normal_shanten ? MJ_UKEIRE_TYPE_NORMAL : MJ_UKEIRE_TYPE_NONE) |
+            (min_shanten == chiitoitsu_shanten ? MJ_UKEIRE_TYPE_CHIITOITSU : MJ_UKEIRE_TYPE_NONE) |
+            (min_shanten == kokushi_shanten ? MJ_UKEIRE_TYPE_KOKUSHI : MJ_UKEIRE_TYPE_NONE);
+    return MJ_OK;
   } else {
     memcpy(acceptables, &normal_acceptables, sizeof(MJTiles));
     *shanten = normal_shanten;
