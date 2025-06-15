@@ -71,6 +71,12 @@ void gen_acceptable_kokushi(ShantenCtx *ctx, Tiles *acceptables, int32_t *shante
   int32_t current_shanten = ctx->shanten_kokushi;
 
   memset(acceptables, 0, sizeof(Tiles));
+  if (ctx->total_len % MJ_MIN_TILES_LEN_IN_ELEMENT != 1) {
+    // 受け入なし
+    *shanten = current_shanten;
+    return;
+  }
+
   const uint32_t yaochu[] = {MJ_M1, MJ_M9, MJ_P1, MJ_P9, MJ_S1, MJ_S9, MJ_WT, MJ_WN, MJ_WS, MJ_WP, MJ_DW, MJ_DG, MJ_DR};
   for (uint32_t i = 0; i < sizeof(yaochu) / sizeof(yaochu[0]); i++) {
     if (ctx->tiles.tiles[yaochu[i]] >= MJ_MAX_TILES_LEN_IN_ELEMENT) {
@@ -92,6 +98,12 @@ void gen_acceptable_chiitoitsu(ShantenCtx *ctx, Tiles *acceptables, int32_t *sha
   int32_t current_shanten = ctx->shanten_chiitoitsu;
 
   memset(acceptables, 0, sizeof(Tiles));
+  if (ctx->total_len % MJ_MIN_TILES_LEN_IN_ELEMENT != 1) {
+    // 受け入なし
+    *shanten = current_shanten;
+    return;
+  }
+
   for (uint32_t i = MJ_M1; i <= MJ_DR; i++) {
     if (ctx->tiles.tiles[i] == 1) {  // 2枚にしないとシャン点数は減らない
       incr_tile(ctx, i);
@@ -114,6 +126,11 @@ void gen_acceptable_normal(ShantenCtx *ctx, Tiles *acceptables, int32_t *shanten
   int32_t current_shanten = ctx->shanten_normal;
 
   memset(acceptables, 0, sizeof(Tiles));
+  if (ctx->total_len % MJ_MIN_TILES_LEN_IN_ELEMENT != 1) {
+    // 受け入なし
+    *shanten = current_shanten;
+    return;
+  }
 
   // 有効牌候補を作成
   Tiles candidate;
@@ -209,5 +226,52 @@ int32_t mj_ukeire_normal(const MJHands *hands, MJTiles *acceptables, int32_t *sh
     return ret;
   }
   gen_acceptable_normal(&ctx, acceptables, shanten);
+  return MJ_OK;
+}
+
+#define MIN_SHANTEN(x, y, z) (x) < (y) ? ((x) < (z) ? (x) : (z)) : ((y) < (z) ? (y) : (z))
+
+int32_t mj_ukeire(const MJHands *hands, MJTiles *acceptables, int32_t *shanten, MJUkeireType *type) {
+  MJTiles normal_acceptables;
+  int32_t normal_shanten;
+  int32_t ret;
+  ret = mj_ukeire_normal(hands, &normal_acceptables, &normal_shanten);
+  if (ret != MJ_OK) {
+    return ret;
+  }
+  if (hands->len == 14 || hands->len == 13) {
+    MJTiles chiitoitsu_acceptables;
+    int32_t chiitoitsu_shanten;
+    MJTiles kokushi_acceptables;
+    int32_t kokushi_shanten;
+    ret = mj_ukeire_chiitoitsu(hands, &chiitoitsu_acceptables, &chiitoitsu_shanten);
+    if (ret != MJ_OK) {
+      return ret;
+    }
+    ret = mj_ukeire_kokushi(hands, &kokushi_acceptables, &kokushi_shanten);
+    if (ret != MJ_OK) {
+      return ret;
+    }
+    // minimum shanten
+    int32_t min_shanten = MIN_SHANTEN(normal_shanten, chiitoitsu_shanten, kokushi_shanten);
+    for (uint32_t i = MJ_M1; i <= MJ_DR; i++) {
+      if (((normal_shanten == min_shanten) && normal_acceptables.tiles[i]) ||
+          ((chiitoitsu_shanten == min_shanten) && chiitoitsu_acceptables.tiles[i]) ||
+          ((kokushi_shanten == min_shanten) && kokushi_acceptables.tiles[i])) {
+        acceptables->tiles[i] = 1;
+      } else {
+        acceptables->tiles[i] = 0;
+      }
+    }
+    *shanten = min_shanten;
+    *type = (min_shanten == normal_shanten ? MJ_UKEIRE_TYPE_NORMAL : MJ_UKEIRE_TYPE_NONE) |
+            (min_shanten == chiitoitsu_shanten ? MJ_UKEIRE_TYPE_CHIITOITSU : MJ_UKEIRE_TYPE_NONE) |
+            (min_shanten == kokushi_shanten ? MJ_UKEIRE_TYPE_KOKUSHI : MJ_UKEIRE_TYPE_NONE);
+    return MJ_OK;
+  } else {
+    memcpy(acceptables, &normal_acceptables, sizeof(MJTiles));
+    *shanten = normal_shanten;
+    *type = MJ_UKEIRE_TYPE_NORMAL;
+  }
   return MJ_OK;
 }
